@@ -5,7 +5,7 @@ import io.vertx.core.Vertx
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.RoutingContext
 
-class Handler(val service: Service) {
+class HttpHandler(private val service: Service) {
   fun route(vertx: Vertx): Router {
     val router = Router.router(vertx)
 
@@ -19,6 +19,6 @@ class Handler(val service: Service) {
     routingContext.response()
       .putHeader("content-type", "application/json")
       .setStatusCode(200)
-      .end("GrpcService is healthy!")
+      .end("Service is healthy!")
   }
 }

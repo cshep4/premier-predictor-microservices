@@ -10,7 +10,7 @@ _gengo:
 
 _copyjava:
 	@cp -R model/protodefs/auth.proto model/protodefs/notification.proto model/protodefs/request.proto ../src/notificationservice/protodefs
-	@cp -R model/protodefs/auth.proto model/protodefs/request.proto ../src/kauthservice/src/main/proto
+	@cp -R model/protodefs/auth.proto model/protodefs/request.proto model/protodefs/email.proto ../src/kauthservice/src/main/proto
 
 _copyts:
 	@cp -R model/protodefs/auth.proto model/protodefs/request.proto model/protodefs/fixture.proto ../src/fixtureservice/protodefs

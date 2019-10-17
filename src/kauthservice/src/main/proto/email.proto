@@ -1,0 +1,18 @@
+syntax = "proto3";
+option java_multiple_files = true;
+option java_package = "com.cshep4.premierpredictor.email";
+import "google/protobuf/empty.proto";
+package model;
+
+service EmailService {
+    rpc Send (SendEmailRequest) returns (google.protobuf.Empty) {}
+}
+
+message SendEmailRequest {
+    string sender = 1;
+    string recipient = 2;
+    string senderEmail = 3;
+    string recipientEmail = 4;
+    string subject = 5;
+    string content = 6;
+}

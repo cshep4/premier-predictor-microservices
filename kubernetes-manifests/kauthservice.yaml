@@ -23,11 +23,35 @@ spec:
               value: "3001"
             - name: HEALTH_PORT
               value: "8081"
+            - name: EMAIL_ADDR
+              value: "emailservice:3011"
             - name: JWT_SECRET
               valueFrom:
                 secretKeyRef:
                   name: pp-secrets
                   key: jwtSecret
+            - name: MONGO_SCHEME
+              valueFrom:
+                secretKeyRef:
+                  name: pp-secrets
+                  key: dbScheme
+            - name: MONGO_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: pp-secrets
+                  key: dbUser
+            - name: MONGO_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: pp-secrets
+                  key: dbPassword
+            - name: MONGO_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: pp-secrets
+                  key: dbHost
+            - name: MONGO_PORT
+              value: ""
           readinessProbe:
             httpGet:
               path: /health
