@@ -1,0 +1,8 @@
+input RegisterInput {
+    firstName: String!,
+    surname: String!,
+    email: String!,
+    password: String!,
+    confirmation: String!,
+    predictedWinner: String!
+}

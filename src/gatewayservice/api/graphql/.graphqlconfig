@@ -1,0 +1,24 @@
+{
+  "name": "Premier Predictor Microservices Gateway Service GraphQL Schema",
+  "schemaPath": "_schema.graphql",
+  "extensions": {
+    "endpoints": {
+      "Default GraphQL Endpoint": {
+        "url": " ",
+        "headers": {
+          "authorization": "DYdO-i7sGhoi0yxePB2kyF213B6kF6kjmcdqIGd1Zcc",
+          "user-agent": "JS GraphQL"
+        },
+        "introspect": true
+      },
+      "Local GraphQL Endpoint":{
+        "url": "http://localhost:8080/graphql",
+        "headers": {
+          "authorization": "DYdO-i7sGhoi0yxePB2kyF213B6kF6kjmcdqIGd1Zcc",
+          "user-agent": "JS GraphQL"
+        },
+        "introspect": true
+      }
+    }
+  }
+}

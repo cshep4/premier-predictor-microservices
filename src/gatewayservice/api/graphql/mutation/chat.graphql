@@ -1,0 +1,3 @@
+mutation sendMessage($request: SendMessageInput!) {
+    sendMessage(request: $request)
+}

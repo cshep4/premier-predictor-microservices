@@ -1,0 +1,5 @@
+query userRank($id: String!) {
+    userRank(id: $id) {
+        rank
+    }
+}
