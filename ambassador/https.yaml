@@ -1,5 +1,5 @@
 ---
-apiVersion: certmanager.k8s.io/v1alpha1
+apiVersion: cert-manager.io/v1alpha2
 kind: ClusterIssuer
 metadata:
   name: pp-prod
@@ -9,4 +9,10 @@ spec:
     server: https://acme-v02.api.letsencrypt.org/directory
     privateKeySecretRef:
       name: pp-prod
-    http01: {}
+    http01:
+      serviceType: ClusterIP
+    solvers:
+      - http01:
+          ingress:
+            class: nginx
+        selector: {}
