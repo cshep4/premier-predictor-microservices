@@ -30,8 +30,8 @@ build:
 #    context: src/emailservice
   - image: fixtureservice
     context: src/fixtureservice
-  - image: kauthservice
-    context: src/kauthservice
+#  - image: kauthservice
+#    context: src/kauthservice
   - image: livematchservice
     context: src/livematchservice
 #  - image: notificationservice

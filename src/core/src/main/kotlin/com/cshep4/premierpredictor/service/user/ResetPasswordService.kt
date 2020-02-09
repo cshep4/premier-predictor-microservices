@@ -45,11 +45,12 @@ class ResetPasswordService {
     }
 
     fun resetPassword(resetPassword: ResetPassword): String {
-        var isTokenExpired = false
-        try {
+        val isTokenExpired = try {
             Jwts.parser().setSigningKey(SECRET.toByteArray()).parseClaimsJws(resetPassword.signature).body.expiration
+
+            false
         } catch (eje: ExpiredJwtException) {
-            isTokenExpired = true
+            true
         }
 
         return when {

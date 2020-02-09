@@ -9,7 +9,7 @@ package model;
 
 service AuthService {
     rpc Login (LoginRequest) returns (LoginResponse);
-    rpc Register (RegisterRequest) returns (google.protobuf.Empty);
+    rpc Register (RegisterRequest) returns (LoginResponse);
     rpc Validate (ValidateRequest) returns (google.protobuf.Empty);
     rpc InitiatePasswordReset (EmailRequest) returns (google.protobuf.Empty);
     rpc ResetPassword (ResetPasswordRequest) returns (google.protobuf.Empty);

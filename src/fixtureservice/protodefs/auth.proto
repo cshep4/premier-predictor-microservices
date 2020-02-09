@@ -3,12 +3,39 @@ option java_multiple_files = true;
 option java_package = "com.cshep4.premierpredictor.auth";
 //option go_package = "auth";
 import "google/protobuf/empty.proto";
+import "request.proto";
+
 package model;
 
 service AuthService {
-    rpc Validate (ValidateRequest) returns (google.protobuf.Empty) {}
+    rpc Login (LoginRequest) returns (LoginResponse);
+    rpc Register (RegisterRequest) returns (LoginResponse);
+    rpc Validate (ValidateRequest) returns (google.protobuf.Empty);
+    rpc InitiatePasswordReset (EmailRequest) returns (google.protobuf.Empty);
+    rpc ResetPassword (ResetPasswordRequest) returns (google.protobuf.Empty);
+}
+
+message LoginResponse {
+    string id = 1;
+    string token = 2;
+}
+
+message RegisterRequest {
+    string firstName = 1;
+    string surname = 2;
+    string email = 3;
+    string password = 4;
+    string confirmation = 5;
+    string predictedWinner = 6;
 }
 
 message ValidateRequest {
     string token = 1;
+}
+
+message ResetPasswordRequest {
+    string email = 1;
+    string signature = 2;
+    string password = 3;
+    string confirmation = 4;
 }

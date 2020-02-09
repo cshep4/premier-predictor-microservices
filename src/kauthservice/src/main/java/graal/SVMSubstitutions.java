@@ -1,7 +1,6 @@
 package graal;
 
 import com.oracle.svm.core.annotate.*;
-import org.graalvm.nativeimage.*;
 
 /**
  * This substitution allows the usage of platform specific code to do low level

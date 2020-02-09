@@ -29,7 +29,7 @@ Premier League 18/19 predictor app, designed for users to correctly predict all 
 ## Service Architecture
 
 | Service                                              | Language      | Transport     | Connects To                      | Description                                                                                                 |
-| ---------------------------------------------------- | ------------- | ------------- | -------------                    | ----------------------------------------------------------------------------------------------------------- |
+| ---------------------------------------------------- | ------------- | ------------- | -------------------------------- | ----------------------------------------------------------------------------------------------------------- |
 | [authservice](./src/authservice)                     | Node.js (JS)  | gRPC          | *                                | Handles all the JWT token validation when authenticating requests.                                          |
 | [chatservice](./src/chatservice)                     | Go            | gRPC          | authservice, notificationservice | Provides functionality so users can chat to each other within their mini-leagues.                           |
 | [core](./src/core)                                   | Kotlin        | REST          | -                                | Original login and sign-up APIs. These will be redeveloped in a new micro-service.                          |
