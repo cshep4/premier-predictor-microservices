@@ -1,37 +1,32 @@
-package handler
+package http
 
 import (
 	"encoding/json"
-	"github.com/cshep4/premier-predictor-microservices/src/common/health"
-	common "github.com/cshep4/premier-predictor-microservices/src/common/interfaces"
-	"github.com/cshep4/premier-predictor-microservices/src/common/model"
-	"github.com/cshep4/premier-predictor-microservices/src/predictionservice/internal/interfaces"
-	"github.com/cshep4/premier-predictor-microservices/src/predictionservice/internal/repository"
+	"errors"
+	common "github.com/cshep4/premier-predictor-microservices/src/common/model"
+	"github.com/cshep4/premier-predictor-microservices/src/predictionservice/internal/handler"
+	"github.com/cshep4/premier-predictor-microservices/src/predictionservice/internal/model"
 	"github.com/gorilla/mux"
 	"io/ioutil"
 	"log"
 	"net/http"
 )
 
-type httpHandler struct {
-	service       interfaces.Service
-	authenticator common.Authenticator
+type router struct {
+	service handler.Servicer
 }
 
-func NewHttpHandler(service interfaces.Service, authenticator common.Authenticator) (*httpHandler, error) {
-	log.Print("Registered httpServer handler")
+func New(service handler.Servicer) (*router, error) {
+	if service == nil {
+		return nil, errors.New("service_is_nil")
+	}
 
-	return &httpHandler{
-		service:       service,
-		authenticator: authenticator,
+	return &router{
+		service: service,
 	}, nil
 }
 
-func (h *httpHandler) Route() http.Handler {
-	router := mux.NewRouter()
-
-	router.Use(h.authenticator.HttpMiddleware)
-
+func (h *router) Route(router *mux.Router) {
 	router.HandleFunc("/fixtures/predicted/{id}", h.getFixturesWithPredictions).
 		Methods(http.MethodGet)
 	router.HandleFunc("/predictions/{id}", h.getPredictorData).
@@ -42,14 +37,9 @@ func (h *httpHandler) Route() http.Handler {
 		Methods(http.MethodGet)
 	router.HandleFunc("/predictions/{userId}/{matchId}", h.getPrediction).
 		Methods(http.MethodGet)
-
-	router.HandleFunc("/health", health.Health).
-		Methods(http.MethodGet)
-
-	return router
 }
 
-func (h *httpHandler) getFixturesWithPredictions(w http.ResponseWriter, r *http.Request) {
+func (h *router) getFixturesWithPredictions(w http.ResponseWriter, r *http.Request) {
 	id := mux.Vars(r)["id"]
 
 	fixturePredictions, err := h.service.GetFixturesWithPredictions(id)
@@ -57,7 +47,7 @@ func (h *httpHandler) getFixturesWithPredictions(w http.ResponseWriter, r *http.
 	h.sendResponse(fixturePredictions, err, w)
 }
 
-func (h *httpHandler) getPredictorData(w http.ResponseWriter, r *http.Request) {
+func (h *router) getPredictorData(w http.ResponseWriter, r *http.Request) {
 	id := mux.Vars(r)["id"]
 
 	predictorData, err := h.service.GetPredictorData(id)
@@ -65,7 +55,7 @@ func (h *httpHandler) getPredictorData(w http.ResponseWriter, r *http.Request) {
 	h.sendResponse(predictorData, err, w)
 }
 
-func (h *httpHandler) getUsersPastPredictions(w http.ResponseWriter, r *http.Request) {
+func (h *router) getUsersPastPredictions(w http.ResponseWriter, r *http.Request) {
 	id := mux.Vars(r)["id"]
 
 	predictions, err := h.service.GetUsersPastPredictions(id)
@@ -73,8 +63,8 @@ func (h *httpHandler) getUsersPastPredictions(w http.ResponseWriter, r *http.Req
 	h.sendResponse(predictions, err, w)
 }
 
-func (h *httpHandler) updatePredictions(w http.ResponseWriter, r *http.Request) {
-	var predictions []model.Prediction
+func (h *router) updatePredictions(w http.ResponseWriter, r *http.Request) {
+	var predictions []common.Prediction
 
 	defer r.Body.Close()
 	body, err := ioutil.ReadAll(r.Body)
@@ -99,7 +89,7 @@ func (h *httpHandler) updatePredictions(w http.ResponseWriter, r *http.Request) 
 	w.WriteHeader(http.StatusOK)
 }
 
-func (h *httpHandler) getPrediction(w http.ResponseWriter, r *http.Request) {
+func (h *router) getPrediction(w http.ResponseWriter, r *http.Request) {
 	userId := mux.Vars(r)["userId"]
 	matchId := mux.Vars(r)["matchId"]
 
@@ -108,8 +98,8 @@ func (h *httpHandler) getPrediction(w http.ResponseWriter, r *http.Request) {
 	h.sendResponse(predictions, err, w)
 }
 
-func (h *httpHandler) sendResponse(data interface{}, err error, w http.ResponseWriter) {
-	if err == prediction.ErrPredictionNotFound {
+func (h *router) sendResponse(data interface{}, err error, w http.ResponseWriter) {
+	if err == model.ErrPredictionNotFound {
 		log.Println("prediction not found")
 		w.WriteHeader(http.StatusNotFound)
 		return

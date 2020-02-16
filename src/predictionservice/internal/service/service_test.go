@@ -3,9 +3,9 @@ package prediction
 import (
 	"errors"
 	common "github.com/cshep4/premier-predictor-microservices/src/common/model"
-	"github.com/cshep4/premier-predictor-microservices/src/predictionservice/internal/fixture/mocks"
+	"github.com/cshep4/premier-predictor-microservices/src/predictionservice/internal/mocks/fixture"
+	"github.com/cshep4/premier-predictor-microservices/src/predictionservice/internal/mocks/prediction"
 	"github.com/cshep4/premier-predictor-microservices/src/predictionservice/internal/model"
-	"github.com/cshep4/premier-predictor-microservices/src/predictionservice/internal/repository/mocks"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -32,10 +32,10 @@ func TestService_GetFixturesWithPredictions(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	fixtureService := fixturemocks.NewMockFixtureService(ctrl)
-	repository := predictionmocks.NewMockRepository(ctrl)
+	fixtureService := fixture_mocks.NewMockFixtureService(ctrl)
+	store := prediction_mocks.NewMockStore(ctrl)
 
-	service, err := NewService(repository, fixtureService)
+	service, err := New(store, fixtureService)
 	require.NoError(t, err)
 
 	t.Run("Gets fixtures and predictions and merges them", func(t *testing.T) {
@@ -72,7 +72,7 @@ func TestService_GetFixturesWithPredictions(t *testing.T) {
 		}
 
 		fixtureService.EXPECT().GetMatches().Return(fixtures, nil)
-		repository.EXPECT().GetPredictionsByUserId(userId).Return(predictions, nil)
+		store.EXPECT().GetPredictionsByUserId(userId).Return(predictions, nil)
 
 		result, err := service.GetFixturesWithPredictions(userId)
 
@@ -105,12 +105,12 @@ func TestService_GetFixturesWithPredictions(t *testing.T) {
 		var predictions []common.Prediction
 
 		fixtureService.EXPECT().GetMatches().Return(nil, e)
-		repository.EXPECT().GetPredictionsByUserId(userId).Return(predictions, nil)
+		store.EXPECT().GetPredictionsByUserId(userId).Return(predictions, nil)
 
 		result, err := service.GetFixturesWithPredictions(userId)
 
 		require.Error(t, err)
-		assert.Equal(t, e, err)
+		assert.Contains(t, err.Error(), e.Error())
 		assert.Nil(t, result)
 	})
 
@@ -118,12 +118,12 @@ func TestService_GetFixturesWithPredictions(t *testing.T) {
 		var fixtures []common.Fixture
 
 		fixtureService.EXPECT().GetMatches().Return(fixtures, nil)
-		repository.EXPECT().GetPredictionsByUserId(userId).Return(nil, e)
+		store.EXPECT().GetPredictionsByUserId(userId).Return(nil, e)
 
 		result, err := service.GetFixturesWithPredictions(userId)
 
 		require.Error(t, err)
-		assert.Equal(t, e, err)
+		assert.Contains(t, err.Error(), e.Error())
 		assert.Nil(t, result)
 	})
 }
@@ -132,10 +132,10 @@ func TestService_GetPredictorData(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	fixtureService := fixturemocks.NewMockFixtureService(ctrl)
-	repository := predictionmocks.NewMockRepository(ctrl)
+	fixtureService := fixture_mocks.NewMockFixtureService(ctrl)
+	store := prediction_mocks.NewMockStore(ctrl)
 
-	service, err := NewService(repository, fixtureService)
+	service, err := New(store, fixtureService)
 	require.NoError(t, err)
 
 	t.Run("Gets fixtures and predictions and merges them, then gets team forms", func(t *testing.T) {
@@ -174,7 +174,7 @@ func TestService_GetPredictorData(t *testing.T) {
 		var forms map[string]model.TeamForm
 
 		fixtureService.EXPECT().GetMatches().Return(fixtures, nil)
-		repository.EXPECT().GetPredictionsByUserId(userId).Return(predictions, nil)
+		store.EXPECT().GetPredictionsByUserId(userId).Return(predictions, nil)
 		fixtureService.EXPECT().GetTeamForm().Return(forms, nil)
 
 		result, err := service.GetPredictorData(userId)
@@ -210,13 +210,13 @@ func TestService_GetPredictorData(t *testing.T) {
 		var forms map[string]model.TeamForm
 
 		fixtureService.EXPECT().GetMatches().Return(nil, e)
-		repository.EXPECT().GetPredictionsByUserId(userId).Return(predictions, nil)
+		store.EXPECT().GetPredictionsByUserId(userId).Return(predictions, nil)
 		fixtureService.EXPECT().GetTeamForm().Return(forms, nil)
 
 		result, err := service.GetPredictorData(userId)
 
 		require.Error(t, err)
-		assert.Equal(t, e, err)
+		assert.Contains(t, err.Error(), e.Error())
 		assert.Nil(t, result)
 	})
 
@@ -225,13 +225,13 @@ func TestService_GetPredictorData(t *testing.T) {
 		var forms map[string]model.TeamForm
 
 		fixtureService.EXPECT().GetMatches().Return(fixtures, nil)
-		repository.EXPECT().GetPredictionsByUserId(userId).Return(nil, e)
+		store.EXPECT().GetPredictionsByUserId(userId).Return(nil, e)
 		fixtureService.EXPECT().GetTeamForm().Return(forms, nil)
 
 		result, err := service.GetPredictorData(userId)
 
 		require.Error(t, err)
-		assert.Equal(t, e, err)
+		assert.Contains(t, err.Error(), e.Error())
 		assert.Nil(t, result)
 	})
 
@@ -240,13 +240,13 @@ func TestService_GetPredictorData(t *testing.T) {
 		var predictions []common.Prediction
 
 		fixtureService.EXPECT().GetMatches().Return(fixtures, nil)
-		repository.EXPECT().GetPredictionsByUserId(userId).Return(predictions, nil)
+		store.EXPECT().GetPredictionsByUserId(userId).Return(predictions, nil)
 		fixtureService.EXPECT().GetTeamForm().Return(nil, e)
 
 		result, err := service.GetPredictorData(userId)
 
 		require.Error(t, err)
-		assert.Equal(t, e, err)
+		assert.Contains(t, err.Error(), e.Error())
 		assert.Nil(t, result)
 	})
 }
@@ -255,10 +255,10 @@ func TestService_GetUsersPastPredictions(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	fixtureService := fixturemocks.NewMockFixtureService(ctrl)
-	repository := predictionmocks.NewMockRepository(ctrl)
+	fixtureService := fixture_mocks.NewMockFixtureService(ctrl)
+	store := prediction_mocks.NewMockStore(ctrl)
 
-	service, err := NewService(repository, fixtureService)
+	service, err := New(store, fixtureService)
 	require.NoError(t, err)
 
 	t.Run("Gets fixtures and predictions and merges them, then strips out future games", func(t *testing.T) {
@@ -295,7 +295,7 @@ func TestService_GetUsersPastPredictions(t *testing.T) {
 		}
 
 		fixtureService.EXPECT().GetMatches().Return(fixtures, nil)
-		repository.EXPECT().GetPredictionsByUserId(userId).Return(predictions, nil)
+		store.EXPECT().GetPredictionsByUserId(userId).Return(predictions, nil)
 
 		predictionSummary, err := service.GetUsersPastPredictions(userId)
 
@@ -320,12 +320,12 @@ func TestService_GetUsersPastPredictions(t *testing.T) {
 		var predictions []common.Prediction
 
 		fixtureService.EXPECT().GetMatches().Return(nil, e)
-		repository.EXPECT().GetPredictionsByUserId(userId).Return(predictions, nil)
+		store.EXPECT().GetPredictionsByUserId(userId).Return(predictions, nil)
 
 		result, err := service.GetUsersPastPredictions(userId)
 
 		require.Error(t, err)
-		assert.Equal(t, e, err)
+		assert.Contains(t, err.Error(), e.Error())
 		assert.Nil(t, result)
 	})
 
@@ -333,12 +333,12 @@ func TestService_GetUsersPastPredictions(t *testing.T) {
 		var fixtures []common.Fixture
 
 		fixtureService.EXPECT().GetMatches().Return(fixtures, nil)
-		repository.EXPECT().GetPredictionsByUserId(userId).Return(nil, e)
+		store.EXPECT().GetPredictionsByUserId(userId).Return(nil, e)
 
 		result, err := service.GetUsersPastPredictions(userId)
 
 		require.Error(t, err)
-		assert.Equal(t, e, err)
+		assert.Contains(t, err.Error(), e.Error())
 		assert.Nil(t, result)
 	})
 }
@@ -347,16 +347,16 @@ func TestService_UpdatePredictions(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	fixtureService := fixturemocks.NewMockFixtureService(ctrl)
-	repository := predictionmocks.NewMockRepository(ctrl)
+	fixtureService := fixture_mocks.NewMockFixtureService(ctrl)
+	store := prediction_mocks.NewMockStore(ctrl)
 
-	service, err := NewService(repository, fixtureService)
+	service, err := New(store, fixtureService)
 	require.NoError(t, err)
 
 	t.Run("Stores predictions in db", func(t *testing.T) {
 		var predictions []common.Prediction
 
-		repository.EXPECT().UpdatePredictions(predictions).Return(nil)
+		store.EXPECT().UpdatePredictions(predictions).Return(nil)
 
 		err := service.UpdatePredictions(predictions)
 
@@ -366,12 +366,12 @@ func TestService_UpdatePredictions(t *testing.T) {
 	t.Run("Returns error if there is a problem", func(t *testing.T) {
 		var predictions []common.Prediction
 
-		repository.EXPECT().UpdatePredictions(predictions).Return(e)
+		store.EXPECT().UpdatePredictions(predictions).Return(e)
 
 		err := service.UpdatePredictions(predictions)
 
 		require.Error(t, err)
-		assert.Equal(t, e, err)
+		assert.Contains(t, err.Error(), e.Error())
 	})
 }
 
@@ -379,10 +379,10 @@ func TestService_GetPrediction(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	fixtureService := fixturemocks.NewMockFixtureService(ctrl)
-	repository := predictionmocks.NewMockRepository(ctrl)
+	fixtureService := fixture_mocks.NewMockFixtureService(ctrl)
+	store := prediction_mocks.NewMockStore(ctrl)
 
-	service, err := NewService(repository, fixtureService)
+	service, err := New(store, fixtureService)
 	require.NoError(t, err)
 
 	t.Run("Gets prediction from db", func(t *testing.T) {
@@ -391,7 +391,7 @@ func TestService_GetPrediction(t *testing.T) {
 			MatchId: matchId,
 		}
 
-		repository.EXPECT().GetPrediction(userId, matchId).Return(prediction, nil)
+		store.EXPECT().GetPrediction(userId, matchId).Return(prediction, nil)
 
 		result, err := service.GetPrediction(userId, matchId)
 
@@ -400,12 +400,12 @@ func TestService_GetPrediction(t *testing.T) {
 	})
 
 	t.Run("Returns error if there is a problem", func(t *testing.T) {
-		repository.EXPECT().GetPrediction(userId, matchId).Return(nil, e)
+		store.EXPECT().GetPrediction(userId, matchId).Return(nil, e)
 
 		result, err := service.GetPrediction(userId, matchId)
 
 		require.Error(t, err)
-		assert.Equal(t, e, err)
+		assert.Contains(t, err.Error(), e.Error())
 		assert.Nil(t, result)
 	})
 }
@@ -414,10 +414,10 @@ func TestService_GetMatchPredictionSummary(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	fixtureService := fixturemocks.NewMockFixtureService(ctrl)
-	repository := predictionmocks.NewMockRepository(ctrl)
+	fixtureService := fixture_mocks.NewMockFixtureService(ctrl)
+	store := prediction_mocks.NewMockStore(ctrl)
 
-	service, err := NewService(repository, fixtureService)
+	service, err := New(store, fixtureService)
 	require.NoError(t, err)
 
 	t.Run("gets match prediction summary from db", func(t *testing.T) {
@@ -425,7 +425,7 @@ func TestService_GetMatchPredictionSummary(t *testing.T) {
 		draw := 12
 		awayWins := 4
 
-		repository.EXPECT().GetMatchPredictionSummary(matchId).Return(homeWins, draw, awayWins, nil)
+		store.EXPECT().GetMatchPredictionSummary(matchId).Return(homeWins, draw, awayWins, nil)
 
 		matchPredictionSummary, err := service.GetMatchPredictionSummary(matchId)
 		require.NoError(t, err)
@@ -438,12 +438,12 @@ func TestService_GetMatchPredictionSummary(t *testing.T) {
 	t.Run("returns error if there was a problem", func(t *testing.T) {
 		e := errors.New("some error")
 
-		repository.EXPECT().GetMatchPredictionSummary(matchId).Return(0, 0, 0, e)
+		store.EXPECT().GetMatchPredictionSummary(matchId).Return(0, 0, 0, e)
 
 		matchPredictionSummary, err := service.GetMatchPredictionSummary(matchId)
 		require.Error(t, err)
 
-		assert.Equal(t, err, e)
+		assert.Contains(t, err.Error(), e.Error())
 		assert.Nil(t, matchPredictionSummary)
 	})
 }

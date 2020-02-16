@@ -1,11 +1,9 @@
-//go:generate mockgen -destination=./mocks/mock_fixture_service_client.go -package=fixturemocks github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen FixtureServiceClient
-
 package fixture
 
 import (
 	"errors"
 	"github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen"
-	"github.com/cshep4/premier-predictor-microservices/src/predictionservice/internal/fixture/mocks"
+	"github.com/cshep4/premier-predictor-microservices/src/predictionservice/internal/mocks/fixture"
 	. "github.com/cshep4/premier-predictor-microservices/src/predictionservice/internal/model"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
@@ -24,9 +22,9 @@ func TestFixtures_GetMatches(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	fixtureClient := fixturemocks.NewMockFixtureServiceClient(ctrl)
+	fixtureClient := fixture_mocks.NewMockFixtureServiceClient(ctrl)
 
-	fixtureService, err := NewFixtureService(fixtureClient)
+	fixtureService, err := New(fixtureClient)
 	require.NoError(t, err)
 
 	t.Run("Gets the matches from FixtureService", func(t *testing.T) {
@@ -66,9 +64,9 @@ func TestFixtures_GetTeamForm(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	fixtureClient := fixturemocks.NewMockFixtureServiceClient(ctrl)
+	fixtureClient := fixture_mocks.NewMockFixtureServiceClient(ctrl)
 
-	fixtureService, err := NewFixtureService(fixtureClient)
+	fixtureService, err := New(fixtureClient)
 	require.NoError(t, err)
 
 	t.Run("Gets team forms from FixtureService", func(t *testing.T) {

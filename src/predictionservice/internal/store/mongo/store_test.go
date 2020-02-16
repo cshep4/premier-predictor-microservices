@@ -1,8 +1,10 @@
-package prediction
+package mongo
 
 import (
 	"context"
-	"github.com/cshep4/premier-predictor-microservices/src/common/model"
+	common "github.com/cshep4/premier-predictor-microservices/src/common/model"
+	"github.com/cshep4/premier-predictor-microservices/src/common/store/mongo"
+	"github.com/cshep4/premier-predictor-microservices/src/predictionservice/internal/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.mongodb.org/mongo-driver/bson"
@@ -17,24 +19,29 @@ const (
 	matchId2 = "matchId2"
 )
 
-func Test_Repository(t *testing.T) {
-	err := os.Setenv("MONGO_PORT", "27017")
-	assert.NoError(t, err)
-	err = os.Setenv("MONGO_HOST", "localhost")
-	assert.NoError(t, err)
-	err = os.Setenv("MONGO_SCHEME", "mongodb")
-	assert.NoError(t, err)
+func Test_Store(t *testing.T) {
+	ctx := context.Background()
 
-	repository, err := NewRepository()
-	assert.NoError(t, err)
+	err := os.Setenv("MONGO_PORT", "27017")
+	require.NoError(t, err)
+	err = os.Setenv("MONGO_HOST", "localhost")
+	require.NoError(t, err)
+	err = os.Setenv("MONGO_SCHEME", "mongodb")
+	require.NoError(t, err)
+
+	client, err := mongo.New(ctx)
+	require.NoError(t, err)
+
+	store, err := New(ctx, client)
+	require.NoError(t, err)
 
 	createPrediction := func(p *predictionEntity) {
-		_, err = repository.
+		_, err = store.
 			client.
 			Database(db).
 			Collection(collection).
 			InsertOne(
-				context.Background(),
+				ctx,
 				p,
 			)
 
@@ -42,12 +49,12 @@ func Test_Repository(t *testing.T) {
 	}
 
 	cleanupDb := func() {
-		_, _ = repository.
+		_, _ = store.
 			client.
 			Database(db).
 			Collection(collection).
 			DeleteMany(
-				context.Background(),
+				ctx,
 				bson.M{},
 			)
 	}
@@ -64,7 +71,7 @@ func Test_Repository(t *testing.T) {
 			defer cleanupDb()
 			createPrediction(p)
 
-			prediction, err := repository.GetPrediction(userId, matchId)
+			prediction, err := store.GetPrediction(userId, matchId)
 			require.NoError(t, err)
 
 			expectedResult := toPrediction(p)
@@ -73,11 +80,11 @@ func Test_Repository(t *testing.T) {
 		})
 
 		t.Run("returns error if not found", func(t *testing.T) {
-			prediction, err := repository.GetPrediction(userId, matchId)
+			prediction, err := store.GetPrediction(userId, matchId)
 			require.Error(t, err)
 
 			assert.Nil(t, prediction)
-			assert.Equal(t, ErrPredictionNotFound, err)
+			assert.Equal(t, model.ErrPredictionNotFound, err)
 		})
 	})
 
@@ -107,12 +114,12 @@ func Test_Repository(t *testing.T) {
 			createPrediction(p2)
 			createPrediction(p3)
 
-			expectedResult := []model.Prediction{
+			expectedResult := []common.Prediction{
 				*toPrediction(p1),
 				*toPrediction(p2),
 			}
 
-			predictions, err := repository.GetPredictionsByUserId(userId)
+			predictions, err := store.GetPredictionsByUserId(userId)
 			require.NoError(t, err)
 
 			assert.Equal(t, expectedResult, predictions)
@@ -121,7 +128,7 @@ func Test_Repository(t *testing.T) {
 
 	t.Run("UpdatePredictions", func(t *testing.T) {
 		t.Run("inserts new predictions", func(t *testing.T) {
-			predictions := []model.Prediction{
+			predictions := []common.Prediction{
 				{
 					UserId:    userId,
 					MatchId:   matchId,
@@ -138,10 +145,10 @@ func Test_Repository(t *testing.T) {
 
 			defer cleanupDb()
 
-			err := repository.UpdatePredictions(predictions)
+			err := store.UpdatePredictions(predictions)
 			require.NoError(t, err)
 
-			result, err := repository.GetPredictionsByUserId(userId)
+			result, err := store.GetPredictionsByUserId(userId)
 			require.NoError(t, err)
 
 			assert.Equal(t, predictions, result)
@@ -150,7 +157,7 @@ func Test_Repository(t *testing.T) {
 		t.Run("updates prediction if already exists", func(t *testing.T) {
 			defer cleanupDb()
 
-			err := repository.UpdatePredictions([]model.Prediction{
+			err := store.UpdatePredictions([]common.Prediction{
 				{
 					UserId:    userId,
 					MatchId:   matchId,
@@ -160,7 +167,7 @@ func Test_Repository(t *testing.T) {
 			})
 			require.NoError(t, err)
 
-			predictions := []model.Prediction{
+			predictions := []common.Prediction{
 				{
 					UserId:    userId,
 					MatchId:   matchId,
@@ -175,10 +182,10 @@ func Test_Repository(t *testing.T) {
 				},
 			}
 
-			err = repository.UpdatePredictions(predictions)
+			err = store.UpdatePredictions(predictions)
 			require.NoError(t, err)
 
-			result, err := repository.GetPredictionsByUserId(userId)
+			result, err := store.GetPredictionsByUserId(userId)
 			require.NoError(t, err)
 
 			assert.Equal(t, predictions, result)
@@ -187,7 +194,7 @@ func Test_Repository(t *testing.T) {
 
 	t.Run("GetMatchPredictionSummary", func(t *testing.T) {
 		t.Run("gets a count of each prediction's result for a specified match	", func(t *testing.T) {
-			predictions := []model.Prediction{
+			predictions := []common.Prediction{
 				{
 					UserId:    "1",
 					MatchId:   matchId,
@@ -214,10 +221,10 @@ func Test_Repository(t *testing.T) {
 				},
 			}
 
-			err = repository.UpdatePredictions(predictions)
+			err = store.UpdatePredictions(predictions)
 			require.NoError(t, err)
 
-			homeWins, draw, awayWins, err := repository.GetMatchPredictionSummary(matchId)
+			homeWins, draw, awayWins, err := store.GetMatchPredictionSummary(matchId)
 			require.NoError(t, err)
 
 			assert.Equal(t, 2, homeWins)

@@ -1,15 +1,14 @@
-package prediction
+package mongo
 
 import (
 	"context"
 	"errors"
-	"fmt"
-	"github.com/cshep4/premier-predictor-microservices/src/common/model"
+	common "github.com/cshep4/premier-predictor-microservices/src/common/model"
+	"github.com/cshep4/premier-predictor-microservices/src/predictionservice/internal/model"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/x/bsonx"
-	"os"
 	"time"
 )
 
@@ -18,51 +17,31 @@ const (
 	collection = "prediction"
 )
 
-var ErrPredictionNotFound = errors.New("prediction not found")
-
-type repository struct {
+type store struct {
 	client *mongo.Client
 }
 
-func NewRepository() (*repository, error) {
-	username := os.Getenv("MONGO_USERNAME")
-	password := os.Getenv("MONGO_PASSWORD")
-	port := os.Getenv("MONGO_PORT")
-
-	mongoUri := fmt.Sprintf("%s://", os.Getenv("MONGO_SCHEME"))
-	if username != "" && password != "" {
-		mongoUri = fmt.Sprintf("%s%s:%s@", mongoUri, username, password)
-	}
-	mongoUri = mongoUri + os.Getenv("MONGO_HOST")
-	if port != "" {
-		mongoUri = fmt.Sprintf("%s:%s", mongoUri, port)
+func New(ctx context.Context, client *mongo.Client) (*store, error) {
+	if client == nil {
+		return nil, errors.New("mongo_client_is_nil")
 	}
 
-	c, err := mongo.NewClient(options.Client().ApplyURI(mongoUri))
-	if err != nil {
+	s := &store{
+		client: client,
+	}
+
+	if err := s.Ping(ctx); err != nil {
 		return nil, err
 	}
 
-	if err := c.Connect(context.Background()); err != nil {
+	if err := s.ensureIndexes(ctx); err != nil {
 		return nil, err
 	}
 
-	r := repository{
-		client: c,
-	}
-
-	if err := r.Ping(); err != nil {
-		return nil, err
-	}
-
-	if err := r.ensureIndexes(); err != nil {
-		return nil, err
-	}
-
-	return &r, nil
+	return s, nil
 }
 
-func (r *repository) ensureIndexes() error {
+func (s *store) ensureIndexes(ctx context.Context) error {
 	idxs := []struct {
 		name   string
 		field  []string
@@ -97,17 +76,17 @@ func (r *repository) ensureIndexes() error {
 			SetSparse(false).
 			SetBackground(true)
 
-		_, err := r.client.
+		_, err := s.client.
 			Database(db).
 			Collection(collection).
-			Indexes().CreateOne(
-			context.Background(),
-			mongo.IndexModel{
-				Keys:    doc,
-				Options: opts,
-			},
-		)
-
+			Indexes().
+			CreateOne(
+				ctx,
+				mongo.IndexModel{
+					Keys:    doc,
+					Options: opts,
+				},
+			)
 		if err != nil {
 			return err
 		}
@@ -116,10 +95,10 @@ func (r *repository) ensureIndexes() error {
 	return nil
 }
 
-func (r *repository) GetPrediction(userId, matchId string) (*model.Prediction, error) {
+func (s *store) GetPrediction(userId, matchId string) (*common.Prediction, error) {
 	var p predictionEntity
 
-	err := r.client.
+	err := s.client.
 		Database(db).
 		Collection(collection).
 		FindOne(
@@ -133,7 +112,7 @@ func (r *repository) GetPrediction(userId, matchId string) (*model.Prediction, e
 
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
-			return nil, ErrPredictionNotFound
+			return nil, model.ErrPredictionNotFound
 		}
 
 		return nil, err
@@ -142,10 +121,10 @@ func (r *repository) GetPrediction(userId, matchId string) (*model.Prediction, e
 	return toPrediction(&p), nil
 }
 
-func (r *repository) GetPredictionsByUserId(id string) ([]model.Prediction, error) {
+func (s *store) GetPredictionsByUserId(id string) ([]common.Prediction, error) {
 	ctx := context.Background()
 
-	cur, err := r.client.
+	cur, err := s.client.
 		Database(db).
 		Collection(collection).
 		Find(
@@ -159,7 +138,7 @@ func (r *repository) GetPredictionsByUserId(id string) ([]model.Prediction, erro
 		return nil, err
 	}
 
-	predictions := []model.Prediction{}
+	predictions := []common.Prediction{}
 
 	defer cur.Close(ctx)
 	for cur.Next(ctx) {
@@ -179,12 +158,12 @@ func (r *repository) GetPredictionsByUserId(id string) ([]model.Prediction, erro
 	return predictions, nil
 }
 
-func (r *repository) UpdatePredictions(predictions []model.Prediction) error {
+func (s *store) UpdatePredictions(predictions []common.Prediction) error {
 	opts := options.FindOneAndReplaceOptions{}
 	opts.SetUpsert(true)
 
 	for _, p := range predictions {
-		err := r.client.
+		err := s.client.
 			Database(db).
 			Collection(collection).
 			FindOneAndReplace(
@@ -196,7 +175,7 @@ func (r *repository) UpdatePredictions(predictions []model.Prediction) error {
 				fromPrediction(&p),
 				&opts,
 			)
-		if err.Err() != nil {
+		if err.Err() != nil && err.Err() != mongo.ErrNoDocuments {
 			return err.Err()
 		}
 	}
@@ -204,10 +183,10 @@ func (r *repository) UpdatePredictions(predictions []model.Prediction) error {
 	return nil
 }
 
-func (r *repository) GetMatchPredictionSummary(id string) (homeWins int, draw int, awayWins int, err error) {
+func (s *store) GetMatchPredictionSummary(id string) (homeWins int, draw int, awayWins int, err error) {
 	ctx := context.Background()
 
-	cur, err := r.client.
+	cur, err := s.client.
 		Database(db).
 		Collection(collection).
 		Find(
@@ -245,11 +224,11 @@ func (r *repository) GetMatchPredictionSummary(id string) (homeWins int, draw in
 	return
 }
 
-func (r *repository) Ping() error {
-	ctx, _ := context.WithTimeout(context.Background(), time.Duration(5000*time.Millisecond))
-	return r.client.Ping(ctx, nil)
+func (s *store) Ping(ctx context.Context) error {
+	ctx, _ = context.WithTimeout(ctx, 2*time.Second)
+	return s.client.Ping(ctx, nil)
 }
 
-func (r *repository) Close() error {
-	return r.client.Disconnect(context.Background())
+func (s *store) Close(ctx context.Context) error {
+	return s.client.Disconnect(ctx)
 }
