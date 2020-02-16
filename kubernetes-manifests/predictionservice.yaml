@@ -57,7 +57,7 @@ spec:
               port: 8087
           resources:
             requests:
-              cpu: 100m
+              cpu: 25m
               memory: 64Mi
             limits:
               cpu: 100m
