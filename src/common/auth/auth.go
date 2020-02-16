@@ -2,15 +2,19 @@ package auth
 
 import (
 	"context"
+	"errors"
 	gen "github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen"
-	"github.com/cshep4/premier-predictor-microservices/src/common/interfaces"
 )
 
 type authenticator struct {
 	client gen.AuthServiceClient
 }
 
-func NewAuthenticator(client gen.AuthServiceClient) (interfaces.Authenticator, error) {
+func New(client gen.AuthServiceClient) (*authenticator, error) {
+	if client == nil {
+		return nil, errors.New("client_is_nil")
+	}
+
 	return &authenticator{
 		client: client,
 	}, nil

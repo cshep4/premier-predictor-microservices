@@ -15,6 +15,5 @@ func (s *healthServiceServer) createRouter() *mux.Router {
 }
 
 func Health(w http.ResponseWriter, r *http.Request) {
-	//log.Println("Service is healthy")
 	w.WriteHeader(http.StatusOK)
 }
