@@ -89,7 +89,7 @@ func Test_Store(t *testing.T) {
 
 			m := &matchFactsEntity{
 				Id:        matchId,
-				MatchDate: time.Now().Add(-time.Hour).Round(time.Second).UTC(),
+				MatchDate: time.Now().Add(-time.Minute).Round(time.Second).UTC(),
 			}
 			createMatch(m)
 

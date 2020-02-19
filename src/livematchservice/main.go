@@ -4,12 +4,17 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"os"
+	"strconv"
+	"time"
+
 	gen "github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen"
 	"github.com/cshep4/premier-predictor-microservices/src/common/app"
 	"github.com/cshep4/premier-predictor-microservices/src/common/auth"
 	"github.com/cshep4/premier-predictor-microservices/src/common/gcp"
 	"github.com/cshep4/premier-predictor-microservices/src/common/gcp/tracer"
 	grpcconn "github.com/cshep4/premier-predictor-microservices/src/common/grpc"
+	"github.com/cshep4/premier-predictor-microservices/src/common/log"
 	"github.com/cshep4/premier-predictor-microservices/src/common/run"
 	"github.com/cshep4/premier-predictor-microservices/src/common/runner/grpc"
 	"github.com/cshep4/premier-predictor-microservices/src/common/runner/http"
@@ -20,15 +25,12 @@ import (
 	svc "github.com/cshep4/premier-predictor-microservices/src/livematchservice/internal/service"
 	mongostore "github.com/cshep4/premier-predictor-microservices/src/livematchservice/internal/store/mongo"
 	"golang.org/x/sync/errgroup"
-	"log"
-	"os"
-	"strconv"
-	"time"
 )
 
 const (
 	serviceName = "livematchservice"
-	version     = "1.0.0"
+	version     = "1.0.1"
+	logLevel    = "info"
 )
 
 func start(ctx context.Context) error {
@@ -121,6 +123,7 @@ func start(ctx context.Context) error {
 		app.WithRunner(
 			grpc.New(
 				grpc.WithPort(grpcPort),
+				grpc.WithLogger(serviceName, logLevel),
 				grpc.WithUnaryInterceptor(tracer.GrpcUnary),
 				grpc.WithStreamInterceptor(tracer.GrpcStream),
 				grpc.WithUnaryInterceptor(authenticator.GrpcUnary),
@@ -131,6 +134,7 @@ func start(ctx context.Context) error {
 		app.WithRunner(
 			http.New(
 				http.WithPort(httpPort),
+				http.WithLogger(serviceName, logLevel),
 				http.WithHandler(tracer),
 				http.WithMiddleware(authenticator.Http),
 				http.WithRouter(h),
@@ -149,7 +153,8 @@ func start(ctx context.Context) error {
 }
 
 func main() {
-	if err := start(context.Background()); err != nil {
-		log.Fatal(err)
+	ctx := log.WithServiceName(context.Background(), log.New(logLevel), serviceName)
+	if err := start(ctx); err != nil {
+		log.Error(ctx, "startup_error", log.ErrorParam(err))
 	}
 }

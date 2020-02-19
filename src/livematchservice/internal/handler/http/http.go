@@ -1,10 +1,11 @@
 package http
 
 import (
+	"context"
 	"encoding/json"
-	"log"
 	"net/http"
 
+	"github.com/cshep4/premier-predictor-microservices/src/common/log"
 	m "github.com/cshep4/premier-predictor-microservices/src/common/model"
 	"github.com/cshep4/premier-predictor-microservices/src/common/util"
 	"github.com/cshep4/premier-predictor-microservices/src/livematchservice/internal/handler"
@@ -44,7 +45,7 @@ func (h *router) Route(router *mux.Router) {
 func (h *router) getUpcomingMatches(w http.ResponseWriter, r *http.Request) {
 	upcomingMatches, err := h.service.GetUpcomingMatches()
 
-	h.sendResponse(upcomingMatches, err, w)
+	h.sendResponse(r.Context(), upcomingMatches, err, w)
 }
 
 func (h *router) getMatchSummary(w http.ResponseWriter, r *http.Request) {
@@ -61,10 +62,10 @@ func (h *router) getMatchSummary(w http.ResponseWriter, r *http.Request) {
 	}
 
 	league, err := h.service.GetMatchSummary(ctx, req)
-	h.sendResponse(league, err, w)
+	h.sendResponse(r.Context(), league, err, w)
 }
 
-func (h *router) sendResponse(data interface{}, err error, w http.ResponseWriter) {
+func (h *router) sendResponse(ctx context.Context, data interface{}, err error, w http.ResponseWriter) {
 	switch {
 	case err == nil:
 		w.WriteHeader(http.StatusOK)
@@ -93,5 +94,5 @@ func (h *router) sendResponse(data interface{}, err error, w http.ResponseWriter
 		})
 	}
 
-	log.Println(err.Error())
+	log.Error(ctx, "request_error", log.ErrorParam(err))
 }
