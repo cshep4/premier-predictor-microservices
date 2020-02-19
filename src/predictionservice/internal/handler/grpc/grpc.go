@@ -1,18 +1,17 @@
-//go:generate impl 's *server' io.ReadWriteCloser -output server.go
-
 package grpc
 
 import (
 	"context"
 	"errors"
+
 	gen "github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen"
+	"github.com/cshep4/premier-predictor-microservices/src/common/log"
 	common "github.com/cshep4/premier-predictor-microservices/src/common/model"
 	"github.com/cshep4/premier-predictor-microservices/src/predictionservice/internal/handler"
 	"github.com/cshep4/premier-predictor-microservices/src/predictionservice/internal/model"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"log"
 )
 
 type server struct {
@@ -34,12 +33,12 @@ func (s *server) Register(g *grpc.Server) {
 }
 
 func (s *server) GetPrediction(ctx context.Context, req *gen.PredictionRequest) (*gen.Prediction, error) {
-	prediction, err := s.service.GetPrediction(req.UserId, req.MatchId)
+	prediction, err := s.service.GetPrediction(ctx, req.UserId, req.MatchId)
 	if err != nil {
 		if errors.Is(err, model.ErrPredictionNotFound) {
 			return nil, status.Error(codes.NotFound, model.ErrPredictionNotFound.Error())
 		}
-		log.Printf("error_getting_prediction: %v", err)
+		log.Error(ctx, "error_getting_prediction", log.ErrorParam(err))
 		return nil, err
 	}
 
@@ -47,9 +46,9 @@ func (s *server) GetPrediction(ctx context.Context, req *gen.PredictionRequest) 
 }
 
 func (s *server) GetPredictionSummary(ctx context.Context, req *gen.IdRequest) (*gen.MatchPredictionSummary, error) {
-	predictionSummary, err := s.service.GetMatchPredictionSummary(req.Id)
+	predictionSummary, err := s.service.GetMatchPredictionSummary(ctx, req.Id)
 	if err != nil {
-		log.Printf("error_getting_prediction_summary: %v", err)
+		log.Error(ctx, "error_getting_prediction_summary", log.ErrorParam(err))
 		return nil, err
 	}
 

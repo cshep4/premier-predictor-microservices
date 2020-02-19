@@ -95,14 +95,14 @@ func (s *store) ensureIndexes(ctx context.Context) error {
 	return nil
 }
 
-func (s *store) GetPrediction(userId, matchId string) (*common.Prediction, error) {
+func (s *store) GetPrediction(ctx context.Context, userId, matchId string) (*common.Prediction, error) {
 	var p predictionEntity
 
 	err := s.client.
 		Database(db).
 		Collection(collection).
 		FindOne(
-			context.Background(),
+			ctx,
 			bson.M{
 				"userId":  userId,
 				"matchId": matchId,
@@ -121,9 +121,7 @@ func (s *store) GetPrediction(userId, matchId string) (*common.Prediction, error
 	return toPrediction(&p), nil
 }
 
-func (s *store) GetPredictionsByUserId(id string) ([]common.Prediction, error) {
-	ctx := context.Background()
-
+func (s *store) GetPredictionsByUserId(ctx context.Context, id string) ([]common.Prediction, error) {
 	cur, err := s.client.
 		Database(db).
 		Collection(collection).
@@ -158,7 +156,7 @@ func (s *store) GetPredictionsByUserId(id string) ([]common.Prediction, error) {
 	return predictions, nil
 }
 
-func (s *store) UpdatePredictions(predictions []common.Prediction) error {
+func (s *store) UpdatePredictions(ctx context.Context, predictions []common.Prediction) error {
 	opts := options.FindOneAndReplaceOptions{}
 	opts.SetUpsert(true)
 
@@ -167,7 +165,7 @@ func (s *store) UpdatePredictions(predictions []common.Prediction) error {
 			Database(db).
 			Collection(collection).
 			FindOneAndReplace(
-				context.Background(),
+				ctx,
 				bson.M{
 					"userId":  p.UserId,
 					"matchId": p.MatchId,
@@ -183,9 +181,7 @@ func (s *store) UpdatePredictions(predictions []common.Prediction) error {
 	return nil
 }
 
-func (s *store) GetMatchPredictionSummary(id string) (homeWins int, draw int, awayWins int, err error) {
-	ctx := context.Background()
-
+func (s *store) GetMatchPredictionSummary(ctx context.Context, id string) (homeWins int, draw int, awayWins int, err error) {
 	cur, err := s.client.
 		Database(db).
 		Collection(collection).

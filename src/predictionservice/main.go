@@ -4,20 +4,20 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/cshep4/premier-predictor-microservices/src/common/gcp"
-	"github.com/cshep4/premier-predictor-microservices/src/common/gcp/tracer"
-	"github.com/cshep4/premier-predictor-microservices/src/common/store/mongo"
-	"log"
 	"os"
 	"strconv"
 
 	gen "github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen"
 	"github.com/cshep4/premier-predictor-microservices/src/common/app"
 	"github.com/cshep4/premier-predictor-microservices/src/common/auth"
+	"github.com/cshep4/premier-predictor-microservices/src/common/gcp"
+	"github.com/cshep4/premier-predictor-microservices/src/common/gcp/tracer"
 	grpcconn "github.com/cshep4/premier-predictor-microservices/src/common/grpc"
+	"github.com/cshep4/premier-predictor-microservices/src/common/log"
 	"github.com/cshep4/premier-predictor-microservices/src/common/run"
 	"github.com/cshep4/premier-predictor-microservices/src/common/runner/grpc"
 	"github.com/cshep4/premier-predictor-microservices/src/common/runner/http"
+	"github.com/cshep4/premier-predictor-microservices/src/common/store/mongo"
 	"github.com/cshep4/premier-predictor-microservices/src/predictionservice/internal/fixture"
 	grpchandler "github.com/cshep4/premier-predictor-microservices/src/predictionservice/internal/handler/grpc"
 	httphandler "github.com/cshep4/premier-predictor-microservices/src/predictionservice/internal/handler/http"
@@ -29,6 +29,7 @@ import (
 const (
 	serviceName = "predictionservice"
 	version     = "1.0.0"
+	logLevel    = "info"
 )
 
 func start(ctx context.Context) error {
@@ -60,14 +61,14 @@ func start(ctx context.Context) error {
 		return errors.New("invalid_grpc_port")
 	}
 
-	authConn, err := grpcconn.Dial(authAddr)
+	authConn, err := grpcconn.Dial(ctx, authAddr)
 	if err != nil {
 		return fmt.Errorf("create_auth_connection: %w", err)
 	}
 	defer authConn.Close()
 	authClient := gen.NewAuthServiceClient(authConn)
 
-	fixtureConn, err := grpcconn.Dial(fixtureAddr)
+	fixtureConn, err := grpcconn.Dial(ctx, fixtureAddr)
 	if err != nil {
 		return fmt.Errorf("create_fixture_connection: %w", err)
 	}
@@ -121,18 +122,20 @@ func start(ctx context.Context) error {
 		app.WithRunner(
 			grpc.New(
 				grpc.WithPort(grpcPort),
+				grpc.WithLogger(serviceName, logLevel),
 				grpc.WithUnaryInterceptor(tracer.GrpcUnary),
 				grpc.WithStreamInterceptor(tracer.GrpcStream),
-				grpc.WithUnaryInterceptor(authenticator.GrpcUnaryInterceptor),
-				grpc.WithStreamInterceptor(authenticator.GrpcStreamInterceptor),
+				grpc.WithUnaryInterceptor(authenticator.GrpcUnary),
+				grpc.WithStreamInterceptor(authenticator.GrpcStream),
 				grpc.WithRegisterer(rpc),
 			),
 		),
 		app.WithRunner(
 			http.New(
 				http.WithPort(httpPort),
+				http.WithLogger(serviceName, logLevel),
 				http.WithHandler(tracer),
-				http.WithMiddleware(authenticator.HttpMiddleware),
+				http.WithMiddleware(authenticator.Http),
 				http.WithRouter(h),
 				http.WithRegisterer(http.Health()),
 			),
@@ -149,7 +152,8 @@ func start(ctx context.Context) error {
 }
 
 func main() {
-	if err := start(context.Background()); err != nil {
-		log.Fatal(err)
+	ctx := log.WithServiceName(context.Background(), log.New(logLevel), serviceName)
+	if err := start(ctx); err != nil {
+		log.Error(ctx, "error_starting_server", log.ErrorParam(err))
 	}
 }

@@ -1,15 +1,17 @@
 package http
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
+	"io/ioutil"
+	"net/http"
+
+	"github.com/cshep4/premier-predictor-microservices/src/common/log"
 	common "github.com/cshep4/premier-predictor-microservices/src/common/model"
 	"github.com/cshep4/premier-predictor-microservices/src/predictionservice/internal/handler"
 	"github.com/cshep4/premier-predictor-microservices/src/predictionservice/internal/model"
 	"github.com/gorilla/mux"
-	"io/ioutil"
-	"log"
-	"net/http"
 )
 
 type router struct {
@@ -42,25 +44,25 @@ func (h *router) Route(router *mux.Router) {
 func (h *router) getFixturesWithPredictions(w http.ResponseWriter, r *http.Request) {
 	id := mux.Vars(r)["id"]
 
-	fixturePredictions, err := h.service.GetFixturesWithPredictions(id)
+	fixturePredictions, err := h.service.GetFixturesWithPredictions(r.Context(), id)
 
-	h.sendResponse(fixturePredictions, err, w)
+	h.sendResponse(r.Context(), fixturePredictions, err, w)
 }
 
 func (h *router) getPredictorData(w http.ResponseWriter, r *http.Request) {
 	id := mux.Vars(r)["id"]
 
-	predictorData, err := h.service.GetPredictorData(id)
+	predictorData, err := h.service.GetPredictorData(r.Context(), id)
 
-	h.sendResponse(predictorData, err, w)
+	h.sendResponse(r.Context(), predictorData, err, w)
 }
 
 func (h *router) getUsersPastPredictions(w http.ResponseWriter, r *http.Request) {
 	id := mux.Vars(r)["id"]
 
-	predictions, err := h.service.GetUsersPastPredictions(id)
+	predictions, err := h.service.GetUsersPastPredictions(r.Context(), id)
 
-	h.sendResponse(predictions, err, w)
+	h.sendResponse(r.Context(), predictions, err, w)
 }
 
 func (h *router) updatePredictions(w http.ResponseWriter, r *http.Request) {
@@ -69,19 +71,19 @@ func (h *router) updatePredictions(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		log.Println("cannot read request")
+		log.Error(r.Context(),"cannot_read_request", log.ErrorParam(err))
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	if err = json.Unmarshal(body, &predictions); err != nil {
-		log.Println("cannot decode request")
+		log.Error(r.Context(), "cannot_decode_request", log.ErrorParam(err))
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	if err = h.service.UpdatePredictions(predictions); err != nil {
-		log.Println(err.Error())
+	if err = h.service.UpdatePredictions(r.Context(), predictions); err != nil {
+		log.Error(r.Context(), "error_updating_predictions", log.ErrorParam(err))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -93,27 +95,27 @@ func (h *router) getPrediction(w http.ResponseWriter, r *http.Request) {
 	userId := mux.Vars(r)["userId"]
 	matchId := mux.Vars(r)["matchId"]
 
-	predictions, err := h.service.GetPrediction(userId, matchId)
+	predictions, err := h.service.GetPrediction(r.Context(), userId, matchId)
 
-	h.sendResponse(predictions, err, w)
+	h.sendResponse(r.Context(), predictions, err, w)
 }
 
-func (h *router) sendResponse(data interface{}, err error, w http.ResponseWriter) {
-	if err == model.ErrPredictionNotFound {
-		log.Println("prediction not found")
+func (h *router) sendResponse(ctx context.Context, data interface{}, err error, w http.ResponseWriter) {
+	if errors.Is(err, model.ErrPredictionNotFound) {
+		log.Debug(ctx, "prediction_not_found", log.ErrorParam(err))
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
 	if err != nil {
-		log.Println(err.Error())
+		log.Error(ctx, "internal_server_error", log.ErrorParam(err))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	err = json.NewEncoder(w).Encode(data)
 	if err != nil {
-		log.Println("cannot encode response")
+		log.Error(ctx, "cannot_encode_response", log.ErrorParam(err))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

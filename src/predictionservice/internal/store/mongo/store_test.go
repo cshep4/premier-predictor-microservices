@@ -71,7 +71,7 @@ func Test_Store(t *testing.T) {
 			defer cleanupDb()
 			createPrediction(p)
 
-			prediction, err := store.GetPrediction(userId, matchId)
+			prediction, err := store.GetPrediction(ctx, userId, matchId)
 			require.NoError(t, err)
 
 			expectedResult := toPrediction(p)
@@ -80,7 +80,7 @@ func Test_Store(t *testing.T) {
 		})
 
 		t.Run("returns error if not found", func(t *testing.T) {
-			prediction, err := store.GetPrediction(userId, matchId)
+			prediction, err := store.GetPrediction(ctx, userId, matchId)
 			require.Error(t, err)
 
 			assert.Nil(t, prediction)
@@ -119,7 +119,7 @@ func Test_Store(t *testing.T) {
 				*toPrediction(p2),
 			}
 
-			predictions, err := store.GetPredictionsByUserId(userId)
+			predictions, err := store.GetPredictionsByUserId(ctx, userId)
 			require.NoError(t, err)
 
 			assert.Equal(t, expectedResult, predictions)
@@ -145,10 +145,10 @@ func Test_Store(t *testing.T) {
 
 			defer cleanupDb()
 
-			err := store.UpdatePredictions(predictions)
+			err := store.UpdatePredictions(ctx, predictions)
 			require.NoError(t, err)
 
-			result, err := store.GetPredictionsByUserId(userId)
+			result, err := store.GetPredictionsByUserId(ctx, userId)
 			require.NoError(t, err)
 
 			assert.Equal(t, predictions, result)
@@ -157,7 +157,7 @@ func Test_Store(t *testing.T) {
 		t.Run("updates prediction if already exists", func(t *testing.T) {
 			defer cleanupDb()
 
-			err := store.UpdatePredictions([]common.Prediction{
+			err := store.UpdatePredictions(ctx, []common.Prediction{
 				{
 					UserId:    userId,
 					MatchId:   matchId,
@@ -182,10 +182,10 @@ func Test_Store(t *testing.T) {
 				},
 			}
 
-			err = store.UpdatePredictions(predictions)
+			err = store.UpdatePredictions(ctx, predictions)
 			require.NoError(t, err)
 
-			result, err := store.GetPredictionsByUserId(userId)
+			result, err := store.GetPredictionsByUserId(ctx, userId)
 			require.NoError(t, err)
 
 			assert.Equal(t, predictions, result)
@@ -221,10 +221,10 @@ func Test_Store(t *testing.T) {
 				},
 			}
 
-			err = store.UpdatePredictions(predictions)
+			err = store.UpdatePredictions(ctx, predictions)
 			require.NoError(t, err)
 
-			homeWins, draw, awayWins, err := store.GetMatchPredictionSummary(matchId)
+			homeWins, draw, awayWins, err := store.GetMatchPredictionSummary(ctx, matchId)
 			require.NoError(t, err)
 
 			assert.Equal(t, 2, homeWins)

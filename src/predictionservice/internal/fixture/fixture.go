@@ -24,8 +24,8 @@ func New(fixtureClient gen.FixtureServiceClient) (*fixtureService, error) {
 	}, nil
 }
 
-func (f *fixtureService) GetMatches() ([]common.Fixture, error) {
-	resp, err := f.fixtureClient.GetMatches(context.Background(), &empty.Empty{})
+func (f *fixtureService) GetMatches(ctx context.Context) ([]common.Fixture, error) {
+	resp, err := f.fixtureClient.GetMatches(ctx, &empty.Empty{})
 	if err != nil {
 		return nil, fmt.Errorf("get_matches: %w", err)
 	}
@@ -38,8 +38,8 @@ func (f *fixtureService) GetMatches() ([]common.Fixture, error) {
 	return fixtures, nil
 }
 
-func (f *fixtureService) GetTeamForm() (map[string]model.TeamForm, error) {
-	resp, err := f.fixtureClient.GetTeamForm(context.Background(), &empty.Empty{})
+func (f *fixtureService) GetTeamForm(ctx context.Context) (map[string]model.TeamForm, error) {
+	resp, err := f.fixtureClient.GetTeamForm(ctx, &empty.Empty{})
 	if err != nil {
 		return nil, fmt.Errorf("get_team_form: %w", err)
 	}
@@ -52,8 +52,8 @@ func (f *fixtureService) GetTeamForm() (map[string]model.TeamForm, error) {
 	return forms, nil
 }
 
-func (f *fixtureService) GetFutureFixtures() (map[string]string, error) {
-	resp, err := f.fixtureClient.GetFutureFixtures(context.Background(), &empty.Empty{})
+func (f *fixtureService) GetFutureFixtures(ctx context.Context) (map[string]string, error) {
+	resp, err := f.fixtureClient.GetFutureFixtures(ctx, &empty.Empty{})
 	if err != nil {
 		return nil, fmt.Errorf("get_future_fixtures: %w", err)
 	}
