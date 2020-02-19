@@ -20,14 +20,11 @@ func New(client gen.AuthServiceClient) (*authenticator, error) {
 	}, nil
 }
 
-func (a *authenticator) doAuth(token string) error {
-	request := &gen.ValidateRequest{Token: token}
-
-	_, err := a.client.Validate(context.Background(), request)
-
+func (a *authenticator) doAuth(ctx context.Context, token string) (context.Context, error) {
+	_, err := a.client.Validate(ctx, &gen.ValidateRequest{Token: token})
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return tokenCtx(ctx, token), nil
 }

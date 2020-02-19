@@ -2,45 +2,46 @@ package grpc
 
 import (
 	"context"
+
 	"github.com/cshep4/premier-predictor-microservices/src/common/grpc/options"
+	"github.com/cshep4/premier-predictor-microservices/src/common/log"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/connectivity"
-	"log"
 )
 
-func Dial(addr string) (*grpc.ClientConn, error) {
+func Dial(ctx context.Context, addr string) (*grpc.ClientConn, error) {
 	conn, err := grpc.Dial(addr, grpc.WithInsecure(), options.ClientKeepAlive)
 	if err != nil {
 		return nil, err
 	}
-	onStateChange(conn, addr)
+	onStateChange(ctx, conn, addr)
 
 	return conn, nil
 }
 
-func onStateChange(conn *grpc.ClientConn, addr string) {
+func onStateChange(ctx context.Context, conn *grpc.ClientConn, addr string) {
 	go func() {
 		for {
 			conn.WaitForStateChange(context.Background(), conn.GetState())
 
 			currentState := conn.GetState()
-			log.Printf("%s connection state change - currentState: %s", addr, currentState)
+			log.Debug(ctx, "connection_state_change", log.SafeParam("currentState", currentState.String()))
 
 			if currentState == connectivity.Connecting {
 				continue
 			}
 
 			if currentState != connectivity.Ready {
-				log.Printf("reconnecting %s connection", addr)
+				log.Debug(ctx, "reconnecting", log.SafeParam("connection", addr))
 
 				var err error
 				conn, err = grpc.Dial(addr, grpc.WithInsecure(), options.ClientKeepAlive)
 				if err != nil {
-					log.Printf("failed to reconnect %s connection", addr)
+					log.Error(ctx, "failed_to_reconnect", log.SafeParam("connection", addr))
 					continue
 				}
 
-				log.Printf("reconnected %s connection!", addr)
+				log.Debug(ctx, "reconnected!", log.SafeParam("connection", addr))
 			}
 		}
 	}()

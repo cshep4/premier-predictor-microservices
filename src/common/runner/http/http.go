@@ -3,11 +3,12 @@ package http
 import (
 	"context"
 	"fmt"
-	"github.com/cshep4/premier-predictor-microservices/src/common/cors"
-	"github.com/gorilla/mux"
-	"log"
 	"net/http"
 	"time"
+
+	"github.com/cshep4/premier-predictor-microservices/src/common/cors"
+	"github.com/cshep4/premier-predictor-microservices/src/common/log"
+	"github.com/gorilla/mux"
 )
 
 const defaultPort = 8080
@@ -75,7 +76,7 @@ func (s server) Start(ctx context.Context) error {
 		s.https.Handler = h.Wrap(s.https.Handler)
 	}
 
-	log.Printf("http_server_listening_on: %s", path)
+	log.Info(ctx, "http_server_listening", log.SafeParam("path", path))
 
 	err := s.https.ListenAndServe()
 	if err != nil {
@@ -91,7 +92,7 @@ func (s server) Stop(ctx context.Context) error {
 		return fmt.Errorf("shutdown: %v", err)
 	}
 
-	log.Println("http_server_stopped")
+	log.Info(ctx, "http_server_stopped")
 
 	return nil
 }

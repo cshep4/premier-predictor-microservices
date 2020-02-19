@@ -1,6 +1,8 @@
 package app
 
-import "context"
+import (
+	"context"
+)
 
 type Option func(*App)
 

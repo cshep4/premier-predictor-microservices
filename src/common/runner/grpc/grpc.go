@@ -3,11 +3,12 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"net"
+
 	"github.com/cshep4/premier-predictor-microservices/src/common/grpc/options"
+	"github.com/cshep4/premier-predictor-microservices/src/common/log"
 	"github.com/grpc-ecosystem/go-grpc-middleware"
 	"google.golang.org/grpc"
-	"log"
-	"net"
 )
 
 const defaultPort = 3000
@@ -52,7 +53,7 @@ func (s *server) Start(ctx context.Context) error {
 		return fmt.Errorf("listen: %v", err)
 	}
 
-	log.Printf("grpc_server_listening_on: %s", path)
+	log.Info(ctx, "grpc_server_listening", log.SafeParam("path", path))
 
 	for i := range s.registerers {
 		s.registerers[i].Register(s.grpcs)
@@ -68,7 +69,7 @@ func (s *server) Start(ctx context.Context) error {
 
 func (s *server) Stop(ctx context.Context) error {
 	s.grpcs.GracefulStop()
-	log.Println("grpc_server_stopped")
+	log.Info(ctx, "grpc_server_stopped")
 
 	return nil
 }

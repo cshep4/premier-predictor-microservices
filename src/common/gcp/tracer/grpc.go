@@ -3,14 +3,10 @@ package tracer
 import (
 	"context"
 
+	grpccfg "github.com/cshep4/premier-predictor-microservices/src/common/grpc"
 	"go.opencensus.io/trace"
 	"google.golang.org/grpc"
 )
-
-type serverStream struct {
-		ctx context.Context
-		grpc.ServerStream
-	}
 
 func (tracer) GrpcUnary(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 	ctx, span := trace.StartSpan(ctx, info.FullMethod)
@@ -23,10 +19,8 @@ func (tracer) GrpcStream(srv interface{}, stream grpc.ServerStream, info *grpc.S
 	ctx, span := trace.StartSpan(stream.Context(), info.FullMethod)
 	defer span.End()
 
-	s := &serverStream{
-		ctx:          ctx,
+	return handler(srv, &grpccfg.ContextServerStream{
+		Ctx:          ctx,
 		ServerStream: stream,
-	}
-
-	return handler(srv, s)
+	})
 }
