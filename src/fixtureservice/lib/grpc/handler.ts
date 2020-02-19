@@ -4,13 +4,12 @@ import {Forms} from "../model/form";
 import {logger} from "../utils/utils";
 
 export class Handler {
-    constructor(private service: Service) {
+    constructor(private service: Service, private tracer: any) {
     }
 
     public getMatches(call, callback) {
         this.service.getAllFixtures().then((fixtures: Fixture[]) => {
             const matches = fixtures.map(f => fixtureToGrpc(f));
-            this.log("getAllFixtures", true, matches);
             callback(null, {matches: matches});
         }, err => {
             this.log("getAllFixtures", false, err);
@@ -20,7 +19,6 @@ export class Handler {
 
     public getTeamForms(call, callback) {
         this.service.getTeamForms().then((forms: Forms) => {
-            this.log("getTeamForms", true, forms);
             callback(null, forms);
         }, err => {
             this.log("getTeamForms", false, err);
@@ -30,7 +28,6 @@ export class Handler {
 
     public getFutureFixtures(call, callback) {
         this.service.getFutureFixtures().then((fixtures: Map<string, string>) => {
-            this.log("getFutureFixtures", true, fixtures);
             callback(null, {matches: fixtures});
         }, err => {
             this.log("getFutureFixtures", false, err);

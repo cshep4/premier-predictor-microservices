@@ -3,7 +3,7 @@ import {NextFunction, Request, response, Response} from "express";
 export class Middleware {
     private client;
 
-    constructor(grpc: any) {
+    constructor(grpc: any, private tracer: any) {
         const PROTO_PATH = __dirname + '/../../protodefs/auth.proto';
         const protoLoader = require('@grpc/proto-loader');
         const packageDefinition = protoLoader.loadSync(
@@ -28,16 +28,20 @@ export class Middleware {
     }
 
     public validateHttp(req: Request, res: Response, next: NextFunction) {
+        const span = this.tracer.startChildSpan({ name: req.url });
+
         const token = req.header("Authorization");
 
         this.client.validate({token: token}, (err, response) => {
             if (err) {
                 res.status(401)
                     .send(err);
+                span.end();
                 return;
             }
 
             next();
+            span.end();
         });
     }
 
