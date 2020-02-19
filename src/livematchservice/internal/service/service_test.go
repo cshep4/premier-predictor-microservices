@@ -3,15 +3,16 @@ package live
 import (
 	"context"
 	"errors"
+	"testing"
+	"time"
+	
 	"github.com/cshep4/premier-predictor-microservices/src/common/model"
+	"github.com/cshep4/premier-predictor-microservices/src/livematchservice/internal/mocks/live"
+	"github.com/cshep4/premier-predictor-microservices/src/livematchservice/internal/mocks/prediction"
 	. "github.com/cshep4/premier-predictor-microservices/src/livematchservice/internal/model"
-	"github.com/cshep4/premier-predictor-microservices/src/livematchservice/internal/prediction/mocks"
-	"github.com/cshep4/premier-predictor-microservices/src/livematchservice/internal/repository/mocks"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"testing"
-	"time"
 )
 
 const (
@@ -23,16 +24,16 @@ func TestService_GetMatchFacts(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	repository := livemocks.NewMockRepository(ctrl)
-	predictor := predictionmocks.NewMockPredictor(ctrl)
+	store := live_mocks.NewMockStore(ctrl)
+	predictor := prediction_mocks.NewMockPredictor(ctrl)
 
-	service, err := NewService(repository, predictor)
+	service, err := New(store, predictor)
 	require.NoError(t, err)
 
 	t.Run("Retrieves match from db", func(t *testing.T) {
 		matchFacts := &model.MatchFacts{}
 
-		repository.EXPECT().GetMatchFacts(userId).Return(matchFacts, nil)
+		store.EXPECT().GetMatchFacts(userId).Return(matchFacts, nil)
 
 		result, err := service.GetMatchFacts(userId)
 		require.NoError(t, err)
@@ -42,7 +43,7 @@ func TestService_GetMatchFacts(t *testing.T) {
 	t.Run("Returns error if there is a problem", func(t *testing.T) {
 		e := errors.New("")
 
-		repository.EXPECT().GetMatchFacts(userId).Return(nil, e)
+		store.EXPECT().GetMatchFacts(userId).Return(nil, e)
 
 		result, err := service.GetMatchFacts(userId)
 		require.Error(t, err)
@@ -55,10 +56,10 @@ func TestService_GetMatchSummary(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	repository := livemocks.NewMockRepository(ctrl)
-	predictor := predictionmocks.NewMockPredictor(ctrl)
+	store := live_mocks.NewMockStore(ctrl)
+	predictor := prediction_mocks.NewMockPredictor(ctrl)
 
-	service, err := NewService(repository, predictor)
+	service, err := New(store, predictor)
 	require.NoError(t, err)
 
 	ctx := context.Background()
@@ -73,7 +74,7 @@ func TestService_GetMatchSummary(t *testing.T) {
 			MatchId: matchId,
 		}
 
-		repository.EXPECT().GetMatchFacts(matchId).Return(matchFacts, nil)
+		store.EXPECT().GetMatchFacts(matchId).Return(matchFacts, nil)
 		predictor.EXPECT().GetPredictionSummary(ctx, matchId).Return(predictionSummary, nil)
 		predictor.EXPECT().GetPrediction(ctx, req).Return(prediction, nil)
 
@@ -94,7 +95,7 @@ func TestService_GetMatchSummary(t *testing.T) {
 			MatchId: matchId,
 		}
 
-		repository.EXPECT().GetMatchFacts(matchId).Return(nil, e)
+		store.EXPECT().GetMatchFacts(matchId).Return(nil, e)
 		predictor.EXPECT().GetPredictionSummary(ctx, matchId).Return(predictionSummary, nil)
 		predictor.EXPECT().GetPrediction(ctx, req).Return(prediction, nil)
 
@@ -114,7 +115,7 @@ func TestService_GetMatchSummary(t *testing.T) {
 			MatchId: matchId,
 		}
 
-		repository.EXPECT().GetMatchFacts(matchId).Return(matchFacts, nil)
+		store.EXPECT().GetMatchFacts(matchId).Return(matchFacts, nil)
 		predictor.EXPECT().GetPredictionSummary(ctx, matchId).Return(nil, e)
 		predictor.EXPECT().GetPrediction(ctx, req).Return(prediction, nil)
 
@@ -134,7 +135,7 @@ func TestService_GetMatchSummary(t *testing.T) {
 			MatchId: matchId,
 		}
 
-		repository.EXPECT().GetMatchFacts(matchId).Return(matchFacts, nil)
+		store.EXPECT().GetMatchFacts(matchId).Return(matchFacts, nil)
 		predictor.EXPECT().GetPredictionSummary(ctx, matchId).Return(predictionSummary, nil)
 		predictor.EXPECT().GetPrediction(ctx, req).Return(nil, e)
 
@@ -149,10 +150,10 @@ func TestService_GetUpcomingMatches(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	repository := livemocks.NewMockRepository(ctrl)
-	predictor := predictionmocks.NewMockPredictor(ctrl)
+	store := live_mocks.NewMockStore(ctrl)
+	predictor := prediction_mocks.NewMockPredictor(ctrl)
 
-	service, err := NewService(repository, predictor)
+	service, err := New(store, predictor)
 	require.NoError(t, err)
 
 	t.Run("Gets upcoming game from db and groups them by date", func(t *testing.T) {
@@ -180,7 +181,7 @@ func TestService_GetUpcomingMatches(t *testing.T) {
 			FormattedDate: tomorrow.Format("02.01.2006"),
 			Time:          "12:00",
 		}
-		repository.EXPECT().GetUpcomingMatches().Return([]model.MatchFacts{m1, m2, m3}, nil)
+		store.EXPECT().GetUpcomingMatches().Return([]model.MatchFacts{m1, m2, m3}, nil)
 
 		expectedResult := map[time.Time][]model.MatchFacts{
 			tomorrow: {m3, m1},
@@ -195,7 +196,7 @@ func TestService_GetUpcomingMatches(t *testing.T) {
 	t.Run("Returns error if there is a problem getting from db", func(t *testing.T) {
 		e := errors.New("")
 
-		repository.EXPECT().GetUpcomingMatches().Return(nil, e)
+		store.EXPECT().GetUpcomingMatches().Return(nil, e)
 
 		result, err := service.GetUpcomingMatches()
 		require.Error(t, err)

@@ -1,22 +1,26 @@
-package live
+package mongo
 
 import (
 	"context"
-	"github.com/cshep4/premier-predictor-microservices/src/livematchservice/internal/model"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
-	"go.mongodb.org/mongo-driver/bson"
+	"github.com/cshep4/premier-predictor-microservices/src/common/store/mongo"
 	"os"
 	"strconv"
 	"testing"
 	"time"
+
+	"github.com/cshep4/premier-predictor-microservices/src/livematchservice/internal/model"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 const (
 	matchId = "matchId"
 )
 
-func Test_Repository(t *testing.T) {
+func Test_Store(t *testing.T) {
+	ctx := context.Background()
+
 	err := os.Setenv("MONGO_PORT", "27017")
 	assert.NoError(t, err)
 	err = os.Setenv("MONGO_HOST", "localhost")
@@ -24,11 +28,14 @@ func Test_Repository(t *testing.T) {
 	err = os.Setenv("MONGO_SCHEME", "mongodb")
 	assert.NoError(t, err)
 
-	repository, err := NewRepository()
-	assert.NoError(t, err)
+	client, err := mongo.New(ctx)
+	require.NoError(t, err)
+
+	store, err := New(ctx, client)
+	require.NoError(t, err)
 
 	createMatch := func(m *matchFactsEntity) {
-		_, err = repository.
+		_, err = store.
 			client.
 			Database(db).
 			Collection(collection).
@@ -41,7 +48,7 @@ func Test_Repository(t *testing.T) {
 	}
 
 	cleanupDb := func() {
-		_, _ = repository.
+		_, _ = store.
 			client.
 			Database(db).
 			Collection(collection).
@@ -66,7 +73,7 @@ func Test_Repository(t *testing.T) {
 				createMatch(m)
 			}
 
-			matches, err := repository.GetUpcomingMatches()
+			matches, err := store.GetUpcomingMatches()
 			require.NoError(t, err)
 
 			assert.Equal(t, limit, len(matches))
@@ -86,7 +93,7 @@ func Test_Repository(t *testing.T) {
 			}
 			createMatch(m)
 
-			matches, err := repository.GetUpcomingMatches()
+			matches, err := store.GetUpcomingMatches()
 			require.NoError(t, err)
 
 			assert.Equal(t, toMatchFacts(m), &matches[0])
@@ -105,7 +112,7 @@ func Test_Repository(t *testing.T) {
 				createMatch(m)
 			}
 
-			matches, err := repository.GetUpcomingMatches()
+			matches, err := store.GetUpcomingMatches()
 			require.NoError(t, err)
 
 			assert.Equal(t, 0, len(matches))
@@ -123,7 +130,7 @@ func Test_Repository(t *testing.T) {
 			createMatch(m)
 			defer cleanupDb()
 
-			match, err := repository.GetMatchFacts(matchId)
+			match, err := store.GetMatchFacts(matchId)
 			require.NoError(t, err)
 
 			expectedResult := toMatchFacts(m)
@@ -132,7 +139,7 @@ func Test_Repository(t *testing.T) {
 		})
 
 		t.Run("Returns error if not found", func(t *testing.T) {
-			match, err := repository.GetMatchFacts(matchId)
+			match, err := store.GetMatchFacts(matchId)
 			require.Error(t, err)
 
 			assert.Nil(t, match)

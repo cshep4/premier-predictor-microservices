@@ -1,31 +1,42 @@
-package handler
+package grpc
 
 import (
+	"errors"
+	"time"
+
 	gen "github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen"
 	common "github.com/cshep4/premier-predictor-microservices/src/common/model"
-	"github.com/cshep4/premier-predictor-microservices/src/livematchservice/internal/interfaces"
+	"github.com/cshep4/premier-predictor-microservices/src/livematchservice/internal/handler"
 	"github.com/cshep4/premier-predictor-microservices/src/livematchservice/internal/model"
 	"github.com/golang/protobuf/ptypes/empty"
-	"log"
-	"time"
+	"google.golang.org/grpc"
 )
 
-type liveMatchServiceServer struct {
-	service  interfaces.Service
+type server struct {
+	service  handler.Servicer
 	interval time.Duration
 }
 
-func NewLiveMatchServiceServer(service interfaces.Service, interval time.Duration) (*liveMatchServiceServer, error) {
-	log.Print("Registered liveMatchServiceServer handler")
+func New(service handler.Servicer, interval time.Duration) (*server, error) {
+	if service == nil {
+		return nil, errors.New("service_is_nil")
+	}
+	if interval == 0 {
+		return nil, errors.New("interval_is_zero")
+	}
 
-	return &liveMatchServiceServer{
+	return &server{
 		service:  service,
 		interval: interval,
 	}, nil
 }
 
-func (l *liveMatchServiceServer) GetUpcomingMatches(req *empty.Empty, stream gen.LiveMatchService_GetUpcomingMatchesServer) error {
-	matches, err := l.service.GetUpcomingMatches()
+func (s *server) Register(g *grpc.Server) {
+	gen.RegisterLiveMatchServiceServer(g, s)
+}
+
+func (s *server) GetUpcomingMatches(_ *empty.Empty, stream gen.LiveMatchService_GetUpcomingMatchesServer) error {
+	matches, err := s.service.GetUpcomingMatches()
 	if err != nil {
 		return err
 	}
@@ -36,11 +47,11 @@ func (l *liveMatchServiceServer) GetUpcomingMatches(req *empty.Empty, stream gen
 		return err
 	}
 
-	ticker := time.NewTicker(l.interval)
+	ticker := time.NewTicker(s.interval)
 	for {
 		select {
 		case <-ticker.C:
-			matches, err := l.service.GetUpcomingMatches()
+			matches, err := s.service.GetUpcomingMatches()
 			if err != nil {
 				return nil
 			}
@@ -54,13 +65,13 @@ func (l *liveMatchServiceServer) GetUpcomingMatches(req *empty.Empty, stream gen
 	}
 }
 
-func (l *liveMatchServiceServer) GetMatchSummary(req *gen.PredictionRequest, stream gen.LiveMatchService_GetMatchSummaryServer) error {
+func (s *server) GetMatchSummary(req *gen.PredictionRequest, stream gen.LiveMatchService_GetMatchSummaryServer) error {
 	r := model.PredictionRequest{
 		UserId:  req.UserId,
 		MatchId: req.MatchId,
 	}
 
-	matchSummary, err := l.service.GetMatchSummary(stream.Context(), r)
+	matchSummary, err := s.service.GetMatchSummary(stream.Context(), r)
 	if err != nil {
 		return err
 	}
@@ -71,11 +82,11 @@ func (l *liveMatchServiceServer) GetMatchSummary(req *gen.PredictionRequest, str
 		return err
 	}
 
-	ticker := time.NewTicker(l.interval)
+	ticker := time.NewTicker(s.interval)
 	for {
 		select {
 		case <-ticker.C:
-			match, err := l.service.GetMatchFacts(req.MatchId)
+			match, err := s.service.GetMatchFacts(req.MatchId)
 			if err != nil {
 				return nil
 			}

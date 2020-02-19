@@ -1,4 +1,4 @@
-package live
+package mongo
 
 import (
 	"github.com/cshep4/premier-predictor-microservices/src/common/model"

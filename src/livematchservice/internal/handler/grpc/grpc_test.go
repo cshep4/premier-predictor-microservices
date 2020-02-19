@@ -1,22 +1,23 @@
-package handler
+package grpc
 
 import (
-	"github.com/cshep4/premier-predictor-microservices/src/livematchservice/internal/service/mocks"
-	"github.com/golang/mock/gomock"
-	"github.com/stretchr/testify/require"
 	"testing"
 	"time"
+
+	"github.com/cshep4/premier-predictor-microservices/src/livematchservice/internal/mocks/live"
+	"github.com/golang/mock/gomock"
+	"github.com/stretchr/testify/require"
 )
 
 func TestLiveMatchServiceServer_GetMatchSummary(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	service := livemocks.NewMockService(ctrl)
+	service := live_mocks.NewMockServicer(ctrl)
 
 	interval := 500 * time.Millisecond
 
-	_, err := NewLiveMatchServiceServer(service, interval)
+	_, err := New(service, interval)
 	require.NoError(t, err)
 
 	t.Run("Gets match summary and updates match facts at given timer interval", func(t *testing.T) {
@@ -36,11 +37,11 @@ func TestLiveMatchServiceServer_GetUpcomingMatches(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	service := livemocks.NewMockService(ctrl)
+	service := live_mocks.NewMockServicer(ctrl)
 
 	interval := 500 * time.Millisecond
 
-	_, err := NewLiveMatchServiceServer(service, interval)
+	_, err := New(service, interval)
 	require.NoError(t, err)
 
 	t.Run("Gets upcoming matches and updates at given timer interval", func(t *testing.T) {

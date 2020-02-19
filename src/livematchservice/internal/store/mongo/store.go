@@ -1,16 +1,16 @@
-package live
+package mongo
 
 import (
 	"context"
-	"fmt"
-	"github.com/cshep4/premier-predictor-microservices/src/common/model"
-	model2 "github.com/cshep4/premier-predictor-microservices/src/livematchservice/internal/model"
+	"errors"
+	"time"
+
+	common "github.com/cshep4/premier-predictor-microservices/src/common/model"
+	"github.com/cshep4/premier-predictor-microservices/src/livematchservice/internal/model"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/x/bsonx"
-	"os"
-	"time"
 )
 
 const (
@@ -20,54 +20,36 @@ const (
 
 var limit = int64(20)
 
-type repository struct {
+type store struct {
 	client *mongo.Client
 }
 
-func NewRepository() (*repository, error) {
-	username := os.Getenv("MONGO_USERNAME")
-	password := os.Getenv("MONGO_PASSWORD")
-	port := os.Getenv("MONGO_PORT")
-
-	mongoUri := fmt.Sprintf("%s://", os.Getenv("MONGO_SCHEME"))
-	if username != "" && password != "" {
-		mongoUri = fmt.Sprintf("%s%s:%s@", mongoUri, username, password)
-	}
-	mongoUri = mongoUri + os.Getenv("MONGO_HOST")
-	if port != "" {
-		mongoUri = fmt.Sprintf("%s:%s", mongoUri, port)
+func New(ctx context.Context, client *mongo.Client) (*store, error) {
+	if client == nil {
+		return nil, errors.New("mongo_client_is_nil")
 	}
 
-	c, err := mongo.NewClient(options.Client().ApplyURI(mongoUri))
-	if err != nil {
+	s := &store{
+		client: client,
+	}
+
+	if err := s.Ping(ctx); err != nil {
 		return nil, err
 	}
 
-	if err := c.Connect(context.Background()); err != nil {
+	if err := s.ensureIndexes(ctx); err != nil {
 		return nil, err
 	}
 
-	r := repository{
-		client: c,
-	}
-
-	if err := r.Ping(); err != nil {
-		return nil, err
-	}
-
-	if err := r.ensureIndexes(); err != nil {
-		return nil, err
-	}
-
-	return &r, nil
+	return s, nil
 }
 
-func (r *repository) ensureIndexes() error {
+func (r *store) ensureIndexes(ctx context.Context) error {
 	_, err := r.client.
 		Database(db).
 		Collection(collection).
 		Indexes().CreateOne(
-		context.Background(),
+		ctx,
 		mongo.IndexModel{
 			Keys: bsonx.Doc{
 				{Key: "matchDate", Value: bsonx.Int64(1)},
@@ -87,7 +69,7 @@ func (r *repository) ensureIndexes() error {
 	return nil
 }
 
-func (r *repository) GetUpcomingMatches() ([]model.MatchFacts, error) {
+func (r *store) GetUpcomingMatches() ([]common.MatchFacts, error) {
 	year, month, day := time.Now().Date()
 	today := time.Date(year, month, day, 0, 0, 0, 0, time.Now().Location())
 
@@ -112,7 +94,7 @@ func (r *repository) GetUpcomingMatches() ([]model.MatchFacts, error) {
 	)
 }
 
-func (r *repository) getMatches(filter interface{}, opts *options.FindOptions) ([]model.MatchFacts, error) {
+func (r *store) getMatches(filter interface{}, opts *options.FindOptions) ([]common.MatchFacts, error) {
 	ctx := context.Background()
 
 	cur, err := r.client.
@@ -128,7 +110,7 @@ func (r *repository) getMatches(filter interface{}, opts *options.FindOptions) (
 		return nil, err
 	}
 
-	matches := []model.MatchFacts{}
+	matches := []common.MatchFacts{}
 
 	defer cur.Close(ctx)
 	for cur.Next(ctx) {
@@ -148,7 +130,7 @@ func (r *repository) getMatches(filter interface{}, opts *options.FindOptions) (
 	return matches, nil
 }
 
-func (r *repository) GetMatchFacts(id string) (*model.MatchFacts, error) {
+func (r *store) GetMatchFacts(id string) (*common.MatchFacts, error) {
 	var m matchFactsEntity
 
 	err := r.client.
@@ -164,7 +146,7 @@ func (r *repository) GetMatchFacts(id string) (*model.MatchFacts, error) {
 
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
-			return nil, model2.ErrMatchNotFound
+			return nil, model.ErrMatchNotFound
 		}
 
 		return nil, err
@@ -173,11 +155,11 @@ func (r *repository) GetMatchFacts(id string) (*model.MatchFacts, error) {
 	return toMatchFacts(&m), nil
 }
 
-func (r *repository) Ping() error {
-	ctx, _ := context.WithTimeout(context.Background(), time.Duration(5000*time.Millisecond))
-	return r.client.Ping(ctx, nil)
+func (s *store) Ping(ctx context.Context) error {
+	ctx, _ = context.WithTimeout(ctx, 2*time.Second)
+	return s.client.Ping(ctx, nil)
 }
 
-func (r *repository) Close() error {
-	return r.client.Disconnect(context.Background())
+func (s *store) Close(ctx context.Context) error {
+	return s.client.Disconnect(ctx)
 }
