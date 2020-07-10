@@ -17,5 +17,4 @@ spec:
     - port: 80
       targetPort: 8089
   selector:
-    certmanager.k8s.io/acme-http-domain: "1334183887"
-    certmanager.k8s.io/acme-http-token: "931008230"
+    acme.cert-manager.io/http01-solver: "true"

@@ -1,26 +1,25 @@
-//go:generate mockgen -destination=./mocks/mock_notification_service_client.go -package=notificationmocks github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen NotificationServiceClient
-
 package notification
 
 import (
 	"context"
 	"errors"
+	"testing"
+
 	gen "github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen"
+	"github.com/cshep4/premier-predictor-microservices/src/common/internal/mocks/notification"
 	"github.com/cshep4/premier-predictor-microservices/src/common/model"
-	"github.com/cshep4/premier-predictor-microservices/src/common/notification/mocks"
 	"github.com/golang/mock/gomock"
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/metadata"
-	"testing"
 )
 
 func TestNotifier_Send(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	notificationClient := notificationmocks.NewMockNotificationServiceClient(ctrl)
+	notificationClient := notification_mocks.NewMockNotificationServiceClient(ctrl)
 
 	notifier, err := NewNotifier(notificationClient)
 	require.NoError(t, err)

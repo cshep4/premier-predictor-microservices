@@ -1,11 +1,10 @@
-//go:generate mockgen -destination=./mocks/mock_fixture_service_client.go -package=fixturemocks github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen FixtureServiceClient
-
 package fixture
 
 import (
+	"context"
 	"errors"
 	"github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen"
-	"github.com/cshep4/premier-predictor-microservices/src/predictionservice/internal/fixture/mocks"
+	"github.com/cshep4/premier-predictor-microservices/src/predictionservice/internal/mocks/fixture"
 	. "github.com/cshep4/premier-predictor-microservices/src/predictionservice/internal/model"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
@@ -20,13 +19,17 @@ const (
 	score   = "2-1"
 )
 
+var (
+	ctx = context.Background()
+)
+
 func TestFixtures_GetMatches(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	fixtureClient := fixturemocks.NewMockFixtureServiceClient(ctrl)
+	fixtureClient := fixture_mocks.NewMockFixtureServiceClient(ctrl)
 
-	fixtureService, err := NewFixtureService(fixtureClient)
+	fixtureService, err := New(fixtureClient)
 	require.NoError(t, err)
 
 	t.Run("Gets the matches from FixtureService", func(t *testing.T) {
@@ -42,9 +45,9 @@ func TestFixtures_GetMatches(t *testing.T) {
 			Matches: matches,
 		}
 
-		fixtureClient.EXPECT().GetMatches(gomock.Any(), gomock.Any()).Return(resp, nil)
+		fixtureClient.EXPECT().GetMatches(ctx, gomock.Any()).Return(resp, nil)
 
-		result, err := fixtureService.GetMatches()
+		result, err := fixtureService.GetMatches(ctx)
 		require.NoError(t, err)
 
 		assert.Equal(t, id, result[0].Id)
@@ -53,9 +56,9 @@ func TestFixtures_GetMatches(t *testing.T) {
 	})
 
 	t.Run("Returns error if there is a problem calling FixtureService", func(t *testing.T) {
-		fixtureClient.EXPECT().GetMatches(gomock.Any(), gomock.Any()).Return(nil, errors.New("error"))
+		fixtureClient.EXPECT().GetMatches(ctx, gomock.Any()).Return(nil, errors.New("error"))
 
-		result, err := fixtureService.GetMatches()
+		result, err := fixtureService.GetMatches(ctx)
 		require.Error(t, err)
 
 		assert.Nil(t, result)
@@ -66,9 +69,9 @@ func TestFixtures_GetTeamForm(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	fixtureClient := fixturemocks.NewMockFixtureServiceClient(ctrl)
+	fixtureClient := fixture_mocks.NewMockFixtureServiceClient(ctrl)
 
-	fixtureService, err := NewFixtureService(fixtureClient)
+	fixtureService, err := New(fixtureClient)
 	require.NoError(t, err)
 
 	t.Run("Gets team forms from FixtureService", func(t *testing.T) {
@@ -89,9 +92,9 @@ func TestFixtures_GetTeamForm(t *testing.T) {
 			Teams: teamForms,
 		}
 
-		fixtureClient.EXPECT().GetTeamForm(gomock.Any(), gomock.Any()).Return(resp, nil)
+		fixtureClient.EXPECT().GetTeamForm(ctx, gomock.Any()).Return(resp, nil)
 
-		result, err := fixtureService.GetTeamForm()
+		result, err := fixtureService.GetTeamForm(ctx)
 		require.NoError(t, err)
 
 		assert.Equal(t, WIN, result[teamOne].Forms[0].Result)
@@ -101,9 +104,9 @@ func TestFixtures_GetTeamForm(t *testing.T) {
 	})
 
 	t.Run("Returns error if there is a problem calling FixtureService", func(t *testing.T) {
-		fixtureClient.EXPECT().GetTeamForm(gomock.Any(), gomock.Any()).Return(nil, errors.New("error"))
+		fixtureClient.EXPECT().GetTeamForm(ctx, gomock.Any()).Return(nil, errors.New("error"))
 
-		result, err := fixtureService.GetTeamForm()
+		result, err := fixtureService.GetTeamForm(ctx)
 		require.Error(t, err)
 
 		assert.Nil(t, result)

@@ -2,27 +2,34 @@ package auth
 
 import (
 	"github.com/gorilla/mux"
-	"log"
 	"net/http"
 )
 
-func (a *authenticator) HttpMiddleware(next http.Handler) http.Handler {
+func (a *authenticator) Http(next http.Handler) http.Handler {
+	unauthenticatedEndpoints := map[string]struct{}{
+		"/health": {},
+		"/legacy": {},
+	}
+
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		p, _ := mux.CurrentRoute(r).GetPathTemplate()
-		if p == "/health" || p == "/legacy" {
+		if _, ok := unauthenticatedEndpoints[p]; ok {
 			next.ServeHTTP(w, r)
 			return
 		}
 
 		token := r.Header.Get("Authorization")
-
-		err := a.doAuth(token)
-		if err != nil {
-			log.Printf("auth error: %s", err)
+		if token == "" {
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
 
-		next.ServeHTTP(w, r)
+		ctx, err := a.doAuth(r.Context(), token)
+		if err != nil {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

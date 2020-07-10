@@ -23,7 +23,7 @@ export class Grpc {
 
         const opts = {
             "grpc.keepalive_time_ms": 60000,
-            "grpc.keepalive_permit_without_calls" : 1
+            "grpc.keepalive_permit_without_calls": 1
         };
         const server = new grpc.Server(opts);
 

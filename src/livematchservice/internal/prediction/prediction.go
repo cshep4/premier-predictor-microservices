@@ -4,10 +4,10 @@ import (
 	"context"
 	"errors"
 	gen "github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen"
-	"github.com/cshep4/premier-predictor-microservices/src/common/model"
+	common "github.com/cshep4/premier-predictor-microservices/src/common/model"
 	"github.com/cshep4/premier-predictor-microservices/src/common/util"
-	"github.com/cshep4/premier-predictor-microservices/src/livematchservice/internal/interfaces"
-	. "github.com/cshep4/premier-predictor-microservices/src/livematchservice/internal/model"
+	"github.com/cshep4/premier-predictor-microservices/src/livematchservice/internal/model"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
@@ -23,13 +23,13 @@ var (
 	ErrPredictionNotFound = errors.New(predictionNotFound)
 )
 
-func NewPredictor(client gen.PredictionServiceClient) (interfaces.Predictor, error) {
+func New(client gen.PredictionServiceClient) (*predictor, error) {
 	return &predictor{
 		client: client,
 	}, nil
 }
 
-func (p *predictor) GetPrediction(ctx context.Context, req PredictionRequest) (*model.Prediction, error) {
+func (p *predictor) GetPrediction(ctx context.Context, req model.PredictionRequest) (*common.Prediction, error) {
 	r := &gen.PredictionRequest{
 		UserId:  req.UserId,
 		MatchId: req.MatchId,
@@ -48,17 +48,17 @@ func (p *predictor) GetPrediction(ctx context.Context, req PredictionRequest) (*
 		switch {
 		case !ok:
 			return nil, err
-		case statusErr.Message() == predictionNotFound:
+		case statusErr.Code() == codes.NotFound:
 			return nil, ErrPredictionNotFound
 		}
 
 		return nil, err
 	}
 
-	return model.PredictionFromGrpc(prediction), nil
+	return common.PredictionFromGrpc(prediction), nil
 }
 
-func (p *predictor) GetPredictionSummary(ctx context.Context, matchId string) (*model.MatchPredictionSummary, error) {
+func (p *predictor) GetPredictionSummary(ctx context.Context, matchId string) (*common.MatchPredictionSummary, error) {
 	r := &gen.IdRequest{
 		Id: matchId,
 	}
@@ -73,5 +73,5 @@ func (p *predictor) GetPredictionSummary(ctx context.Context, matchId string) (*
 		return nil, err
 	}
 
-	return model.MatchPredictionSummaryFromGrpc(predictionSummary), nil
+	return common.MatchPredictionSummaryFromGrpc(predictionSummary), nil
 }

@@ -2,176 +2,158 @@ package main
 
 import (
 	"context"
-	gen "github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen"
-	"github.com/cshep4/premier-predictor-microservices/src/common/auth"
-	"github.com/cshep4/premier-predictor-microservices/src/common/factory"
-	"github.com/cshep4/premier-predictor-microservices/src/common/grpc/options"
-	common "github.com/cshep4/premier-predictor-microservices/src/common/interfaces"
-	fFactory "github.com/cshep4/premier-predictor-microservices/src/predictionservice/internal/factory"
-	"github.com/cshep4/premier-predictor-microservices/src/predictionservice/internal/fixture"
-	"github.com/cshep4/premier-predictor-microservices/src/predictionservice/internal/handler"
-	"github.com/cshep4/premier-predictor-microservices/src/predictionservice/internal/interfaces"
-	repo "github.com/cshep4/premier-predictor-microservices/src/predictionservice/internal/repository"
-	svc "github.com/cshep4/premier-predictor-microservices/src/predictionservice/internal/service"
-	"github.com/rs/cors"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
-	"log"
-	"net"
-	"net/http"
+	"errors"
+	"fmt"
 	"os"
-	"syscall"
-	"time"
+	"strconv"
+
+	gen "github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen"
+	"github.com/cshep4/premier-predictor-microservices/src/common/app"
+	"github.com/cshep4/premier-predictor-microservices/src/common/auth"
+	"github.com/cshep4/premier-predictor-microservices/src/common/gcp"
+	"github.com/cshep4/premier-predictor-microservices/src/common/gcp/tracer"
+	grpcconn "github.com/cshep4/premier-predictor-microservices/src/common/grpc"
+	"github.com/cshep4/premier-predictor-microservices/src/common/log"
+	"github.com/cshep4/premier-predictor-microservices/src/common/run"
+	"github.com/cshep4/premier-predictor-microservices/src/common/runner/grpc"
+	"github.com/cshep4/premier-predictor-microservices/src/common/runner/http"
+	"github.com/cshep4/premier-predictor-microservices/src/common/store/mongo"
+	"github.com/cshep4/premier-predictor-microservices/src/predictionservice/internal/fixture"
+	grpchandler "github.com/cshep4/premier-predictor-microservices/src/predictionservice/internal/handler/grpc"
+	httphandler "github.com/cshep4/premier-predictor-microservices/src/predictionservice/internal/handler/http"
+	svc "github.com/cshep4/premier-predictor-microservices/src/predictionservice/internal/service"
+	mongostore "github.com/cshep4/premier-predictor-microservices/src/predictionservice/internal/store/mongo"
+	"golang.org/x/sync/errgroup"
 )
 
-func main() {
-	authAddress, ok := os.LookupEnv("AUTH_ADDR")
-	if !ok {
-		log.Fatalf("failed to get authservice address")
-	}
+const (
+	serviceName = "predictionservice"
+	version     = "1.0.0"
+	logLevel    = "info"
+)
 
-	authFactory := factory.NewAuthClientFactory(authAddress)
-	authClient, err := authFactory.NewAuthClient()
-	clientConnCloseFunc = append(clientConnCloseFunc, authFactory.CloseConnection)
-
-	fixtureAddress, ok := os.LookupEnv("FIXTURE_ADDR")
-	if !ok {
-		log.Fatalf("failed to get fixtureservice address")
-	}
-
-	fixtureFactory := fFactory.NewFixtureClientFactory(fixtureAddress)
-	fixtureClient, err := fixtureFactory.NewFixtureClient()
-	clientConnCloseFunc = append(clientConnCloseFunc, fixtureFactory.CloseConnection)
-
-	authenticator, err := auth.NewAuthenticator(authClient)
-	if err != nil {
-		log.Fatalf("failed to create authenticator: %v", err)
-	}
-
-	fixtureService, err := fixture.NewFixtureService(fixtureClient)
-	if err != nil {
-		log.Fatalf("failed to create fixtureClient: %v", err)
-	}
-
-	repository, err := repo.NewRepository()
-	if err != nil {
-		log.Fatalf("failed to create repository: %v", err)
-	}
-
-	service, err := svc.NewService(repository, fixtureService)
-	if err != nil {
-		log.Fatalf("failed to create service: %v", err)
-	}
-
-	var exitCode codes.Code
-	var grpcServer *grpc.Server
-	var httpServer *http.Server
-
-	sigs := make(chan os.Signal)
-
-	go func() {
-		grpcServer = startGrpcServer(service, authenticator)
-		sigs <- syscall.SIGQUIT
-	}()
-
-	go func() {
-		httpServer = startHttpServer(service, authenticator)
-		sigs <- syscall.SIGQUIT
-	}()
-
-	switch sig := <-sigs; sig {
-	case os.Interrupt, syscall.SIGINT, syscall.SIGQUIT:
-		log.Print("Shutting down")
-
-		for i := range clientConnCloseFunc {
-			err := clientConnCloseFunc[i]()
-			if err != nil {
-				log.Printf("Error closing client connection: %v\n", err)
-			}
+func start(ctx context.Context) error {
+	var (
+		authAddr    string
+		fixtureAddr string
+		httpPortEnv string
+		grpcPortEnv string
+	)
+	for k, v := range map[string]*string{
+		"AUTH_ADDR":    &authAddr,
+		"FIXTURE_ADDR": &fixtureAddr,
+		"HTTP_PORT":    &httpPortEnv,
+		"PORT":         &grpcPortEnv,
+	} {
+		var ok bool
+		if *v, ok = os.LookupEnv(k); !ok {
+			return fmt.Errorf("missing_env_variable: %s", k)
 		}
-
-		grpcServer.GracefulStop()
-		err := httpServer.Shutdown(context.Background())
-		if err != nil {
-			log.Printf("Error shutting down http server: %v\n", err)
-		}
-
-		exitCode = codes.Aborted
-	case syscall.SIGTERM:
-		exitCode = codes.OK
 	}
 
-	os.Exit(int(exitCode))
-}
-
-var clientConnCloseFunc []func() error
-
-func startHttpServer(service interfaces.Service, authenticator common.Authenticator) *http.Server {
-	h, err := handler.NewHttpHandler(service, authenticator)
+	httpPort, err := strconv.Atoi(httpPortEnv)
 	if err != nil {
-		log.Fatalf("failed to create http handler: %v", err)
+		return errors.New("invalid_http_port")
 	}
 
-	path := ":" + os.Getenv("HTTP_PORT")
-
-	corsOpts := cors.New(cors.Options{
-		AllowedOrigins: []string{"*"},
-		AllowedMethods: []string{
-			http.MethodGet,
-			http.MethodPost,
-			http.MethodPut,
-			http.MethodPatch,
-			http.MethodDelete,
-			http.MethodOptions,
-			http.MethodHead,
-		},
-		AllowedHeaders: []string{"*"},
-	})
-
-	http := &http.Server{
-		Addr:         path,
-		ReadTimeout:  5 * time.Second,
-		WriteTimeout: 10 * time.Second,
-		IdleTimeout:  120 * time.Second,
-		Handler:      corsOpts.Handler(h.Route()),
-	}
-
-	log.Printf("Http server listening on %s", path)
-
-	err = http.ListenAndServe()
+	grpcPort, err := strconv.Atoi(grpcPortEnv)
 	if err != nil {
-		log.Printf("Failed to start http server: %v\n", err)
+		return errors.New("invalid_grpc_port")
 	}
 
-	return http
-}
-
-func startGrpcServer(service interfaces.Service, authenticator common.Authenticator) *grpc.Server {
-	path := ":" + os.Getenv("PORT")
-
-	lis, err := net.Listen("tcp", path)
+	authConn, err := grpcconn.Dial(ctx, authAddr)
 	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
+		return fmt.Errorf("create_auth_connection: %w", err)
 	}
+	defer authConn.Close()
+	authClient := gen.NewAuthServiceClient(authConn)
 
-	log.Printf("Grpc server listening on %s", path)
-
-	server, err := handler.NewPredictionServiceServer(service)
+	fixtureConn, err := grpcconn.Dial(ctx, fixtureAddr)
 	if err != nil {
-		log.Fatalf("failed to create grpc handler: %v", err)
+		return fmt.Errorf("create_fixture_connection: %w", err)
+	}
+	defer fixtureConn.Close()
+	fixtureClient := gen.NewFixtureServiceClient(fixtureConn)
+
+	authenticator, err := auth.New(authClient)
+	if err != nil {
+		return fmt.Errorf("create_authenticator: %w", err)
 	}
 
-	grpcServer := grpc.NewServer(
-		options.ServerKeepAlive,
-		grpc.UnaryInterceptor(authenticator.GrpcUnaryInterceptor),
+	fixtureService, err := fixture.New(fixtureClient)
+	if err != nil {
+		return fmt.Errorf("create_fixture_client: %w", err)
+	}
+
+	client, err := mongo.New(ctx)
+	if err != nil {
+		return fmt.Errorf("create_mongo_client: %w", err)
+	}
+
+	store, err := mongostore.New(ctx, client)
+	if err != nil {
+		return fmt.Errorf("create_store: %w", err)
+	}
+	defer store.Close(ctx)
+
+	service, err := svc.New(store, fixtureService)
+	if err != nil {
+		return fmt.Errorf("create_service: %w", err)
+	}
+
+	h, err := httphandler.New(service)
+	if err != nil {
+		return fmt.Errorf("create_http_handler: %w", err)
+	}
+
+	rpc, err := grpchandler.New(service)
+	if err != nil {
+		return fmt.Errorf("create_grpc_handler: %w", err)
+	}
+
+	tracer := tracer.New()
+
+	app := app.New(
+		app.WithStartupFunc(gcp.Profile(serviceName, version)),
+		app.WithStartupFunc(gcp.Trace),
+		app.WithShutdownFunc(authConn.Close),
+		app.WithShutdownFunc(fixtureConn.Close),
+		app.WithShutdownFuncContext(store.Close),
+		app.WithRunner(
+			grpc.New(
+				grpc.WithPort(grpcPort),
+				grpc.WithLogger(serviceName, logLevel),
+				grpc.WithUnaryInterceptor(tracer.GrpcUnary),
+				grpc.WithStreamInterceptor(tracer.GrpcStream),
+				grpc.WithUnaryInterceptor(authenticator.GrpcUnary),
+				grpc.WithStreamInterceptor(authenticator.GrpcStream),
+				grpc.WithRegisterer(rpc),
+			),
+		),
+		app.WithRunner(
+			http.New(
+				http.WithPort(httpPort),
+				http.WithLogger(serviceName, logLevel),
+				http.WithHandler(tracer),
+				http.WithMiddleware(authenticator.Http),
+				http.WithRouter(h),
+				http.WithRegisterer(http.Health()),
+			),
+		),
 	)
 
-	gen.RegisterPredictionServiceServer(grpcServer, server)
+	ctx, cancel := context.WithCancel(ctx)
+	g, ctx := errgroup.WithContext(ctx)
 
-	err = grpcServer.Serve(lis)
-	if err != nil {
-		log.Printf("Failed to start server: %v\n", err)
+	g.Go(func() error { return app.Run(ctx) })
+	g.Go(run.HandleShutdown(g, ctx, cancel, app.Shutdown))
+
+	return g.Wait()
+}
+
+func main() {
+	ctx := log.WithServiceName(context.Background(), log.New(logLevel), serviceName)
+	if err := start(ctx); err != nil {
+		log.Error(ctx, "error_starting_server", log.ErrorParam(err))
 	}
-
-	return grpcServer
 }

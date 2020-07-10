@@ -3,7 +3,6 @@ package notification
 import (
 	"context"
 	gen "github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen"
-	"github.com/cshep4/premier-predictor-microservices/src/common/interfaces"
 	"github.com/cshep4/premier-predictor-microservices/src/common/model"
 	"github.com/cshep4/premier-predictor-microservices/src/common/util"
 )
@@ -12,7 +11,7 @@ type notifier struct {
 	client gen.NotificationServiceClient
 }
 
-func NewNotifier(client gen.NotificationServiceClient) (interfaces.Notifier, error) {
+func NewNotifier(client gen.NotificationServiceClient) (*notifier, error) {
 	return &notifier{
 		client: client,
 	}, nil

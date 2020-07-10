@@ -1,41 +1,79 @@
 package prediction
 
 import (
+	"context"
+	"errors"
+	"fmt"
 	common "github.com/cshep4/premier-predictor-microservices/src/common/model"
-	"github.com/cshep4/premier-predictor-microservices/src/predictionservice/internal/interfaces"
 	"github.com/cshep4/premier-predictor-microservices/src/predictionservice/internal/model"
+	"golang.org/x/sync/errgroup"
 	"time"
 )
 
-type service struct {
-	repository     interfaces.Repository
-	fixtureService interfaces.FixtureService
-}
+type (
+	FixtureService interface {
+		GetMatches(ctx context.Context) ([]common.Fixture, error)
+		GetTeamForm(ctx context.Context) (map[string]model.TeamForm, error)
+		GetFutureFixtures(ctx context.Context) (map[string]string, error)
+	}
+	Store interface {
+		GetPrediction(ctx context.Context, userId, matchId string) (*common.Prediction, error)
+		GetPredictionsByUserId(ctx context.Context, id string) ([]common.Prediction, error)
+		UpdatePredictions(ctx context.Context, predictions []common.Prediction) error
+		GetMatchPredictionSummary(ctx context.Context, id string) (int, int, int, error)
+	}
 
-func NewService(repository interfaces.Repository, fixtureService interfaces.FixtureService) (interfaces.Service, error) {
+	service struct {
+		store          Store
+		fixtureService FixtureService
+	}
+)
+
+func New(store Store, fixtureService FixtureService) (*service, error) {
+	if store == nil {
+		return nil, errors.New("store_is_nil")
+	}
+	if fixtureService == nil {
+		return nil, errors.New("fixture_service_is_nil")
+	}
+
 	return &service{
-		repository:     repository,
+		store:          store,
 		fixtureService: fixtureService,
 	}, nil
 }
 
-func (s *service) GetFixturesWithPredictions(id string) ([]model.FixturePrediction, error) {
-	fixturesChan := s.getFixturesAsync()
-	predictionsChan := s.getPredictionsAsync(id)
+func (s *service) GetFixturesWithPredictions(ctx context.Context, id string) ([]model.FixturePrediction, error) {
+	fixturesChan := make(chan []common.Fixture)
+	predictionsChan := make(chan []common.Prediction)
 
-	fResult := <-fixturesChan
-	if fResult.err != nil {
-		return nil, fResult.err
+	g, _ := errgroup.WithContext(ctx)
+	g.Go(func() error {
+		f, err := s.fixtureService.GetMatches(ctx)
+		fixturesChan <- f
+		if err != nil {
+			return fmt.Errorf("get_fixtures: %w", err)
+		}
+
+		return nil
+	})
+	g.Go(func() error {
+		p, err := s.store.GetPredictionsByUserId(ctx, id)
+		predictionsChan <- p
+		if err != nil {
+			return fmt.Errorf("get_predictions: %w", err)
+		}
+		return nil
+	})
+
+	fixtures := <-fixturesChan
+	predictions := <-predictionsChan
+
+	if err := g.Wait(); err != nil {
+		return nil, err
 	}
-	fixtures := fResult.result
 
-	pResult := <-predictionsChan
-	if pResult.err != nil {
-		return nil, pResult.err
-	}
-	predictions := pResult.result
-
-	fixturePredictions := []model.FixturePrediction{}
+	var fixturePredictions []model.FixturePrediction
 	for _, f := range fixtures {
 		fp := model.FixturePrediction{
 			UserId:     id,
@@ -63,43 +101,36 @@ func (s *service) GetFixturesWithPredictions(id string) ([]model.FixturePredicti
 	return fixturePredictions, nil
 }
 
-func (s *service) getFixturesAsync() chan fixturesResult {
-	fixturesChan := make(chan fixturesResult)
-	go func() { fixturesChan <- s.getFixtures() }()
-	return fixturesChan
-}
+func (s *service) GetPredictorData(ctx context.Context, id string) (*model.PredictorData, error) {
+	fixturePredictionsChan := make(chan []model.FixturePrediction)
+	formChan := make(chan map[string]model.TeamForm)
 
-func (s *service) getFixtures() fixturesResult {
-	r, e := s.fixtureService.GetMatches()
-	return fixturesResult{result: r, err: e}
-}
+	g, _ := errgroup.WithContext(ctx)
 
-func (s *service) getPredictionsAsync(id string) chan predictionsResult {
-	predictionsChan := make(chan predictionsResult)
-	go func() { predictionsChan <- s.getPredictions(id) }()
-	return predictionsChan
-}
+	g.Go(func() error {
+		f, err := s.GetFixturesWithPredictions(ctx, id)
+		fixturePredictionsChan <- f
+		if err != nil {
+			return fmt.Errorf("get_fixtures_with_predictions: %w", err)
+		}
 
-func (s *service) getPredictions(id string) predictionsResult {
-	r, e := s.repository.GetPredictionsByUserId(id)
-	return predictionsResult{result: r, err: e}
-}
+		return nil
+	})
+	g.Go(func() error {
+		p, err := s.fixtureService.GetTeamForm(ctx)
+		formChan <- p
+		if err != nil {
+			return fmt.Errorf("get_team_form: %w", err)
+		}
+		return nil
+	})
 
-func (s *service) GetPredictorData(id string) (*model.PredictorData, error) {
-	fixturePredictionsChan := s.getFixturesWithPredictionsAsync(id)
-	formChan := s.getTeamFormAsync()
+	fixturePredictions := <-fixturePredictionsChan
+	forms := <-formChan
 
-	fixturePredictionsResult := <-fixturePredictionsChan
-	if fixturePredictionsResult.err != nil {
-		return nil, fixturePredictionsResult.err
+	if err := g.Wait(); err != nil {
+		return nil, err
 	}
-	fixturePredictions := fixturePredictionsResult.result
-
-	formResult := <-formChan
-	if formResult.err != nil {
-		return nil, formResult.err
-	}
-	forms := formResult.result
 
 	return &model.PredictorData{
 		Predictions: fixturePredictions,
@@ -107,32 +138,10 @@ func (s *service) GetPredictorData(id string) (*model.PredictorData, error) {
 	}, nil
 }
 
-func (s *service) getFixturesWithPredictionsAsync(id string) chan fixturePredictionsResult {
-	fixturePredictionsChan := make(chan fixturePredictionsResult)
-	go func() { fixturePredictionsChan <- s.getFixturesWithPredictions(id) }()
-	return fixturePredictionsChan
-}
-
-func (s *service) getFixturesWithPredictions(id string) fixturePredictionsResult {
-	r, e := s.GetFixturesWithPredictions(id)
-	return fixturePredictionsResult{result: r, err: e}
-}
-
-func (s *service) getTeamFormAsync() chan formResult {
-	formChan := make(chan formResult)
-	go func() { formChan <- s.getTeamForm() }()
-	return formChan
-}
-
-func (s *service) getTeamForm() formResult {
-	r, e := s.fixtureService.GetTeamForm()
-	return formResult{result: r, err: e}
-}
-
-func (s *service) GetUsersPastPredictions(id string) (*model.PredictionSummary, error) {
-	fixturePredictions, err := s.GetFixturesWithPredictions(id)
+func (s *service) GetUsersPastPredictions(ctx context.Context, id string) (*model.PredictionSummary, error) {
+	fixturePredictions, err := s.GetFixturesWithPredictions(ctx, id)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("get_fixtures_with_predictions: %w", err)
 	}
 
 	var fp []model.FixturePrediction
@@ -147,10 +156,10 @@ func (s *service) GetUsersPastPredictions(id string) (*model.PredictionSummary, 
 	}, nil
 }
 
-func (s *service) UpdatePredictions(predictions []common.Prediction) error {
-	futureFixtures, err := s.fixtureService.GetFutureFixtures()
+func (s *service) UpdatePredictions(ctx context.Context, predictions []common.Prediction) error {
+	futureFixtures, err := s.fixtureService.GetFutureFixtures(ctx)
 	if err != nil {
-		return err
+		return fmt.Errorf("get_future_fixtures: %w", err)
 	}
 
 	var validPredictions []common.Prediction
@@ -160,17 +169,26 @@ func (s *service) UpdatePredictions(predictions []common.Prediction) error {
 		}
 	}
 
-	return s.repository.UpdatePredictions(validPredictions)
-}
-
-func (s *service) GetPrediction(userId, matchId string) (*common.Prediction, error) {
-	return s.repository.GetPrediction(userId, matchId)
-}
-
-func (s *service) GetMatchPredictionSummary(id string) (*common.MatchPredictionSummary, error) {
-	homeWins, draw, awayWins, err := s.repository.GetMatchPredictionSummary(id)
+	err = s.store.UpdatePredictions(ctx, validPredictions)
 	if err != nil {
-		return nil, err
+		return fmt.Errorf("update_prediction: %w", err)
+	}
+
+	return nil
+}
+
+func (s *service) GetPrediction(ctx context.Context, userId, matchId string) (*common.Prediction, error) {
+	prediction, err := s.store.GetPrediction(ctx, userId, matchId)
+	if err != nil {
+		return nil, fmt.Errorf("get_prediction: %w", err)
+	}
+	return prediction, nil
+}
+
+func (s *service) GetMatchPredictionSummary(ctx context.Context, id string) (*common.MatchPredictionSummary, error) {
+	homeWins, draw, awayWins, err := s.store.GetMatchPredictionSummary(ctx, id)
+	if err != nil {
+		return nil, fmt.Errorf("get_match_prediction_summary: %w", err)
 	}
 
 	return &common.MatchPredictionSummary{

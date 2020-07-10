@@ -5,37 +5,55 @@ import (
 	"errors"
 	"github.com/ahl5esoft/golang-underscore"
 	common "github.com/cshep4/premier-predictor-microservices/src/common/model"
-	"github.com/cshep4/premier-predictor-microservices/src/livematchservice/internal/interfaces"
 	"github.com/cshep4/premier-predictor-microservices/src/livematchservice/internal/model"
-	. "github.com/cshep4/premier-predictor-microservices/src/livematchservice/internal/prediction"
+	predictor "github.com/cshep4/premier-predictor-microservices/src/livematchservice/internal/prediction"
 	"sort"
 	"time"
 )
 
-type service struct {
-	repository interfaces.Repository
-	predictor  interfaces.Predictor
-}
+type (
+	Predictor interface {
+		GetPrediction(ctx context.Context, req model.PredictionRequest) (*common.Prediction, error)
+		GetPredictionSummary(ctx context.Context, matchId string) (*common.MatchPredictionSummary, error)
+	}
+	Store interface {
+		GetUpcomingMatches() ([]common.MatchFacts, error)
+		GetMatchFacts(id string) (*common.MatchFacts, error)
+	}
 
-func NewService(repository interfaces.Repository, predictor interfaces.Predictor) (interfaces.Service, error) {
+	predictionResult struct {
+		result *common.Prediction
+		err    error
+	}
+
+	matchPredictionSummaryResult struct {
+		result *common.MatchPredictionSummary
+		err    error
+	}
+
+	matchFactsResult struct {
+		result *common.MatchFacts
+		err    error
+	}
+
+	service struct {
+		store     Store
+		predictor Predictor
+	}
+)
+
+func New(store Store, predictor Predictor) (*service, error) {
+	if store == nil {
+		return nil, errors.New("store_is_nil")
+	}
+	if predictor == nil {
+		return nil, errors.New("predictor_is_nil")
+	}
+
 	return &service{
-		repository: repository,
-		predictor:  predictor,
+		store:     store,
+		predictor: predictor,
 	}, nil
-}
-
-type predictionResult struct {
-	result *common.Prediction
-	err    error
-}
-type matchPredictionSummaryResult struct {
-	result *common.MatchPredictionSummary
-	err    error
-}
-
-type matchFactsResult struct {
-	result *common.MatchFacts
-	err    error
 }
 
 func (s *service) GetMatchSummary(ctx context.Context, req model.PredictionRequest) (*model.MatchSummary, error) {
@@ -44,22 +62,22 @@ func (s *service) GetMatchSummary(ctx context.Context, req model.PredictionReque
 	matchFactsChan := make(chan matchFactsResult)
 
 	go func() {
-		r, e := s.predictor.GetPrediction(ctx, req)
-		predictionChan <- predictionResult{result: r, err: e}
+		res, err := s.predictor.GetPrediction(ctx, req)
+		predictionChan <- predictionResult{result: res, err: err}
 	}()
 
 	go func() {
-		r, e := s.predictor.GetPredictionSummary(ctx, req.MatchId)
-		matchPredictionSummaryChan <- matchPredictionSummaryResult{result: r, err: e}
+		res, err := s.predictor.GetPredictionSummary(ctx, req.MatchId)
+		matchPredictionSummaryChan <- matchPredictionSummaryResult{result: res, err: err}
 	}()
 
 	go func() {
-		r, e := s.repository.GetMatchFacts(req.MatchId)
-		matchFactsChan <- matchFactsResult{result: r, err: e}
+		res, err := s.store.GetMatchFacts(req.MatchId)
+		matchFactsChan <- matchFactsResult{result: res, err: err}
 	}()
 
 	prediction := <-predictionChan
-	if prediction.err != nil && prediction.err != ErrPredictionNotFound {
+	if prediction.err != nil && prediction.err != predictor.ErrPredictionNotFound {
 		return nil, prediction.err
 	}
 
@@ -81,11 +99,11 @@ func (s *service) GetMatchSummary(ctx context.Context, req model.PredictionReque
 }
 
 func (s *service) GetMatchFacts(id string) (*common.MatchFacts, error) {
-	return s.repository.GetMatchFacts(id)
+	return s.store.GetMatchFacts(id)
 }
 
 func (s *service) GetUpcomingMatches() (map[time.Time][]common.MatchFacts, error) {
-	matches, err := s.repository.GetUpcomingMatches()
+	matches, err := s.store.GetUpcomingMatches()
 	if err != nil {
 		return nil, err
 	}

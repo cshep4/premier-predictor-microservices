@@ -1,19 +1,18 @@
-//go:generate mockgen -destination=./mocks/mock_prediction_service_client.go -package=predictionmocks github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen PredictionServiceClient
-
 package prediction
 
 import (
 	"context"
 	"errors"
+	"testing"
+
 	gen "github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen"
-	"github.com/cshep4/premier-predictor-microservices/src/common/model"
-	. "github.com/cshep4/premier-predictor-microservices/src/livematchservice/internal/model"
-	"github.com/cshep4/premier-predictor-microservices/src/livematchservice/internal/prediction/mocks"
+	common "github.com/cshep4/premier-predictor-microservices/src/common/model"
+	"github.com/cshep4/premier-predictor-microservices/src/livematchservice/internal/mocks/prediction"
+	"github.com/cshep4/premier-predictor-microservices/src/livematchservice/internal/model"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/metadata"
-	"testing"
 )
 
 const (
@@ -30,9 +29,9 @@ func TestPredictor_GetPrediction(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	predictionClient := predictionmocks.NewMockPredictionServiceClient(ctrl)
+	predictionClient := prediction_mocks.NewMockPredictionServiceClient(ctrl)
 
-	predictor, err := NewPredictor(predictionClient)
+	predictor, err := New(predictionClient)
 	require.NoError(t, err)
 
 	req := &gen.PredictionRequest{
@@ -55,14 +54,14 @@ func TestPredictor_GetPrediction(t *testing.T) {
 		}
 		predictionClient.EXPECT().GetPrediction(gomock.Any(), req).Return(prediction, nil)
 
-		r := PredictionRequest{
+		r := model.PredictionRequest{
 			UserId:  userId,
 			MatchId: matchId,
 		}
 
 		result, err := predictor.GetPrediction(ctx, r)
 
-		expectedResult := model.PredictionFromGrpc(prediction)
+		expectedResult := common.PredictionFromGrpc(prediction)
 
 		require.NoError(t, err)
 		assert.Equal(t, expectedResult, result)
@@ -72,7 +71,7 @@ func TestPredictor_GetPrediction(t *testing.T) {
 		e := errors.New("")
 		predictionClient.EXPECT().GetPrediction(gomock.Any(), req).Return(nil, e)
 
-		r := PredictionRequest{
+		r := model.PredictionRequest{
 			UserId:  userId,
 			MatchId: matchId,
 		}
@@ -88,9 +87,9 @@ func TestPredictor_GetPredictionSummary(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	predictionClient := predictionmocks.NewMockPredictionServiceClient(ctrl)
+	predictionClient := prediction_mocks.NewMockPredictionServiceClient(ctrl)
 
-	predictor, err := NewPredictor(predictionClient)
+	predictor, err := New(predictionClient)
 	require.NoError(t, err)
 
 	req := &gen.IdRequest{
@@ -113,7 +112,7 @@ func TestPredictor_GetPredictionSummary(t *testing.T) {
 
 		result, err := predictor.GetPredictionSummary(ctx, matchId)
 
-		expectedResult := model.MatchPredictionSummaryFromGrpc(predictionSummary)
+		expectedResult := common.MatchPredictionSummaryFromGrpc(predictionSummary)
 
 		require.NoError(t, err)
 		assert.Equal(t, expectedResult, result)

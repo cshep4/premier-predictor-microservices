@@ -8,6 +8,7 @@ import (
 	"time"
 )
 
+// Deprecated: should use aoo starter template
 func StartHealthServer() *http.Server {
 	svc := &healthServiceServer{}
 	r := svc.createRouter()
