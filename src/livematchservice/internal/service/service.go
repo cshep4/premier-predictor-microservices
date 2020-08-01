@@ -3,10 +3,12 @@ package live
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/ahl5esoft/golang-underscore"
 	common "github.com/cshep4/premier-predictor-microservices/src/common/model"
 	"github.com/cshep4/premier-predictor-microservices/src/livematchservice/internal/model"
 	predictor "github.com/cshep4/premier-predictor-microservices/src/livematchservice/internal/prediction"
+	"golang.org/x/sync/errgroup"
 	"sort"
 	"time"
 )
@@ -17,23 +19,8 @@ type (
 		GetPredictionSummary(ctx context.Context, matchId string) (*common.MatchPredictionSummary, error)
 	}
 	Store interface {
-		GetUpcomingMatches() ([]common.MatchFacts, error)
-		GetMatchFacts(id string) (*common.MatchFacts, error)
-	}
-
-	predictionResult struct {
-		result *common.Prediction
-		err    error
-	}
-
-	matchPredictionSummaryResult struct {
-		result *common.MatchPredictionSummary
-		err    error
-	}
-
-	matchFactsResult struct {
-		result *common.MatchFacts
-		err    error
+		GetUpcomingMatches(ctx context.Context) ([]common.MatchFacts, error)
+		GetMatchFacts(ctx context.Context, id string) (*common.MatchFacts, error)
 	}
 
 	service struct {
@@ -44,10 +31,10 @@ type (
 
 func New(store Store, predictor Predictor) (*service, error) {
 	if store == nil {
-		return nil, errors.New("store_is_nil")
+		return nil, errors.New("store is nil")
 	}
 	if predictor == nil {
-		return nil, errors.New("predictor_is_nil")
+		return nil, errors.New("predictor is nil")
 	}
 
 	return &service{
@@ -57,55 +44,68 @@ func New(store Store, predictor Predictor) (*service, error) {
 }
 
 func (s *service) GetMatchSummary(ctx context.Context, req model.PredictionRequest) (*model.MatchSummary, error) {
-	predictionChan := make(chan predictionResult)
-	matchPredictionSummaryChan := make(chan matchPredictionSummaryResult)
-	matchFactsChan := make(chan matchFactsResult)
+	predictionChan := make(chan *common.Prediction)
+	matchPredictionSummaryChan := make(chan *common.MatchPredictionSummary)
+	matchFactsChan := make(chan *common.MatchFacts)
 
-	go func() {
-		res, err := s.predictor.GetPrediction(ctx, req)
-		predictionChan <- predictionResult{result: res, err: err}
-	}()
+	g, _ := errgroup.WithContext(ctx)
 
-	go func() {
-		res, err := s.predictor.GetPredictionSummary(ctx, req.MatchId)
-		matchPredictionSummaryChan <- matchPredictionSummaryResult{result: res, err: err}
-	}()
+	g.Go(func() error {
+		p, err := s.predictor.GetPrediction(ctx, req)
+		predictionChan <- p
+		if err != nil {
+			return fmt.Errorf("get prediction: %w", err)
+		}
+		return nil
+	})
 
-	go func() {
-		res, err := s.store.GetMatchFacts(req.MatchId)
-		matchFactsChan <- matchFactsResult{result: res, err: err}
-	}()
+	g.Go(func() error {
+		p, err := s.predictor.GetPredictionSummary(ctx, req.MatchId)
+		matchPredictionSummaryChan <- p
+		if err != nil {
+			return fmt.Errorf("get prediction summary: %w", err)
+		}
+		return nil
+	})
+
+	g.Go(func() error {
+		m, err := s.store.GetMatchFacts(ctx, req.MatchId)
+		matchFactsChan <- m
+		if err != nil {
+			return fmt.Errorf("get match facts: %w", err)
+		}
+		return nil
+	})
 
 	prediction := <-predictionChan
-	if prediction.err != nil && prediction.err != predictor.ErrPredictionNotFound {
-		return nil, prediction.err
-	}
-
 	matchPredictionSummary := <-matchPredictionSummaryChan
-	if matchPredictionSummary.err != nil {
-		return nil, matchPredictionSummary.err
-	}
-
 	matchFacts := <-matchFactsChan
-	if matchFacts.err != nil {
-		return nil, matchFacts.err
+
+	err := g.Wait()
+	if err != nil && !errors.Is(err, predictor.ErrPredictionNotFound) {
+		return nil, err
 	}
 
 	return &model.MatchSummary{
-		Match:             matchFacts.result,
-		PredictionSummary: matchPredictionSummary.result,
-		Prediction:        prediction.result,
+		Match:             matchFacts,
+		PredictionSummary: matchPredictionSummary,
+		Prediction:        prediction,
 	}, nil
 }
 
-func (s *service) GetMatchFacts(id string) (*common.MatchFacts, error) {
-	return s.store.GetMatchFacts(id)
+func (s *service) GetMatchFacts(ctx context.Context, id string) (*common.MatchFacts, error) {
+	matchFacts, err := s.store.GetMatchFacts(ctx, id)
+	if err != nil {
+		return nil, fmt.Errorf("get match facts: %w", err)
+	}
+
+	return matchFacts, nil
 }
 
-func (s *service) GetUpcomingMatches() (map[time.Time][]common.MatchFacts, error) {
-	matches, err := s.store.GetUpcomingMatches()
+func (s *service) GetUpcomingMatches(ctx context.Context) (map[time.Time][]common.MatchFacts, error) {
+	matches, err := s.store.GetUpcomingMatches(ctx)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("get upcoming matches: %w", err)
 	}
 
 	sort.Sort(common.MatchFactsSlice(matches))
@@ -117,7 +117,7 @@ func (s *service) GetUpcomingMatches() (map[time.Time][]common.MatchFacts, error
 		Value(&upcomingMatches)
 
 	if err := recover(); err != nil {
-		return nil, errors.New("could not map matches")
+		return nil, fmt.Errorf("group matches: %s", err)
 	}
 
 	return upcomingMatches, nil

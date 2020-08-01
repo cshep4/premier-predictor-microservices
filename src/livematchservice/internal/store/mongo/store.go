@@ -26,7 +26,7 @@ type store struct {
 
 func New(ctx context.Context, client *mongo.Client) (*store, error) {
 	if client == nil {
-		return nil, errors.New("mongo_client_is_nil")
+		return nil, errors.New("mongo client is nil")
 	}
 
 	s := &store{
@@ -44,8 +44,8 @@ func New(ctx context.Context, client *mongo.Client) (*store, error) {
 	return s, nil
 }
 
-func (r *store) ensureIndexes(ctx context.Context) error {
-	_, err := r.client.
+func (s *store) ensureIndexes(ctx context.Context) error {
+	_, err := s.client.
 		Database(db).
 		Collection(collection).
 		Indexes().CreateOne(
@@ -69,11 +69,12 @@ func (r *store) ensureIndexes(ctx context.Context) error {
 	return nil
 }
 
-func (r *store) GetUpcomingMatches() ([]common.MatchFacts, error) {
+func (s *store) GetUpcomingMatches(ctx context.Context) ([]common.MatchFacts, error) {
 	year, month, day := time.Now().Date()
 	today := time.Date(year, month, day, 0, 0, 0, 0, time.Now().Location())
 
-	return r.getMatches(
+	return s.getMatches(
+		ctx,
 		bson.D{
 			{
 				Key: "matchDate",
@@ -94,10 +95,8 @@ func (r *store) GetUpcomingMatches() ([]common.MatchFacts, error) {
 	)
 }
 
-func (r *store) getMatches(filter interface{}, opts *options.FindOptions) ([]common.MatchFacts, error) {
-	ctx := context.Background()
-
-	cur, err := r.client.
+func (s *store) getMatches(ctx context.Context, filter interface{}, opts *options.FindOptions) ([]common.MatchFacts, error) {
+	cur, err := s.client.
 		Database(db).
 		Collection(collection).
 		Find(
@@ -130,14 +129,14 @@ func (r *store) getMatches(filter interface{}, opts *options.FindOptions) ([]com
 	return matches, nil
 }
 
-func (r *store) GetMatchFacts(id string) (*common.MatchFacts, error) {
+func (s *store) GetMatchFacts(ctx context.Context, id string) (*common.MatchFacts, error) {
 	var m matchFactsEntity
 
-	err := r.client.
+	err := s.client.
 		Database(db).
 		Collection(collection).
 		FindOne(
-			context.Background(),
+			ctx,
 			bson.M{
 				"_id": id,
 			},

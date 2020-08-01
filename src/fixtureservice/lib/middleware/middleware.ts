@@ -4,7 +4,7 @@ export class Middleware {
     private client;
 
     constructor(grpc: any, private tracer: any) {
-        const PROTO_PATH = __dirname + '/../../protodefs/auth.proto';
+        const PROTO_PATH = __dirname + '/../../proto/auth.proto';
         const protoLoader = require('@grpc/proto-loader');
         const packageDefinition = protoLoader.loadSync(
             PROTO_PATH,

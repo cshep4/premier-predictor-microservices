@@ -34,7 +34,7 @@ const tracer = tracing.start({
 const basedir = path.dirname(require.resolve('grpc'));
 plugin.enable(grpc, tracer, "1.0.0", {}, basedir);
 
-const MAIN_PROTO_PATH = path.join(__dirname, './protodefs/auth.proto');
+const MAIN_PROTO_PATH = path.join(__dirname, './proto/auth.proto');
 
 const loadProto = require('./util/util').loadProto;
 
@@ -60,12 +60,6 @@ function main() {
         validate,
     });
 
-    // const sslCreds = grpc.ServerCredentials.createSsl(null, [{
-    //     private_key: fs.readFileSync('./certs/tls.key'),
-    //     cert_chain: fs.readFileSync('./certs/tls.crt')
-    // }], true,);
-    //
-    // server.bind(`0.0.0.0:${PORT}`, sslCreds);
     server.bind(`0.0.0.0:${PORT}`, grpc.ServerCredentials.createInsecure());
     server.start();
 

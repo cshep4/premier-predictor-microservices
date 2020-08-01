@@ -14,6 +14,7 @@ type userEntity struct {
 	Email           string              `bson:"email"`
 	Password        string              `bson:"password"`
 	PredictedWinner string              `bson:"predictedWinner"`
+	Signature       string              `bson:"signature"`
 	Score           int                 `bson:"score"`
 	Joined          time.Time           `bson:"joined"`
 	Admin           bool                `bson:"admin"`
@@ -27,30 +28,32 @@ func fromUser(user model.User) (*userEntity, error) {
 	}
 
 	return &userEntity{
-		Id: &id,
-		FirstName: user.FirstName,
-		Surname: user.Surname,
-		Email: user.Email,
-		Password: user.Password,
+		Id:              &id,
+		FirstName:       user.FirstName,
+		Surname:         user.Surname,
+		Email:           user.Email,
+		Password:        user.Password,
 		PredictedWinner: user.PredictedWinner,
-		Score: user.Score,
-		Joined: user.Joined,
-		Admin: user.Admin,
-		AdFree: user.AdFree,
+		Signature: 		 user.Signature,
+		Score:           user.Score,
+		Joined:          user.Joined,
+		Admin:           user.Admin,
+		AdFree:          user.AdFree,
 	}, nil
 }
 
 func toUser(user userEntity) *model.User {
 	return &model.User{
-		Id: user.Id.Hex(),
-		FirstName: user.FirstName,
-		Surname: user.Surname,
-		Email: user.Email,
-		Password: user.Password,
+		Id:              user.Id.Hex(),
+		FirstName:       user.FirstName,
+		Surname:         user.Surname,
+		Email:           user.Email,
+		Password:        user.Password,
 		PredictedWinner: user.PredictedWinner,
-		Score: user.Score,
-		Joined: user.Joined,
-		Admin: user.Admin,
-		AdFree: user.AdFree,
+		Signature: 		 user.Signature,
+		Score:           user.Score,
+		Joined:          user.Joined,
+		Admin:           user.Admin,
+		AdFree:          user.AdFree,
 	}
 }

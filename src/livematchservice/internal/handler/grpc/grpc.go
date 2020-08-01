@@ -36,7 +36,7 @@ func (s *server) Register(g *grpc.Server) {
 }
 
 func (s *server) GetUpcomingMatches(_ *empty.Empty, stream gen.LiveMatchService_GetUpcomingMatchesServer) error {
-	matches, err := s.service.GetUpcomingMatches()
+	matches, err := s.service.GetUpcomingMatches(stream.Context())
 	if err != nil {
 		return err
 	}
@@ -51,7 +51,7 @@ func (s *server) GetUpcomingMatches(_ *empty.Empty, stream gen.LiveMatchService_
 	for {
 		select {
 		case <-ticker.C:
-			matches, err := s.service.GetUpcomingMatches()
+			matches, err := s.service.GetUpcomingMatches(stream.Context())
 			if err != nil {
 				return nil
 			}
@@ -86,7 +86,7 @@ func (s *server) GetMatchSummary(req *gen.PredictionRequest, stream gen.LiveMatc
 	for {
 		select {
 		case <-ticker.C:
-			match, err := s.service.GetMatchFacts(req.MatchId)
+			match, err := s.service.GetMatchFacts(stream.Context(), req.MatchId)
 			if err != nil {
 				return nil
 			}

@@ -8,7 +8,7 @@ export class Grpc {
     }
 
     public start(grpc: any) {
-        const PROTO_PATH = __dirname + '/../protodefs/fixture.proto';
+        const PROTO_PATH = __dirname + '/../proto/fixture.proto';
         const protoLoader = require('@grpc/proto-loader');
         const packageDefinition = protoLoader.loadSync(
             PROTO_PATH,

@@ -20,6 +20,10 @@ const (
 	matchId = "2"
 )
 
+var (
+	ctx = context.Background()
+)
+
 func TestService_GetMatchFacts(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -33,9 +37,9 @@ func TestService_GetMatchFacts(t *testing.T) {
 	t.Run("Retrieves match from db", func(t *testing.T) {
 		matchFacts := &model.MatchFacts{}
 
-		store.EXPECT().GetMatchFacts(userId).Return(matchFacts, nil)
+		store.EXPECT().GetMatchFacts(ctx, userId).Return(matchFacts, nil)
 
-		result, err := service.GetMatchFacts(userId)
+		result, err := service.GetMatchFacts(ctx, userId)
 		require.NoError(t, err)
 		assert.Equal(t, matchFacts, result)
 	})
@@ -43,9 +47,9 @@ func TestService_GetMatchFacts(t *testing.T) {
 	t.Run("Returns error if there is a problem", func(t *testing.T) {
 		e := errors.New("")
 
-		store.EXPECT().GetMatchFacts(userId).Return(nil, e)
+		store.EXPECT().GetMatchFacts(ctx, userId).Return(nil, e)
 
-		result, err := service.GetMatchFacts(userId)
+		result, err := service.GetMatchFacts(ctx, userId)
 		require.Error(t, err)
 		assert.Equal(t, e, err)
 		assert.Nil(t, result)
@@ -62,8 +66,6 @@ func TestService_GetMatchSummary(t *testing.T) {
 	service, err := New(store, predictor)
 	require.NoError(t, err)
 
-	ctx := context.Background()
-
 	t.Run("Retrieves match and prediction summary", func(t *testing.T) {
 		matchFacts := &model.MatchFacts{}
 		predictionSummary := &model.MatchPredictionSummary{}
@@ -74,7 +76,7 @@ func TestService_GetMatchSummary(t *testing.T) {
 			MatchId: matchId,
 		}
 
-		store.EXPECT().GetMatchFacts(matchId).Return(matchFacts, nil)
+		store.EXPECT().GetMatchFacts(ctx, matchId).Return(matchFacts, nil)
 		predictor.EXPECT().GetPredictionSummary(ctx, matchId).Return(predictionSummary, nil)
 		predictor.EXPECT().GetPrediction(ctx, req).Return(prediction, nil)
 
@@ -95,7 +97,7 @@ func TestService_GetMatchSummary(t *testing.T) {
 			MatchId: matchId,
 		}
 
-		store.EXPECT().GetMatchFacts(matchId).Return(nil, e)
+		store.EXPECT().GetMatchFacts(ctx, matchId).Return(nil, e)
 		predictor.EXPECT().GetPredictionSummary(ctx, matchId).Return(predictionSummary, nil)
 		predictor.EXPECT().GetPrediction(ctx, req).Return(prediction, nil)
 
@@ -115,7 +117,7 @@ func TestService_GetMatchSummary(t *testing.T) {
 			MatchId: matchId,
 		}
 
-		store.EXPECT().GetMatchFacts(matchId).Return(matchFacts, nil)
+		store.EXPECT().GetMatchFacts(ctx, matchId).Return(matchFacts, nil)
 		predictor.EXPECT().GetPredictionSummary(ctx, matchId).Return(nil, e)
 		predictor.EXPECT().GetPrediction(ctx, req).Return(prediction, nil)
 
@@ -135,7 +137,7 @@ func TestService_GetMatchSummary(t *testing.T) {
 			MatchId: matchId,
 		}
 
-		store.EXPECT().GetMatchFacts(matchId).Return(matchFacts, nil)
+		store.EXPECT().GetMatchFacts(ctx, matchId).Return(matchFacts, nil)
 		predictor.EXPECT().GetPredictionSummary(ctx, matchId).Return(predictionSummary, nil)
 		predictor.EXPECT().GetPrediction(ctx, req).Return(nil, e)
 
@@ -181,14 +183,14 @@ func TestService_GetUpcomingMatches(t *testing.T) {
 			FormattedDate: tomorrow.Format("02.01.2006"),
 			Time:          "12:00",
 		}
-		store.EXPECT().GetUpcomingMatches().Return([]model.MatchFacts{m1, m2, m3}, nil)
+		store.EXPECT().GetUpcomingMatches(ctx).Return([]model.MatchFacts{m1, m2, m3}, nil)
 
 		expectedResult := map[time.Time][]model.MatchFacts{
 			tomorrow: {m3, m1},
 			today:    {m2},
 		}
 
-		result, err := service.GetUpcomingMatches()
+		result, err := service.GetUpcomingMatches(ctx)
 		require.NoError(t, err)
 		assert.Equal(t, expectedResult, result)
 	})
@@ -196,9 +198,9 @@ func TestService_GetUpcomingMatches(t *testing.T) {
 	t.Run("Returns error if there is a problem getting from db", func(t *testing.T) {
 		e := errors.New("")
 
-		store.EXPECT().GetUpcomingMatches().Return(nil, e)
+		store.EXPECT().GetUpcomingMatches(ctx).Return(nil, e)
 
-		result, err := service.GetUpcomingMatches()
+		result, err := service.GetUpcomingMatches(ctx)
 		require.Error(t, err)
 		assert.Equal(t, e, err)
 		assert.Nil(t, result)

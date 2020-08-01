@@ -3,11 +3,11 @@ package mongo
 import (
 	"context"
 	"fmt"
-	"go.mongodb.org/mongo-driver/mongo/options"
 	"os"
 	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func New(ctx context.Context) (*mongo.Client, error) {

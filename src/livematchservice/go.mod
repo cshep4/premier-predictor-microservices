@@ -9,7 +9,6 @@ require (
 	github.com/golang/mock v1.4.0
 	github.com/golang/protobuf v1.3.3
 	github.com/gorilla/mux v1.7.3
-	github.com/pkg/errors v0.8.1
 	github.com/stretchr/testify v1.4.0
 	github.com/xdg/stringprep v1.0.1-0.20180714160509-73f8eece6fdc // indirect
 	go.mongodb.org/mongo-driver v1.3.0

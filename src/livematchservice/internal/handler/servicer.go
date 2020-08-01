@@ -9,6 +9,6 @@ import (
 
 type Servicer interface {
 	GetMatchSummary(ctx context.Context, req model.PredictionRequest) (*model.MatchSummary, error)
-	GetMatchFacts(id string) (*common.MatchFacts, error)
-	GetUpcomingMatches() (map[time.Time][]common.MatchFacts, error)
+	GetMatchFacts(ctx context.Context, id string) (*common.MatchFacts, error)
+	GetUpcomingMatches(ctx context.Context) (map[time.Time][]common.MatchFacts, error)
 }

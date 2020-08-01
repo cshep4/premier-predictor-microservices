@@ -14,9 +14,15 @@ import (
 	"github.com/gorilla/mux"
 )
 
-type router struct {
-	service handler.Servicer
-}
+type (
+	ServerError struct {
+		Message string `json:"message"`
+	}
+
+	router struct {
+		service handler.Servicer
+	}
+)
 
 func New(service handler.Servicer) (*router, error) {
 	if service == nil {
@@ -71,7 +77,7 @@ func (h *router) updatePredictions(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		log.Error(r.Context(),"cannot_read_request", log.ErrorParam(err))
+		log.Error(r.Context(), "cannot_read_request", log.ErrorParam(err))
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -101,22 +107,21 @@ func (h *router) getPrediction(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *router) sendResponse(ctx context.Context, data interface{}, err error, w http.ResponseWriter) {
-	if errors.Is(err, model.ErrPredictionNotFound) {
+	switch {
+	case err == nil:
+		if data != nil {
+			json.NewEncoder(w).Encode(data)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+	case errors.Is(err, model.ErrPredictionNotFound):
 		log.Debug(ctx, "prediction_not_found", log.ErrorParam(err))
 		w.WriteHeader(http.StatusNotFound)
-		return
-	}
-
-	if err != nil {
-		log.Error(ctx, "internal_server_error", log.ErrorParam(err))
+	default:
+		log.Error(ctx, "server_error", log.ErrorParam(err))
 		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	err = json.NewEncoder(w).Encode(data)
-	if err != nil {
-		log.Error(ctx, "cannot_encode_response", log.ErrorParam(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
+		json.NewEncoder(w).Encode(ServerError{
+			Message: errors.Unwrap(err).Error(),
+		})
 	}
 }
