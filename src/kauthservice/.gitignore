@@ -1,13 +1,42 @@
-# build files
-target
-build
-lib_managed
-# runtime files
-node_modules
-.vertx
-# ide
-.classpath
+# Eclipse
 .project
-.idea
-.vscode
+.classpath
+.settings/
+bin/
 
+# IntelliJ
+.idea
+*.ipr
+*.iml
+*.iws
+
+# NetBeans
+nb-configuration.xml
+
+# Visual Studio Code
+.vscode
+.factorypath
+
+# OSX
+.DS_Store
+
+# Vim
+*.swp
+*.swo
+
+# patch
+*.orig
+*.rej
+
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+release.properties
+
+
+
+
+
+docker run -v /Users/chrisshepherd/Documents/intellij/quarkus-quickstarts/amazon-sqs-quickstart/target/amazon-sqs-quickstart-1.0-SNAPSHOT-native-image-source-jar:/project:z --env LANG=C --rm quay.io/quarkus/ubi-quarkus-native-image:20.1.0-java11 -J-Djava.util.logging.manager=org.jboss.logmanager.LogManager -J-Dsun.nio.ch.maxUpdateArraySize=100 -J-Dvertx.logger-delegate-factory-class-name=io.quarkus.vertx.core.runtime.VertxLogDelegateFactory -J-Dvertx.disableDnsResolver=true -J-Dio.netty.leakDetection.level=DISABLED -J-Dio.netty.allocator.maxOrder=1 -J-Duser.language=en -J-Dfile.encoding=UTF-8 --initialize-at-build-time= -H:InitialCollectionPolicy=com.oracle.svm.core.genscavenge.CollectionPolicy$BySpaceAndTime -H:+JNI -jar amazon-sqs-quickstart-1.0-SNAPSHOT-runner.jar -H:FallbackThreshold=0 -H:+ReportExceptionStackTraces -H:-AddAllCharsets -H:-IncludeAllTimeZones -H:EnableURLProtocols=http,https --enable-all-security-services --no-server -H:-UseServiceLoaderFeature -H:+StackTrace amazon-sqs-quickstart-1.0-SNAPSHOT-runner

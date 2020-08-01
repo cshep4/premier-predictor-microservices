@@ -1,0 +1,82 @@
+syntax = "proto3";
+option java_multiple_files = true;
+option java_package = "com.cshep4.premierpredictor.user";
+import "google/protobuf/empty.proto";
+
+import "request.proto";
+
+package model;
+
+service UserService {
+    rpc GetAllUsers (google.protobuf.Empty) returns (UserResponse);
+    rpc GetAllUsersByIds (GroupIdRequest) returns (UserResponse);
+    rpc GetOverallRank (IdRequest) returns (RankResponse);
+    rpc GetRankForGroup (GroupRankRequest) returns (RankResponse);
+    rpc GetUserCount (google.protobuf.Empty) returns (CountResponse);
+    rpc GetUserByEmail (EmailRequest) returns (User);
+    rpc UpdatePassword (UpdatePasswordRequest) returns (UpdatePasswordResponse);
+    rpc UpdateSignature (UpdateSignatureRequest) returns (UpdateSignatureResponse);
+    rpc Create (CreateRequest) returns (CreateResponse);
+}
+
+message GroupIdRequest {
+    repeated string ids = 1;
+}
+
+message UserResponse {
+    repeated User users = 1;
+}
+
+message User {
+    string id = 1;
+    string firstName = 2;
+    string surname = 3;
+    string predictedWinner = 4;
+    int32 score = 5;
+    string email = 6;
+    string password = 7;
+    string signature = 8;
+}
+
+message RankResponse {
+    int64 rank = 1;
+}
+
+message CountResponse {
+    int64 count = 1;
+}
+
+message GroupRankRequest {
+    string id = 1;
+    repeated string ids = 2;
+}
+
+message UpdatePasswordRequest {
+    string id = 1;
+    string password = 2;
+}
+
+message UpdatePasswordResponse {
+
+}
+
+message UpdateSignatureRequest {
+    string id = 1;
+    string signature = 2;
+}
+
+message UpdateSignatureResponse {
+
+}
+
+message CreateRequest {
+    string firstName = 1;
+    string surname = 2;
+    string email = 3;
+    string password = 4;
+    string predictedWinner = 5;
+}
+
+message CreateResponse {
+    string id = 1;
+}

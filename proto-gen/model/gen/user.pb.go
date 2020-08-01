@@ -3,14 +3,15 @@
 
 package model
 
-import proto "github.com/golang/protobuf/proto"
-import fmt "fmt"
-import math "math"
-import empty "github.com/golang/protobuf/ptypes/empty"
-
 import (
-	context "golang.org/x/net/context"
+	context "context"
+	fmt "fmt"
+	proto "github.com/golang/protobuf/proto"
+	empty "github.com/golang/protobuf/ptypes/empty"
 	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
+	math "math"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -22,7 +23,7 @@ var _ = math.Inf
 // is compatible with the proto package it is being compiled against.
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
-const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
+const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 type GroupIdRequest struct {
 	Ids                  []string `protobuf:"bytes,1,rep,name=ids,proto3" json:"ids,omitempty"`
@@ -35,16 +36,17 @@ func (m *GroupIdRequest) Reset()         { *m = GroupIdRequest{} }
 func (m *GroupIdRequest) String() string { return proto.CompactTextString(m) }
 func (*GroupIdRequest) ProtoMessage()    {}
 func (*GroupIdRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_user_58c3974aeb218068, []int{0}
+	return fileDescriptor_116e343673f7ffaf, []int{0}
 }
+
 func (m *GroupIdRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GroupIdRequest.Unmarshal(m, b)
 }
 func (m *GroupIdRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_GroupIdRequest.Marshal(b, m, deterministic)
 }
-func (dst *GroupIdRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_GroupIdRequest.Merge(dst, src)
+func (m *GroupIdRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GroupIdRequest.Merge(m, src)
 }
 func (m *GroupIdRequest) XXX_Size() int {
 	return xxx_messageInfo_GroupIdRequest.Size(m)
@@ -73,16 +75,17 @@ func (m *UserResponse) Reset()         { *m = UserResponse{} }
 func (m *UserResponse) String() string { return proto.CompactTextString(m) }
 func (*UserResponse) ProtoMessage()    {}
 func (*UserResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_user_58c3974aeb218068, []int{1}
+	return fileDescriptor_116e343673f7ffaf, []int{1}
 }
+
 func (m *UserResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_UserResponse.Unmarshal(m, b)
 }
 func (m *UserResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_UserResponse.Marshal(b, m, deterministic)
 }
-func (dst *UserResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_UserResponse.Merge(dst, src)
+func (m *UserResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_UserResponse.Merge(m, src)
 }
 func (m *UserResponse) XXX_Size() int {
 	return xxx_messageInfo_UserResponse.Size(m)
@@ -106,6 +109,9 @@ type User struct {
 	Surname              string   `protobuf:"bytes,3,opt,name=surname,proto3" json:"surname,omitempty"`
 	PredictedWinner      string   `protobuf:"bytes,4,opt,name=predictedWinner,proto3" json:"predictedWinner,omitempty"`
 	Score                int32    `protobuf:"varint,5,opt,name=score,proto3" json:"score,omitempty"`
+	Email                string   `protobuf:"bytes,6,opt,name=email,proto3" json:"email,omitempty"`
+	Password             string   `protobuf:"bytes,7,opt,name=password,proto3" json:"password,omitempty"`
+	Signature            string   `protobuf:"bytes,8,opt,name=signature,proto3" json:"signature,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -115,16 +121,17 @@ func (m *User) Reset()         { *m = User{} }
 func (m *User) String() string { return proto.CompactTextString(m) }
 func (*User) ProtoMessage()    {}
 func (*User) Descriptor() ([]byte, []int) {
-	return fileDescriptor_user_58c3974aeb218068, []int{2}
+	return fileDescriptor_116e343673f7ffaf, []int{2}
 }
+
 func (m *User) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_User.Unmarshal(m, b)
 }
 func (m *User) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_User.Marshal(b, m, deterministic)
 }
-func (dst *User) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_User.Merge(dst, src)
+func (m *User) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_User.Merge(m, src)
 }
 func (m *User) XXX_Size() int {
 	return xxx_messageInfo_User.Size(m)
@@ -170,6 +177,27 @@ func (m *User) GetScore() int32 {
 	return 0
 }
 
+func (m *User) GetEmail() string {
+	if m != nil {
+		return m.Email
+	}
+	return ""
+}
+
+func (m *User) GetPassword() string {
+	if m != nil {
+		return m.Password
+	}
+	return ""
+}
+
+func (m *User) GetSignature() string {
+	if m != nil {
+		return m.Signature
+	}
+	return ""
+}
+
 type RankResponse struct {
 	Rank                 int64    `protobuf:"varint,1,opt,name=rank,proto3" json:"rank,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -181,16 +209,17 @@ func (m *RankResponse) Reset()         { *m = RankResponse{} }
 func (m *RankResponse) String() string { return proto.CompactTextString(m) }
 func (*RankResponse) ProtoMessage()    {}
 func (*RankResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_user_58c3974aeb218068, []int{3}
+	return fileDescriptor_116e343673f7ffaf, []int{3}
 }
+
 func (m *RankResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_RankResponse.Unmarshal(m, b)
 }
 func (m *RankResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_RankResponse.Marshal(b, m, deterministic)
 }
-func (dst *RankResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_RankResponse.Merge(dst, src)
+func (m *RankResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RankResponse.Merge(m, src)
 }
 func (m *RankResponse) XXX_Size() int {
 	return xxx_messageInfo_RankResponse.Size(m)
@@ -219,16 +248,17 @@ func (m *CountResponse) Reset()         { *m = CountResponse{} }
 func (m *CountResponse) String() string { return proto.CompactTextString(m) }
 func (*CountResponse) ProtoMessage()    {}
 func (*CountResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_user_58c3974aeb218068, []int{4}
+	return fileDescriptor_116e343673f7ffaf, []int{4}
 }
+
 func (m *CountResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CountResponse.Unmarshal(m, b)
 }
 func (m *CountResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_CountResponse.Marshal(b, m, deterministic)
 }
-func (dst *CountResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_CountResponse.Merge(dst, src)
+func (m *CountResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CountResponse.Merge(m, src)
 }
 func (m *CountResponse) XXX_Size() int {
 	return xxx_messageInfo_CountResponse.Size(m)
@@ -258,16 +288,17 @@ func (m *GroupRankRequest) Reset()         { *m = GroupRankRequest{} }
 func (m *GroupRankRequest) String() string { return proto.CompactTextString(m) }
 func (*GroupRankRequest) ProtoMessage()    {}
 func (*GroupRankRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_user_58c3974aeb218068, []int{5}
+	return fileDescriptor_116e343673f7ffaf, []int{5}
 }
+
 func (m *GroupRankRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GroupRankRequest.Unmarshal(m, b)
 }
 func (m *GroupRankRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_GroupRankRequest.Marshal(b, m, deterministic)
 }
-func (dst *GroupRankRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_GroupRankRequest.Merge(dst, src)
+func (m *GroupRankRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GroupRankRequest.Merge(m, src)
 }
 func (m *GroupRankRequest) XXX_Size() int {
 	return xxx_messageInfo_GroupRankRequest.Size(m)
@@ -292,6 +323,272 @@ func (m *GroupRankRequest) GetIds() []string {
 	return nil
 }
 
+type UpdatePasswordRequest struct {
+	Id                   string   `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Password             string   `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *UpdatePasswordRequest) Reset()         { *m = UpdatePasswordRequest{} }
+func (m *UpdatePasswordRequest) String() string { return proto.CompactTextString(m) }
+func (*UpdatePasswordRequest) ProtoMessage()    {}
+func (*UpdatePasswordRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_116e343673f7ffaf, []int{6}
+}
+
+func (m *UpdatePasswordRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_UpdatePasswordRequest.Unmarshal(m, b)
+}
+func (m *UpdatePasswordRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_UpdatePasswordRequest.Marshal(b, m, deterministic)
+}
+func (m *UpdatePasswordRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_UpdatePasswordRequest.Merge(m, src)
+}
+func (m *UpdatePasswordRequest) XXX_Size() int {
+	return xxx_messageInfo_UpdatePasswordRequest.Size(m)
+}
+func (m *UpdatePasswordRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_UpdatePasswordRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_UpdatePasswordRequest proto.InternalMessageInfo
+
+func (m *UpdatePasswordRequest) GetId() string {
+	if m != nil {
+		return m.Id
+	}
+	return ""
+}
+
+func (m *UpdatePasswordRequest) GetPassword() string {
+	if m != nil {
+		return m.Password
+	}
+	return ""
+}
+
+type UpdatePasswordResponse struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *UpdatePasswordResponse) Reset()         { *m = UpdatePasswordResponse{} }
+func (m *UpdatePasswordResponse) String() string { return proto.CompactTextString(m) }
+func (*UpdatePasswordResponse) ProtoMessage()    {}
+func (*UpdatePasswordResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_116e343673f7ffaf, []int{7}
+}
+
+func (m *UpdatePasswordResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_UpdatePasswordResponse.Unmarshal(m, b)
+}
+func (m *UpdatePasswordResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_UpdatePasswordResponse.Marshal(b, m, deterministic)
+}
+func (m *UpdatePasswordResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_UpdatePasswordResponse.Merge(m, src)
+}
+func (m *UpdatePasswordResponse) XXX_Size() int {
+	return xxx_messageInfo_UpdatePasswordResponse.Size(m)
+}
+func (m *UpdatePasswordResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_UpdatePasswordResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_UpdatePasswordResponse proto.InternalMessageInfo
+
+type UpdateSignatureRequest struct {
+	Id                   string   `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Signature            string   `protobuf:"bytes,2,opt,name=signature,proto3" json:"signature,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *UpdateSignatureRequest) Reset()         { *m = UpdateSignatureRequest{} }
+func (m *UpdateSignatureRequest) String() string { return proto.CompactTextString(m) }
+func (*UpdateSignatureRequest) ProtoMessage()    {}
+func (*UpdateSignatureRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_116e343673f7ffaf, []int{8}
+}
+
+func (m *UpdateSignatureRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_UpdateSignatureRequest.Unmarshal(m, b)
+}
+func (m *UpdateSignatureRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_UpdateSignatureRequest.Marshal(b, m, deterministic)
+}
+func (m *UpdateSignatureRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_UpdateSignatureRequest.Merge(m, src)
+}
+func (m *UpdateSignatureRequest) XXX_Size() int {
+	return xxx_messageInfo_UpdateSignatureRequest.Size(m)
+}
+func (m *UpdateSignatureRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_UpdateSignatureRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_UpdateSignatureRequest proto.InternalMessageInfo
+
+func (m *UpdateSignatureRequest) GetId() string {
+	if m != nil {
+		return m.Id
+	}
+	return ""
+}
+
+func (m *UpdateSignatureRequest) GetSignature() string {
+	if m != nil {
+		return m.Signature
+	}
+	return ""
+}
+
+type UpdateSignatureResponse struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *UpdateSignatureResponse) Reset()         { *m = UpdateSignatureResponse{} }
+func (m *UpdateSignatureResponse) String() string { return proto.CompactTextString(m) }
+func (*UpdateSignatureResponse) ProtoMessage()    {}
+func (*UpdateSignatureResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_116e343673f7ffaf, []int{9}
+}
+
+func (m *UpdateSignatureResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_UpdateSignatureResponse.Unmarshal(m, b)
+}
+func (m *UpdateSignatureResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_UpdateSignatureResponse.Marshal(b, m, deterministic)
+}
+func (m *UpdateSignatureResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_UpdateSignatureResponse.Merge(m, src)
+}
+func (m *UpdateSignatureResponse) XXX_Size() int {
+	return xxx_messageInfo_UpdateSignatureResponse.Size(m)
+}
+func (m *UpdateSignatureResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_UpdateSignatureResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_UpdateSignatureResponse proto.InternalMessageInfo
+
+type CreateRequest struct {
+	FirstName            string   `protobuf:"bytes,1,opt,name=firstName,proto3" json:"firstName,omitempty"`
+	Surname              string   `protobuf:"bytes,2,opt,name=surname,proto3" json:"surname,omitempty"`
+	Email                string   `protobuf:"bytes,3,opt,name=email,proto3" json:"email,omitempty"`
+	Password             string   `protobuf:"bytes,4,opt,name=password,proto3" json:"password,omitempty"`
+	PredictedWinner      string   `protobuf:"bytes,5,opt,name=predictedWinner,proto3" json:"predictedWinner,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *CreateRequest) Reset()         { *m = CreateRequest{} }
+func (m *CreateRequest) String() string { return proto.CompactTextString(m) }
+func (*CreateRequest) ProtoMessage()    {}
+func (*CreateRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_116e343673f7ffaf, []int{10}
+}
+
+func (m *CreateRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_CreateRequest.Unmarshal(m, b)
+}
+func (m *CreateRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_CreateRequest.Marshal(b, m, deterministic)
+}
+func (m *CreateRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CreateRequest.Merge(m, src)
+}
+func (m *CreateRequest) XXX_Size() int {
+	return xxx_messageInfo_CreateRequest.Size(m)
+}
+func (m *CreateRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_CreateRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CreateRequest proto.InternalMessageInfo
+
+func (m *CreateRequest) GetFirstName() string {
+	if m != nil {
+		return m.FirstName
+	}
+	return ""
+}
+
+func (m *CreateRequest) GetSurname() string {
+	if m != nil {
+		return m.Surname
+	}
+	return ""
+}
+
+func (m *CreateRequest) GetEmail() string {
+	if m != nil {
+		return m.Email
+	}
+	return ""
+}
+
+func (m *CreateRequest) GetPassword() string {
+	if m != nil {
+		return m.Password
+	}
+	return ""
+}
+
+func (m *CreateRequest) GetPredictedWinner() string {
+	if m != nil {
+		return m.PredictedWinner
+	}
+	return ""
+}
+
+type CreateResponse struct {
+	Id                   string   `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *CreateResponse) Reset()         { *m = CreateResponse{} }
+func (m *CreateResponse) String() string { return proto.CompactTextString(m) }
+func (*CreateResponse) ProtoMessage()    {}
+func (*CreateResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_116e343673f7ffaf, []int{11}
+}
+
+func (m *CreateResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_CreateResponse.Unmarshal(m, b)
+}
+func (m *CreateResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_CreateResponse.Marshal(b, m, deterministic)
+}
+func (m *CreateResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CreateResponse.Merge(m, src)
+}
+func (m *CreateResponse) XXX_Size() int {
+	return xxx_messageInfo_CreateResponse.Size(m)
+}
+func (m *CreateResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_CreateResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CreateResponse proto.InternalMessageInfo
+
+func (m *CreateResponse) GetId() string {
+	if m != nil {
+		return m.Id
+	}
+	return ""
+}
+
 func init() {
 	proto.RegisterType((*GroupIdRequest)(nil), "model.GroupIdRequest")
 	proto.RegisterType((*UserResponse)(nil), "model.UserResponse")
@@ -299,6 +596,58 @@ func init() {
 	proto.RegisterType((*RankResponse)(nil), "model.RankResponse")
 	proto.RegisterType((*CountResponse)(nil), "model.CountResponse")
 	proto.RegisterType((*GroupRankRequest)(nil), "model.GroupRankRequest")
+	proto.RegisterType((*UpdatePasswordRequest)(nil), "model.UpdatePasswordRequest")
+	proto.RegisterType((*UpdatePasswordResponse)(nil), "model.UpdatePasswordResponse")
+	proto.RegisterType((*UpdateSignatureRequest)(nil), "model.UpdateSignatureRequest")
+	proto.RegisterType((*UpdateSignatureResponse)(nil), "model.UpdateSignatureResponse")
+	proto.RegisterType((*CreateRequest)(nil), "model.CreateRequest")
+	proto.RegisterType((*CreateResponse)(nil), "model.CreateResponse")
+}
+
+func init() { proto.RegisterFile("user.proto", fileDescriptor_116e343673f7ffaf) }
+
+var fileDescriptor_116e343673f7ffaf = []byte{
+	// 629 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x7c, 0x54, 0xdd, 0x4e, 0xd4, 0x4e,
+	0x14, 0x4f, 0xbb, 0x5b, 0x3e, 0xce, 0xc2, 0xb2, 0x99, 0x3f, 0x1f, 0xfd, 0x57, 0x34, 0x6b, 0xa3,
+	0xc9, 0x5e, 0x95, 0x88, 0x18, 0x13, 0x63, 0x34, 0x42, 0x60, 0xc3, 0x85, 0x4a, 0x4a, 0x88, 0xd7,
+	0xa5, 0x3d, 0x60, 0x43, 0xdb, 0xa9, 0x33, 0x53, 0xcc, 0x3e, 0x8f, 0xcf, 0xe3, 0x2b, 0xf8, 0x2c,
+	0x66, 0x66, 0xda, 0xd2, 0x96, 0xad, 0x77, 0x73, 0x7e, 0xe7, 0xfb, 0x9c, 0xdf, 0x19, 0x80, 0x82,
+	0x23, 0xf3, 0x72, 0x46, 0x05, 0x25, 0x56, 0x4a, 0x23, 0x4c, 0x9c, 0x27, 0xb7, 0x94, 0xde, 0x26,
+	0x78, 0xa0, 0xc0, 0xeb, 0xe2, 0xe6, 0x00, 0xd3, 0x5c, 0x2c, 0xb4, 0x8d, 0xb3, 0xc9, 0xf0, 0x47,
+	0x81, 0x5c, 0x68, 0xd1, 0x75, 0x61, 0x3c, 0x67, 0xb4, 0xc8, 0xcf, 0x23, 0x5f, 0xe3, 0x64, 0x02,
+	0x83, 0x38, 0xe2, 0xb6, 0x31, 0x1d, 0xcc, 0xd6, 0x7d, 0xf9, 0x74, 0x5f, 0xc1, 0xc6, 0x15, 0x47,
+	0xe6, 0x23, 0xcf, 0x69, 0xc6, 0x91, 0x3c, 0x07, 0x4b, 0x26, 0xd5, 0x36, 0xa3, 0xc3, 0x91, 0xa7,
+	0xd2, 0x7a, 0xca, 0x46, 0x6b, 0xdc, 0x3f, 0x06, 0x0c, 0xa5, 0x4c, 0xc6, 0x60, 0xc6, 0x91, 0x6d,
+	0x4c, 0x8d, 0xd9, 0xba, 0x6f, 0xc6, 0x11, 0xd9, 0x87, 0xf5, 0x9b, 0x98, 0x71, 0xf1, 0x25, 0x48,
+	0xd1, 0x36, 0x15, 0xfc, 0x00, 0x10, 0x1b, 0x56, 0x79, 0xc1, 0x32, 0xa9, 0x1b, 0x28, 0x5d, 0x25,
+	0x92, 0x19, 0x6c, 0xe5, 0x0c, 0xa3, 0x38, 0x14, 0x18, 0x7d, 0x8b, 0xb3, 0x0c, 0x99, 0x3d, 0x54,
+	0x16, 0x5d, 0x98, 0x6c, 0x83, 0xc5, 0x43, 0xca, 0xd0, 0xb6, 0xa6, 0xc6, 0xcc, 0xf2, 0xb5, 0x20,
+	0x51, 0x4c, 0x83, 0x38, 0xb1, 0x57, 0x94, 0x97, 0x16, 0x88, 0x03, 0x6b, 0x79, 0xc0, 0xf9, 0x4f,
+	0xca, 0x22, 0x7b, 0x55, 0x29, 0x6a, 0x59, 0x56, 0xca, 0xe3, 0xdb, 0x2c, 0x10, 0x05, 0x43, 0x7b,
+	0x4d, 0x57, 0x5a, 0x03, 0xae, 0x0b, 0x1b, 0x7e, 0x90, 0xdd, 0xd5, 0x33, 0x21, 0x30, 0x64, 0x41,
+	0x76, 0xa7, 0x3a, 0x1d, 0xf8, 0xea, 0xed, 0xbe, 0x84, 0xcd, 0x13, 0x5a, 0x64, 0xa2, 0x36, 0xda,
+	0x06, 0x2b, 0x94, 0x40, 0x69, 0xa5, 0x05, 0xf7, 0x08, 0x26, 0x6a, 0x05, 0x3a, 0x9e, 0x5e, 0x42,
+	0x77, 0x6c, 0xe5, 0x52, 0xcc, 0x87, 0xa5, 0x9c, 0xc0, 0xce, 0x55, 0x1e, 0x05, 0x02, 0x2f, 0xca,
+	0x82, 0xfb, 0x5c, 0x9b, 0x3d, 0x9a, 0xed, 0x1e, 0x5d, 0x1b, 0x76, 0xbb, 0x41, 0x74, 0xa9, 0xee,
+	0x59, 0xa5, 0xb9, 0xac, 0x5a, 0xee, 0x8b, 0xdf, 0x9a, 0x93, 0xd9, 0x9d, 0xd3, 0xff, 0xb0, 0xf7,
+	0x28, 0x4e, 0x99, 0xe2, 0x97, 0x01, 0x9b, 0x27, 0x0c, 0x03, 0x51, 0x87, 0x6e, 0x91, 0xc3, 0xf8,
+	0x07, 0x39, 0xcc, 0x36, 0x39, 0xea, 0xe5, 0x0e, 0xfa, 0x96, 0x3b, 0xec, 0x2c, 0x77, 0x09, 0x9d,
+	0xac, 0xa5, 0x74, 0x72, 0xa7, 0x30, 0xae, 0x8a, 0x2c, 0xb7, 0xd8, 0x19, 0xc0, 0xe1, 0xef, 0x21,
+	0x8c, 0x24, 0xd7, 0x2f, 0x91, 0xdd, 0xc7, 0x21, 0x92, 0x77, 0x30, 0x9a, 0xa3, 0xf8, 0x94, 0x24,
+	0x12, 0xe4, 0x64, 0xd7, 0xd3, 0xe7, 0xe8, 0x55, 0xe7, 0xe8, 0x9d, 0xca, 0x73, 0x74, 0xfe, 0x6b,
+	0x9e, 0x4d, 0x15, 0xfb, 0x03, 0x4c, 0x1a, 0xbe, 0xc7, 0x8b, 0xf3, 0x88, 0x93, 0x9d, 0xd2, 0xb0,
+	0x7d, 0xa7, 0xcb, 0xfd, 0xdf, 0xc2, 0x78, 0x8e, 0xe2, 0xeb, 0x3d, 0xb2, 0x20, 0x49, 0x24, 0xa1,
+	0xc8, 0xa4, 0x34, 0x7b, 0xec, 0xd8, 0xe2, 0xef, 0x47, 0xd8, 0x9a, 0xa3, 0x90, 0xd0, 0x19, 0x65,
+	0x2a, 0x13, 0xd9, 0x6b, 0xe6, 0x6d, 0x90, 0x73, 0x79, 0x80, 0xf7, 0xb0, 0x31, 0x47, 0x21, 0x8b,
+	0x51, 0x9c, 0xef, 0x6d, 0x7b, 0xbb, 0x74, 0x6e, 0x5f, 0xc6, 0xa1, 0xaa, 0x5b, 0x7a, 0x1f, 0x2f,
+	0x4e, 0xd5, 0xf6, 0xaa, 0x24, 0x4a, 0xaa, 0x32, 0x37, 0xbf, 0x1a, 0xf2, 0x19, 0xc6, 0x6d, 0xf2,
+	0x92, 0xfd, 0x4a, 0xbd, 0xec, 0x30, 0x9c, 0xa7, 0x3d, 0xda, 0xb2, 0x84, 0x0b, 0xd8, 0xea, 0x30,
+	0x95, 0xb4, 0x3d, 0xba, 0x97, 0xe0, 0x3c, 0xeb, 0x53, 0x97, 0x11, 0xdf, 0xc0, 0x8a, 0xa6, 0x0e,
+	0xa9, 0x9b, 0x6e, 0xd2, 0xdd, 0xd9, 0xe9, 0xa0, 0xda, 0xed, 0xf8, 0x05, 0x4c, 0x43, 0x9a, 0x7a,
+	0x21, 0xff, 0x8e, 0xf9, 0x91, 0x97, 0x33, 0x4c, 0x63, 0x64, 0x25, 0x2d, 0x29, 0xf3, 0xe4, 0x07,
+	0x7b, 0x61, 0x5c, 0xaf, 0xa8, 0xb9, 0xbe, 0xfe, 0x1b, 0x00, 0x00, 0xff, 0xff, 0xae, 0x1c, 0x76,
+	0x2b, 0x00, 0x06, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -319,6 +668,9 @@ type UserServiceClient interface {
 	GetRankForGroup(ctx context.Context, in *GroupRankRequest, opts ...grpc.CallOption) (*RankResponse, error)
 	GetUserCount(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*CountResponse, error)
 	GetUserByEmail(ctx context.Context, in *EmailRequest, opts ...grpc.CallOption) (*User, error)
+	UpdatePassword(ctx context.Context, in *UpdatePasswordRequest, opts ...grpc.CallOption) (*UpdatePasswordResponse, error)
+	UpdateSignature(ctx context.Context, in *UpdateSignatureRequest, opts ...grpc.CallOption) (*UpdateSignatureResponse, error)
+	Create(ctx context.Context, in *CreateRequest, opts ...grpc.CallOption) (*CreateResponse, error)
 }
 
 type userServiceClient struct {
@@ -383,6 +735,33 @@ func (c *userServiceClient) GetUserByEmail(ctx context.Context, in *EmailRequest
 	return out, nil
 }
 
+func (c *userServiceClient) UpdatePassword(ctx context.Context, in *UpdatePasswordRequest, opts ...grpc.CallOption) (*UpdatePasswordResponse, error) {
+	out := new(UpdatePasswordResponse)
+	err := c.cc.Invoke(ctx, "/model.UserService/UpdatePassword", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) UpdateSignature(ctx context.Context, in *UpdateSignatureRequest, opts ...grpc.CallOption) (*UpdateSignatureResponse, error) {
+	out := new(UpdateSignatureResponse)
+	err := c.cc.Invoke(ctx, "/model.UserService/UpdateSignature", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) Create(ctx context.Context, in *CreateRequest, opts ...grpc.CallOption) (*CreateResponse, error) {
+	out := new(CreateResponse)
+	err := c.cc.Invoke(ctx, "/model.UserService/Create", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServiceServer is the server API for UserService service.
 type UserServiceServer interface {
 	GetAllUsers(context.Context, *empty.Empty) (*UserResponse, error)
@@ -391,6 +770,41 @@ type UserServiceServer interface {
 	GetRankForGroup(context.Context, *GroupRankRequest) (*RankResponse, error)
 	GetUserCount(context.Context, *empty.Empty) (*CountResponse, error)
 	GetUserByEmail(context.Context, *EmailRequest) (*User, error)
+	UpdatePassword(context.Context, *UpdatePasswordRequest) (*UpdatePasswordResponse, error)
+	UpdateSignature(context.Context, *UpdateSignatureRequest) (*UpdateSignatureResponse, error)
+	Create(context.Context, *CreateRequest) (*CreateResponse, error)
+}
+
+// UnimplementedUserServiceServer can be embedded to have forward compatible implementations.
+type UnimplementedUserServiceServer struct {
+}
+
+func (*UnimplementedUserServiceServer) GetAllUsers(ctx context.Context, req *empty.Empty) (*UserResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAllUsers not implemented")
+}
+func (*UnimplementedUserServiceServer) GetAllUsersByIds(ctx context.Context, req *GroupIdRequest) (*UserResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAllUsersByIds not implemented")
+}
+func (*UnimplementedUserServiceServer) GetOverallRank(ctx context.Context, req *IdRequest) (*RankResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetOverallRank not implemented")
+}
+func (*UnimplementedUserServiceServer) GetRankForGroup(ctx context.Context, req *GroupRankRequest) (*RankResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetRankForGroup not implemented")
+}
+func (*UnimplementedUserServiceServer) GetUserCount(ctx context.Context, req *empty.Empty) (*CountResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserCount not implemented")
+}
+func (*UnimplementedUserServiceServer) GetUserByEmail(ctx context.Context, req *EmailRequest) (*User, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserByEmail not implemented")
+}
+func (*UnimplementedUserServiceServer) UpdatePassword(ctx context.Context, req *UpdatePasswordRequest) (*UpdatePasswordResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdatePassword not implemented")
+}
+func (*UnimplementedUserServiceServer) UpdateSignature(ctx context.Context, req *UpdateSignatureRequest) (*UpdateSignatureResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateSignature not implemented")
+}
+func (*UnimplementedUserServiceServer) Create(ctx context.Context, req *CreateRequest) (*CreateResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
 }
 
 func RegisterUserServiceServer(s *grpc.Server, srv UserServiceServer) {
@@ -505,6 +919,60 @@ func _UserService_GetUserByEmail_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserService_UpdatePassword_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdatePasswordRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).UpdatePassword(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/model.UserService/UpdatePassword",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).UpdatePassword(ctx, req.(*UpdatePasswordRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_UpdateSignature_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateSignatureRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).UpdateSignature(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/model.UserService/UpdateSignature",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).UpdateSignature(ctx, req.(*UpdateSignatureRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).Create(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/model.UserService/Create",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).Create(ctx, req.(*CreateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _UserService_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "model.UserService",
 	HandlerType: (*UserServiceServer)(nil),
@@ -533,42 +1001,19 @@ var _UserService_serviceDesc = grpc.ServiceDesc{
 			MethodName: "GetUserByEmail",
 			Handler:    _UserService_GetUserByEmail_Handler,
 		},
+		{
+			MethodName: "UpdatePassword",
+			Handler:    _UserService_UpdatePassword_Handler,
+		},
+		{
+			MethodName: "UpdateSignature",
+			Handler:    _UserService_UpdateSignature_Handler,
+		},
+		{
+			MethodName: "Create",
+			Handler:    _UserService_Create_Handler,
+		},
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "user.proto",
-}
-
-func init() { proto.RegisterFile("user.proto", fileDescriptor_user_58c3974aeb218068) }
-
-var fileDescriptor_user_58c3974aeb218068 = []byte{
-	// 450 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x74, 0x52, 0x51, 0x6f, 0xd3, 0x30,
-	0x10, 0x56, 0xd2, 0x06, 0xd4, 0x6b, 0xd7, 0x55, 0xa6, 0x40, 0x54, 0x78, 0x28, 0x11, 0x48, 0x7d,
-	0xf2, 0x44, 0x99, 0x84, 0x84, 0x10, 0x88, 0xa2, 0x11, 0xed, 0x05, 0x50, 0x10, 0xe2, 0x39, 0x4b,
-	0x6e, 0xc3, 0x5a, 0x12, 0x87, 0xb3, 0x33, 0xa9, 0x7f, 0x82, 0x7f, 0xcb, 0x3b, 0xb2, 0x9d, 0x94,
-	0x74, 0x74, 0x6f, 0xfe, 0x3e, 0x7f, 0xe7, 0xef, 0xee, 0x3b, 0x03, 0x34, 0x0a, 0x89, 0xd7, 0x24,
-	0xb5, 0x64, 0x41, 0x29, 0x73, 0x2c, 0x16, 0x4f, 0xae, 0xa4, 0xbc, 0x2a, 0xf0, 0xc4, 0x92, 0x17,
-	0xcd, 0xe5, 0x09, 0x96, 0xb5, 0xde, 0x3a, 0xcd, 0xe2, 0x88, 0xf0, 0x57, 0x83, 0x4a, 0x3b, 0x18,
-	0x45, 0x30, 0x8d, 0x49, 0x36, 0xf5, 0x79, 0x9e, 0x38, 0x9e, 0xcd, 0x60, 0x20, 0x72, 0x15, 0x7a,
-	0xcb, 0xc1, 0x6a, 0x94, 0x98, 0x63, 0xf4, 0x12, 0x26, 0xdf, 0x15, 0x52, 0x82, 0xaa, 0x96, 0x95,
-	0x42, 0xf6, 0x0c, 0x02, 0x63, 0xea, 0x34, 0xe3, 0xf5, 0x98, 0x5b, 0x5b, 0x6e, 0x35, 0xee, 0x26,
-	0xfa, 0xed, 0xc1, 0xd0, 0x60, 0x36, 0x05, 0x5f, 0xe4, 0xa1, 0xb7, 0xf4, 0x56, 0xa3, 0xc4, 0x17,
-	0x39, 0x7b, 0x0a, 0xa3, 0x4b, 0x41, 0x4a, 0x7f, 0x4e, 0x4b, 0x0c, 0x7d, 0x4b, 0xff, 0x23, 0x58,
-	0x08, 0xf7, 0x55, 0x43, 0x95, 0xb9, 0x1b, 0xd8, 0xbb, 0x0e, 0xb2, 0x15, 0x1c, 0xd7, 0x84, 0xb9,
-	0xc8, 0x34, 0xe6, 0x3f, 0x44, 0x55, 0x21, 0x85, 0x43, 0xab, 0xb8, 0x4d, 0xb3, 0x39, 0x04, 0x2a,
-	0x93, 0x84, 0x61, 0xb0, 0xf4, 0x56, 0x41, 0xe2, 0x40, 0x14, 0xc1, 0x24, 0x49, 0xab, 0xeb, 0xdd,
-	0x0c, 0x0c, 0x86, 0x94, 0x56, 0xd7, 0xb6, 0xb3, 0x41, 0x62, 0xcf, 0xd1, 0x0b, 0x38, 0xfa, 0x28,
-	0x9b, 0x4a, 0xef, 0x44, 0x73, 0x08, 0x32, 0x43, 0xb4, 0x2a, 0x07, 0xa2, 0x53, 0x98, 0xd9, 0xc8,
-	0xdc, 0x7b, 0x2e, 0xb4, 0xdb, 0x63, 0xb6, 0x21, 0xfa, 0xbb, 0x10, 0xd7, 0x7f, 0x7c, 0x18, 0x9b,
-	0x44, 0xbe, 0x21, 0xdd, 0x88, 0x0c, 0xd9, 0x1b, 0x18, 0xc7, 0xa8, 0x3f, 0x14, 0x85, 0x21, 0x15,
-	0x7b, 0xc4, 0xdd, 0xd2, 0x78, 0xb7, 0x34, 0x7e, 0x66, 0x96, 0xb6, 0x78, 0xd0, 0x0f, 0xb7, 0xeb,
-	0xeb, 0x1d, 0xcc, 0x7a, 0xb5, 0x9b, 0xed, 0x79, 0xae, 0xd8, 0xc3, 0x56, 0xb8, 0xbf, 0xcd, 0xc3,
-	0xf5, 0xaf, 0x61, 0x1a, 0xa3, 0xfe, 0x72, 0x83, 0x94, 0x16, 0x85, 0x19, 0x83, 0xcd, 0x5a, 0xd9,
-	0xff, 0x85, 0x7b, 0xa9, 0xbd, 0x87, 0xe3, 0x18, 0xb5, 0xa1, 0x3e, 0x49, 0xb2, 0x4e, 0xec, 0x71,
-	0xdf, 0xb7, 0x17, 0xc9, 0xe1, 0x07, 0xde, 0xc2, 0x24, 0x46, 0x6d, 0x9a, 0xb1, 0x49, 0xdf, 0x39,
-	0xf6, 0xbc, 0x2d, 0xde, 0xdf, 0xc7, 0xda, 0xf6, 0x6d, 0xaa, 0x37, 0xdb, 0xb3, 0x32, 0x15, 0x05,
-	0xeb, 0x4c, 0x2c, 0xea, 0x9c, 0xfb, 0x1f, 0x72, 0xf3, 0x1c, 0x96, 0x99, 0x2c, 0x79, 0xa6, 0x7e,
-	0x62, 0x7d, 0xca, 0x6b, 0xc2, 0x52, 0x20, 0xb5, 0x7f, 0x46, 0x12, 0x37, 0xdf, 0xf5, 0xab, 0x77,
-	0x71, 0xcf, 0xfa, 0xbf, 0xfa, 0x1b, 0x00, 0x00, 0xff, 0xff, 0x9c, 0x59, 0x95, 0xef, 0x4e, 0x03,
-	0x00, 0x00,
 }

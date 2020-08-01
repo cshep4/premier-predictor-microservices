@@ -1,26 +1,30 @@
-# starter
+# kauthservice project
 
-This is your empty project. Ensure you have [GraalVM](https://www.graalvm.org) installed
-on your path or use the provided `Dockerfile` to build your image.
+This project uses Quarkus, the Supersonic Subatomic Java Framework.
 
-**WARNING**: If you need to add more verticles to your application (so it can run them using
-the standard `java -jar ... run your.other.Verticle`) you need to list it on:
+If you want to learn more about Quarkus, please visit its website: https://quarkus.io/ .
 
-[src/main/resources/META-INF/native-image/com.starter/starter/reflection.json](src/main/resources/META-INF/native-image/com.starter/starter/reflection.json)
+## Running the application in dev mode
 
+You can run your application in dev mode that enables live coding using:
+```
+./mvnw quarkus:dev
+```
 
-## Build
+## Packaging and running the application
 
-`mvn package`
+The application can be packaged using `./mvnw package`.
+It produces the `kauthservice-1.0.0-SNAPSHOT-runner.jar` file in the `/target` directory.
+Be aware that it’s not an _über-jar_ as the dependencies are copied into the `target/lib` directory.
 
-or
+The application is now runnable using `java -jar target/kauthservice-1.0.0-SNAPSHOT-runner.jar`.
 
-`docker build -t kauthservice .`
+## Creating a native executable
 
-## Run
+You can create a native executable using: `./mvnw package -Pnative`.
 
-`./target/kauthservice`
+Or, if you don't have GraalVM installed, you can run the native executable build in a container using: `./mvnw package -Pnative -Dquarkus.native.container-build=true`.
 
-or
+You can then execute your native executable with: `./target/kauthservice-1.0.0-SNAPSHOT-runner`
 
-`docker run --rm -it --net=host kauthservice`
+If you want to learn more about building native executables, please consult https://quarkus.io/guides/building-native-image.

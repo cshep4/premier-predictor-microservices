@@ -1,0 +1,36 @@
+version: '3.7'
+services:
+  emailer:
+    build:
+      context: .
+      dockerfile: test/email/Dockerfile
+    ports:
+      - 8081:8081
+  user-service:
+    build:
+      context: ../../
+      dockerfile: src/kauthservice/test/user/Dockerfile
+    ports:
+      - 50052:50052
+  auth-service:
+    build:
+      context: .
+      dockerfile: src/main/docker/Dockerfile.multistage
+    restart: always
+    environment:
+      - USER_ADDR=user-service
+      - USER_PORT=50052
+      - JWT_SECRET=some-jwt-secret
+      - EMAIL_URL=https://jbemuyb0o3.execute-api.us-east-1.amazonaws.com/dev/email
+    depends_on:
+      - emailer
+      - user-service
+    ports:
+      - 50051:50051
+      - 8080:8080
+  integration:
+    build:
+      context: ../../
+      dockerfile: src/kauthservice/test/integration/Dockerfile
+    depends_on:
+      - auth-service

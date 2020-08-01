@@ -3,15 +3,16 @@
 
 package model
 
-import proto "github.com/golang/protobuf/proto"
-import fmt "fmt"
-import math "math"
-import empty "github.com/golang/protobuf/ptypes/empty"
-import timestamp "github.com/golang/protobuf/ptypes/timestamp"
-
 import (
-	context "golang.org/x/net/context"
+	context "context"
+	fmt "fmt"
+	proto "github.com/golang/protobuf/proto"
+	empty "github.com/golang/protobuf/ptypes/empty"
+	timestamp "github.com/golang/protobuf/ptypes/timestamp"
 	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
+	math "math"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -23,7 +24,7 @@ var _ = math.Inf
 // is compatible with the proto package it is being compiled against.
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
-const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
+const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 type UpcomingMatchesResponse struct {
 	Matches              map[string]*MatchFactsList `protobuf:"bytes,1,rep,name=matches,proto3" json:"matches,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
@@ -36,16 +37,17 @@ func (m *UpcomingMatchesResponse) Reset()         { *m = UpcomingMatchesResponse
 func (m *UpcomingMatchesResponse) String() string { return proto.CompactTextString(m) }
 func (*UpcomingMatchesResponse) ProtoMessage()    {}
 func (*UpcomingMatchesResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_live_36c3a5900d1913ec, []int{0}
+	return fileDescriptor_c9b1f08afb3d995e, []int{0}
 }
+
 func (m *UpcomingMatchesResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_UpcomingMatchesResponse.Unmarshal(m, b)
 }
 func (m *UpcomingMatchesResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_UpcomingMatchesResponse.Marshal(b, m, deterministic)
 }
-func (dst *UpcomingMatchesResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_UpcomingMatchesResponse.Merge(dst, src)
+func (m *UpcomingMatchesResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_UpcomingMatchesResponse.Merge(m, src)
 }
 func (m *UpcomingMatchesResponse) XXX_Size() int {
 	return xxx_messageInfo_UpcomingMatchesResponse.Size(m)
@@ -76,16 +78,17 @@ func (m *MatchSummary) Reset()         { *m = MatchSummary{} }
 func (m *MatchSummary) String() string { return proto.CompactTextString(m) }
 func (*MatchSummary) ProtoMessage()    {}
 func (*MatchSummary) Descriptor() ([]byte, []int) {
-	return fileDescriptor_live_36c3a5900d1913ec, []int{1}
+	return fileDescriptor_c9b1f08afb3d995e, []int{1}
 }
+
 func (m *MatchSummary) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_MatchSummary.Unmarshal(m, b)
 }
 func (m *MatchSummary) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_MatchSummary.Marshal(b, m, deterministic)
 }
-func (dst *MatchSummary) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MatchSummary.Merge(dst, src)
+func (m *MatchSummary) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MatchSummary.Merge(m, src)
 }
 func (m *MatchSummary) XXX_Size() int {
 	return xxx_messageInfo_MatchSummary.Size(m)
@@ -128,16 +131,17 @@ func (m *MatchFactsList) Reset()         { *m = MatchFactsList{} }
 func (m *MatchFactsList) String() string { return proto.CompactTextString(m) }
 func (*MatchFactsList) ProtoMessage()    {}
 func (*MatchFactsList) Descriptor() ([]byte, []int) {
-	return fileDescriptor_live_36c3a5900d1913ec, []int{2}
+	return fileDescriptor_c9b1f08afb3d995e, []int{2}
 }
+
 func (m *MatchFactsList) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_MatchFactsList.Unmarshal(m, b)
 }
 func (m *MatchFactsList) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_MatchFactsList.Marshal(b, m, deterministic)
 }
-func (dst *MatchFactsList) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MatchFactsList.Merge(dst, src)
+func (m *MatchFactsList) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MatchFactsList.Merge(m, src)
 }
 func (m *MatchFactsList) XXX_Size() int {
 	return xxx_messageInfo_MatchFactsList.Size(m)
@@ -190,16 +194,17 @@ func (m *MatchFacts) Reset()         { *m = MatchFacts{} }
 func (m *MatchFacts) String() string { return proto.CompactTextString(m) }
 func (*MatchFacts) ProtoMessage()    {}
 func (*MatchFacts) Descriptor() ([]byte, []int) {
-	return fileDescriptor_live_36c3a5900d1913ec, []int{3}
+	return fileDescriptor_c9b1f08afb3d995e, []int{3}
 }
+
 func (m *MatchFacts) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_MatchFacts.Unmarshal(m, b)
 }
 func (m *MatchFacts) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_MatchFacts.Marshal(b, m, deterministic)
 }
-func (dst *MatchFacts) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MatchFacts.Merge(dst, src)
+func (m *MatchFacts) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MatchFacts.Merge(m, src)
 }
 func (m *MatchFacts) XXX_Size() int {
 	return xxx_messageInfo_MatchFacts.Size(m)
@@ -405,16 +410,17 @@ func (m *Event) Reset()         { *m = Event{} }
 func (m *Event) String() string { return proto.CompactTextString(m) }
 func (*Event) ProtoMessage()    {}
 func (*Event) Descriptor() ([]byte, []int) {
-	return fileDescriptor_live_36c3a5900d1913ec, []int{4}
+	return fileDescriptor_c9b1f08afb3d995e, []int{4}
 }
+
 func (m *Event) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Event.Unmarshal(m, b)
 }
 func (m *Event) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_Event.Marshal(b, m, deterministic)
 }
-func (dst *Event) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Event.Merge(dst, src)
+func (m *Event) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Event.Merge(m, src)
 }
 func (m *Event) XXX_Size() int {
 	return xxx_messageInfo_Event.Size(m)
@@ -513,16 +519,17 @@ func (m *Commentary) Reset()         { *m = Commentary{} }
 func (m *Commentary) String() string { return proto.CompactTextString(m) }
 func (*Commentary) ProtoMessage()    {}
 func (*Commentary) Descriptor() ([]byte, []int) {
-	return fileDescriptor_live_36c3a5900d1913ec, []int{5}
+	return fileDescriptor_c9b1f08afb3d995e, []int{5}
 }
+
 func (m *Commentary) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Commentary.Unmarshal(m, b)
 }
 func (m *Commentary) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_Commentary.Marshal(b, m, deterministic)
 }
-func (dst *Commentary) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Commentary.Merge(dst, src)
+func (m *Commentary) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Commentary.Merge(m, src)
 }
 func (m *Commentary) XXX_Size() int {
 	return xxx_messageInfo_Commentary.Size(m)
@@ -602,16 +609,17 @@ func (m *MatchInfo) Reset()         { *m = MatchInfo{} }
 func (m *MatchInfo) String() string { return proto.CompactTextString(m) }
 func (*MatchInfo) ProtoMessage()    {}
 func (*MatchInfo) Descriptor() ([]byte, []int) {
-	return fileDescriptor_live_36c3a5900d1913ec, []int{6}
+	return fileDescriptor_c9b1f08afb3d995e, []int{6}
 }
+
 func (m *MatchInfo) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_MatchInfo.Unmarshal(m, b)
 }
 func (m *MatchInfo) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_MatchInfo.Marshal(b, m, deterministic)
 }
-func (dst *MatchInfo) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MatchInfo.Merge(dst, src)
+func (m *MatchInfo) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MatchInfo.Merge(m, src)
 }
 func (m *MatchInfo) XXX_Size() int {
 	return xxx_messageInfo_MatchInfo.Size(m)
@@ -655,16 +663,17 @@ func (m *Lineup) Reset()         { *m = Lineup{} }
 func (m *Lineup) String() string { return proto.CompactTextString(m) }
 func (*Lineup) ProtoMessage()    {}
 func (*Lineup) Descriptor() ([]byte, []int) {
-	return fileDescriptor_live_36c3a5900d1913ec, []int{7}
+	return fileDescriptor_c9b1f08afb3d995e, []int{7}
 }
+
 func (m *Lineup) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Lineup.Unmarshal(m, b)
 }
 func (m *Lineup) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_Lineup.Marshal(b, m, deterministic)
 }
-func (dst *Lineup) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Lineup.Merge(dst, src)
+func (m *Lineup) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Lineup.Merge(m, src)
 }
 func (m *Lineup) XXX_Size() int {
 	return xxx_messageInfo_Lineup.Size(m)
@@ -703,16 +712,17 @@ func (m *Position) Reset()         { *m = Position{} }
 func (m *Position) String() string { return proto.CompactTextString(m) }
 func (*Position) ProtoMessage()    {}
 func (*Position) Descriptor() ([]byte, []int) {
-	return fileDescriptor_live_36c3a5900d1913ec, []int{8}
+	return fileDescriptor_c9b1f08afb3d995e, []int{8}
 }
+
 func (m *Position) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Position.Unmarshal(m, b)
 }
 func (m *Position) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_Position.Marshal(b, m, deterministic)
 }
-func (dst *Position) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Position.Merge(dst, src)
+func (m *Position) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Position.Merge(m, src)
 }
 func (m *Position) XXX_Size() int {
 	return xxx_messageInfo_Position.Size(m)
@@ -763,16 +773,17 @@ func (m *Substitutions) Reset()         { *m = Substitutions{} }
 func (m *Substitutions) String() string { return proto.CompactTextString(m) }
 func (*Substitutions) ProtoMessage()    {}
 func (*Substitutions) Descriptor() ([]byte, []int) {
-	return fileDescriptor_live_36c3a5900d1913ec, []int{9}
+	return fileDescriptor_c9b1f08afb3d995e, []int{9}
 }
+
 func (m *Substitutions) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Substitutions.Unmarshal(m, b)
 }
 func (m *Substitutions) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_Substitutions.Marshal(b, m, deterministic)
 }
-func (dst *Substitutions) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Substitutions.Merge(dst, src)
+func (m *Substitutions) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Substitutions.Merge(m, src)
 }
 func (m *Substitutions) XXX_Size() int {
 	return xxx_messageInfo_Substitutions.Size(m)
@@ -813,16 +824,17 @@ func (m *Substitution) Reset()         { *m = Substitution{} }
 func (m *Substitution) String() string { return proto.CompactTextString(m) }
 func (*Substitution) ProtoMessage()    {}
 func (*Substitution) Descriptor() ([]byte, []int) {
-	return fileDescriptor_live_36c3a5900d1913ec, []int{10}
+	return fileDescriptor_c9b1f08afb3d995e, []int{10}
 }
+
 func (m *Substitution) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Substitution.Unmarshal(m, b)
 }
 func (m *Substitution) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_Substitution.Marshal(b, m, deterministic)
 }
-func (dst *Substitution) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Substitution.Merge(dst, src)
+func (m *Substitution) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Substitution.Merge(m, src)
 }
 func (m *Substitution) XXX_Size() int {
 	return xxx_messageInfo_Substitution.Size(m)
@@ -890,16 +902,17 @@ func (m *Comment) Reset()         { *m = Comment{} }
 func (m *Comment) String() string { return proto.CompactTextString(m) }
 func (*Comment) ProtoMessage()    {}
 func (*Comment) Descriptor() ([]byte, []int) {
-	return fileDescriptor_live_36c3a5900d1913ec, []int{11}
+	return fileDescriptor_c9b1f08afb3d995e, []int{11}
 }
+
 func (m *Comment) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Comment.Unmarshal(m, b)
 }
 func (m *Comment) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_Comment.Marshal(b, m, deterministic)
 }
-func (dst *Comment) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Comment.Merge(dst, src)
+func (m *Comment) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Comment.Merge(m, src)
 }
 func (m *Comment) XXX_Size() int {
 	return xxx_messageInfo_Comment.Size(m)
@@ -957,16 +970,17 @@ func (m *MatchStats) Reset()         { *m = MatchStats{} }
 func (m *MatchStats) String() string { return proto.CompactTextString(m) }
 func (*MatchStats) ProtoMessage()    {}
 func (*MatchStats) Descriptor() ([]byte, []int) {
-	return fileDescriptor_live_36c3a5900d1913ec, []int{12}
+	return fileDescriptor_c9b1f08afb3d995e, []int{12}
 }
+
 func (m *MatchStats) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_MatchStats.Unmarshal(m, b)
 }
 func (m *MatchStats) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_MatchStats.Marshal(b, m, deterministic)
 }
-func (dst *MatchStats) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MatchStats.Merge(dst, src)
+func (m *MatchStats) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MatchStats.Merge(m, src)
 }
 func (m *MatchStats) XXX_Size() int {
 	return xxx_messageInfo_MatchStats.Size(m)
@@ -1011,16 +1025,17 @@ func (m *TeamStats) Reset()         { *m = TeamStats{} }
 func (m *TeamStats) String() string { return proto.CompactTextString(m) }
 func (*TeamStats) ProtoMessage()    {}
 func (*TeamStats) Descriptor() ([]byte, []int) {
-	return fileDescriptor_live_36c3a5900d1913ec, []int{13}
+	return fileDescriptor_c9b1f08afb3d995e, []int{13}
 }
+
 func (m *TeamStats) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_TeamStats.Unmarshal(m, b)
 }
 func (m *TeamStats) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_TeamStats.Marshal(b, m, deterministic)
 }
-func (dst *TeamStats) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_TeamStats.Merge(dst, src)
+func (m *TeamStats) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_TeamStats.Merge(m, src)
 }
 func (m *TeamStats) XXX_Size() int {
 	return xxx_messageInfo_TeamStats.Size(m)
@@ -1113,16 +1128,17 @@ func (m *PlayerStats) Reset()         { *m = PlayerStats{} }
 func (m *PlayerStats) String() string { return proto.CompactTextString(m) }
 func (*PlayerStats) ProtoMessage()    {}
 func (*PlayerStats) Descriptor() ([]byte, []int) {
-	return fileDescriptor_live_36c3a5900d1913ec, []int{14}
+	return fileDescriptor_c9b1f08afb3d995e, []int{14}
 }
+
 func (m *PlayerStats) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_PlayerStats.Unmarshal(m, b)
 }
 func (m *PlayerStats) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_PlayerStats.Marshal(b, m, deterministic)
 }
-func (dst *PlayerStats) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_PlayerStats.Merge(dst, src)
+func (m *PlayerStats) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_PlayerStats.Merge(m, src)
 }
 func (m *PlayerStats) XXX_Size() int {
 	return xxx_messageInfo_PlayerStats.Size(m)
@@ -1158,16 +1174,17 @@ func (m *Players) Reset()         { *m = Players{} }
 func (m *Players) String() string { return proto.CompactTextString(m) }
 func (*Players) ProtoMessage()    {}
 func (*Players) Descriptor() ([]byte, []int) {
-	return fileDescriptor_live_36c3a5900d1913ec, []int{15}
+	return fileDescriptor_c9b1f08afb3d995e, []int{15}
 }
+
 func (m *Players) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Players.Unmarshal(m, b)
 }
 func (m *Players) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_Players.Marshal(b, m, deterministic)
 }
-func (dst *Players) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Players.Merge(dst, src)
+func (m *Players) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Players.Merge(m, src)
 }
 func (m *Players) XXX_Size() int {
 	return xxx_messageInfo_Players.Size(m)
@@ -1213,16 +1230,17 @@ func (m *Player) Reset()         { *m = Player{} }
 func (m *Player) String() string { return proto.CompactTextString(m) }
 func (*Player) ProtoMessage()    {}
 func (*Player) Descriptor() ([]byte, []int) {
-	return fileDescriptor_live_36c3a5900d1913ec, []int{16}
+	return fileDescriptor_c9b1f08afb3d995e, []int{16}
 }
+
 func (m *Player) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Player.Unmarshal(m, b)
 }
 func (m *Player) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_Player.Marshal(b, m, deterministic)
 }
-func (dst *Player) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Player.Merge(dst, src)
+func (m *Player) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Player.Merge(m, src)
 }
 func (m *Player) XXX_Size() int {
 	return xxx_messageInfo_Player.Size(m)
@@ -1380,168 +1398,9 @@ func init() {
 	proto.RegisterType((*Player)(nil), "model.Player")
 }
 
-// Reference imports to suppress errors if they are not otherwise used.
-var _ context.Context
-var _ grpc.ClientConn
+func init() { proto.RegisterFile("live.proto", fileDescriptor_c9b1f08afb3d995e) }
 
-// This is a compile-time assertion to ensure that this generated file
-// is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion4
-
-// LiveMatchServiceClient is the client API for LiveMatchService service.
-//
-// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
-type LiveMatchServiceClient interface {
-	GetUpcomingMatches(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (LiveMatchService_GetUpcomingMatchesClient, error)
-	GetMatchSummary(ctx context.Context, in *PredictionRequest, opts ...grpc.CallOption) (LiveMatchService_GetMatchSummaryClient, error)
-}
-
-type liveMatchServiceClient struct {
-	cc *grpc.ClientConn
-}
-
-func NewLiveMatchServiceClient(cc *grpc.ClientConn) LiveMatchServiceClient {
-	return &liveMatchServiceClient{cc}
-}
-
-func (c *liveMatchServiceClient) GetUpcomingMatches(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (LiveMatchService_GetUpcomingMatchesClient, error) {
-	stream, err := c.cc.NewStream(ctx, &_LiveMatchService_serviceDesc.Streams[0], "/model.LiveMatchService/GetUpcomingMatches", opts...)
-	if err != nil {
-		return nil, err
-	}
-	x := &liveMatchServiceGetUpcomingMatchesClient{stream}
-	if err := x.ClientStream.SendMsg(in); err != nil {
-		return nil, err
-	}
-	if err := x.ClientStream.CloseSend(); err != nil {
-		return nil, err
-	}
-	return x, nil
-}
-
-type LiveMatchService_GetUpcomingMatchesClient interface {
-	Recv() (*UpcomingMatchesResponse, error)
-	grpc.ClientStream
-}
-
-type liveMatchServiceGetUpcomingMatchesClient struct {
-	grpc.ClientStream
-}
-
-func (x *liveMatchServiceGetUpcomingMatchesClient) Recv() (*UpcomingMatchesResponse, error) {
-	m := new(UpcomingMatchesResponse)
-	if err := x.ClientStream.RecvMsg(m); err != nil {
-		return nil, err
-	}
-	return m, nil
-}
-
-func (c *liveMatchServiceClient) GetMatchSummary(ctx context.Context, in *PredictionRequest, opts ...grpc.CallOption) (LiveMatchService_GetMatchSummaryClient, error) {
-	stream, err := c.cc.NewStream(ctx, &_LiveMatchService_serviceDesc.Streams[1], "/model.LiveMatchService/GetMatchSummary", opts...)
-	if err != nil {
-		return nil, err
-	}
-	x := &liveMatchServiceGetMatchSummaryClient{stream}
-	if err := x.ClientStream.SendMsg(in); err != nil {
-		return nil, err
-	}
-	if err := x.ClientStream.CloseSend(); err != nil {
-		return nil, err
-	}
-	return x, nil
-}
-
-type LiveMatchService_GetMatchSummaryClient interface {
-	Recv() (*MatchSummary, error)
-	grpc.ClientStream
-}
-
-type liveMatchServiceGetMatchSummaryClient struct {
-	grpc.ClientStream
-}
-
-func (x *liveMatchServiceGetMatchSummaryClient) Recv() (*MatchSummary, error) {
-	m := new(MatchSummary)
-	if err := x.ClientStream.RecvMsg(m); err != nil {
-		return nil, err
-	}
-	return m, nil
-}
-
-// LiveMatchServiceServer is the server API for LiveMatchService service.
-type LiveMatchServiceServer interface {
-	GetUpcomingMatches(*empty.Empty, LiveMatchService_GetUpcomingMatchesServer) error
-	GetMatchSummary(*PredictionRequest, LiveMatchService_GetMatchSummaryServer) error
-}
-
-func RegisterLiveMatchServiceServer(s *grpc.Server, srv LiveMatchServiceServer) {
-	s.RegisterService(&_LiveMatchService_serviceDesc, srv)
-}
-
-func _LiveMatchService_GetUpcomingMatches_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(empty.Empty)
-	if err := stream.RecvMsg(m); err != nil {
-		return err
-	}
-	return srv.(LiveMatchServiceServer).GetUpcomingMatches(m, &liveMatchServiceGetUpcomingMatchesServer{stream})
-}
-
-type LiveMatchService_GetUpcomingMatchesServer interface {
-	Send(*UpcomingMatchesResponse) error
-	grpc.ServerStream
-}
-
-type liveMatchServiceGetUpcomingMatchesServer struct {
-	grpc.ServerStream
-}
-
-func (x *liveMatchServiceGetUpcomingMatchesServer) Send(m *UpcomingMatchesResponse) error {
-	return x.ServerStream.SendMsg(m)
-}
-
-func _LiveMatchService_GetMatchSummary_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(PredictionRequest)
-	if err := stream.RecvMsg(m); err != nil {
-		return err
-	}
-	return srv.(LiveMatchServiceServer).GetMatchSummary(m, &liveMatchServiceGetMatchSummaryServer{stream})
-}
-
-type LiveMatchService_GetMatchSummaryServer interface {
-	Send(*MatchSummary) error
-	grpc.ServerStream
-}
-
-type liveMatchServiceGetMatchSummaryServer struct {
-	grpc.ServerStream
-}
-
-func (x *liveMatchServiceGetMatchSummaryServer) Send(m *MatchSummary) error {
-	return x.ServerStream.SendMsg(m)
-}
-
-var _LiveMatchService_serviceDesc = grpc.ServiceDesc{
-	ServiceName: "model.LiveMatchService",
-	HandlerType: (*LiveMatchServiceServer)(nil),
-	Methods:     []grpc.MethodDesc{},
-	Streams: []grpc.StreamDesc{
-		{
-			StreamName:    "GetUpcomingMatches",
-			Handler:       _LiveMatchService_GetUpcomingMatches_Handler,
-			ServerStreams: true,
-		},
-		{
-			StreamName:    "GetMatchSummary",
-			Handler:       _LiveMatchService_GetMatchSummary_Handler,
-			ServerStreams: true,
-		},
-	},
-	Metadata: "live.proto",
-}
-
-func init() { proto.RegisterFile("live.proto", fileDescriptor_live_36c3a5900d1913ec) }
-
-var fileDescriptor_live_36c3a5900d1913ec = []byte{
+var fileDescriptor_c9b1f08afb3d995e = []byte{
 	// 1483 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x57, 0xcd, 0x92, 0xdb, 0x44,
 	0x10, 0xc6, 0xde, 0xac, 0xbd, 0x6e, 0xef, 0x8f, 0x33, 0xf9, 0x13, 0x4b, 0x08, 0x8b, 0x2a, 0x81,
@@ -1636,4 +1495,174 @@ var fileDescriptor_live_36c3a5900d1913ec = []byte{
 	0xa5, 0xc3, 0xb1, 0x3e, 0x93, 0xf9, 0xbd, 0x61, 0x5e, 0xc8, 0x34, 0x96, 0x05, 0xff, 0x87, 0xa9,
 	0x62, 0x88, 0xff, 0xd9, 0x74, 0xe1, 0x3f, 0x6d, 0x9d, 0x74, 0x68, 0x93, 0x9f, 0xfe, 0x1b, 0x00,
 	0x00, 0xff, 0xff, 0xc1, 0x34, 0xfe, 0xde, 0x7d, 0x0f, 0x00, 0x00,
+}
+
+// Reference imports to suppress errors if they are not otherwise used.
+var _ context.Context
+var _ grpc.ClientConn
+
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the grpc package it is being compiled against.
+const _ = grpc.SupportPackageIsVersion4
+
+// LiveMatchServiceClient is the client API for LiveMatchService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
+type LiveMatchServiceClient interface {
+	GetUpcomingMatches(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (LiveMatchService_GetUpcomingMatchesClient, error)
+	GetMatchSummary(ctx context.Context, in *PredictionRequest, opts ...grpc.CallOption) (LiveMatchService_GetMatchSummaryClient, error)
+}
+
+type liveMatchServiceClient struct {
+	cc *grpc.ClientConn
+}
+
+func NewLiveMatchServiceClient(cc *grpc.ClientConn) LiveMatchServiceClient {
+	return &liveMatchServiceClient{cc}
+}
+
+func (c *liveMatchServiceClient) GetUpcomingMatches(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (LiveMatchService_GetUpcomingMatchesClient, error) {
+	stream, err := c.cc.NewStream(ctx, &_LiveMatchService_serviceDesc.Streams[0], "/model.LiveMatchService/GetUpcomingMatches", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &liveMatchServiceGetUpcomingMatchesClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type LiveMatchService_GetUpcomingMatchesClient interface {
+	Recv() (*UpcomingMatchesResponse, error)
+	grpc.ClientStream
+}
+
+type liveMatchServiceGetUpcomingMatchesClient struct {
+	grpc.ClientStream
+}
+
+func (x *liveMatchServiceGetUpcomingMatchesClient) Recv() (*UpcomingMatchesResponse, error) {
+	m := new(UpcomingMatchesResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func (c *liveMatchServiceClient) GetMatchSummary(ctx context.Context, in *PredictionRequest, opts ...grpc.CallOption) (LiveMatchService_GetMatchSummaryClient, error) {
+	stream, err := c.cc.NewStream(ctx, &_LiveMatchService_serviceDesc.Streams[1], "/model.LiveMatchService/GetMatchSummary", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &liveMatchServiceGetMatchSummaryClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type LiveMatchService_GetMatchSummaryClient interface {
+	Recv() (*MatchSummary, error)
+	grpc.ClientStream
+}
+
+type liveMatchServiceGetMatchSummaryClient struct {
+	grpc.ClientStream
+}
+
+func (x *liveMatchServiceGetMatchSummaryClient) Recv() (*MatchSummary, error) {
+	m := new(MatchSummary)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+// LiveMatchServiceServer is the server API for LiveMatchService service.
+type LiveMatchServiceServer interface {
+	GetUpcomingMatches(*empty.Empty, LiveMatchService_GetUpcomingMatchesServer) error
+	GetMatchSummary(*PredictionRequest, LiveMatchService_GetMatchSummaryServer) error
+}
+
+// UnimplementedLiveMatchServiceServer can be embedded to have forward compatible implementations.
+type UnimplementedLiveMatchServiceServer struct {
+}
+
+func (*UnimplementedLiveMatchServiceServer) GetUpcomingMatches(req *empty.Empty, srv LiveMatchService_GetUpcomingMatchesServer) error {
+	return status.Errorf(codes.Unimplemented, "method GetUpcomingMatches not implemented")
+}
+func (*UnimplementedLiveMatchServiceServer) GetMatchSummary(req *PredictionRequest, srv LiveMatchService_GetMatchSummaryServer) error {
+	return status.Errorf(codes.Unimplemented, "method GetMatchSummary not implemented")
+}
+
+func RegisterLiveMatchServiceServer(s *grpc.Server, srv LiveMatchServiceServer) {
+	s.RegisterService(&_LiveMatchService_serviceDesc, srv)
+}
+
+func _LiveMatchService_GetUpcomingMatches_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(empty.Empty)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(LiveMatchServiceServer).GetUpcomingMatches(m, &liveMatchServiceGetUpcomingMatchesServer{stream})
+}
+
+type LiveMatchService_GetUpcomingMatchesServer interface {
+	Send(*UpcomingMatchesResponse) error
+	grpc.ServerStream
+}
+
+type liveMatchServiceGetUpcomingMatchesServer struct {
+	grpc.ServerStream
+}
+
+func (x *liveMatchServiceGetUpcomingMatchesServer) Send(m *UpcomingMatchesResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func _LiveMatchService_GetMatchSummary_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(PredictionRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(LiveMatchServiceServer).GetMatchSummary(m, &liveMatchServiceGetMatchSummaryServer{stream})
+}
+
+type LiveMatchService_GetMatchSummaryServer interface {
+	Send(*MatchSummary) error
+	grpc.ServerStream
+}
+
+type liveMatchServiceGetMatchSummaryServer struct {
+	grpc.ServerStream
+}
+
+func (x *liveMatchServiceGetMatchSummaryServer) Send(m *MatchSummary) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+var _LiveMatchService_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "model.LiveMatchService",
+	HandlerType: (*LiveMatchServiceServer)(nil),
+	Methods:     []grpc.MethodDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "GetUpcomingMatches",
+			Handler:       _LiveMatchService_GetUpcomingMatches_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "GetMatchSummary",
+			Handler:       _LiveMatchService_GetMatchSummary_Handler,
+			ServerStreams: true,
+		},
+	},
+	Metadata: "live.proto",
 }
