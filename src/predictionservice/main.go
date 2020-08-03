@@ -47,68 +47,68 @@ func start(ctx context.Context) error {
 	} {
 		var ok bool
 		if *v, ok = os.LookupEnv(k); !ok {
-			return fmt.Errorf("missing_env_variable: %s", k)
+			return fmt.Errorf("missing env variable: %s", k)
 		}
 	}
 
 	httpPort, err := strconv.Atoi(httpPortEnv)
 	if err != nil {
-		return errors.New("invalid_http_port")
+		return errors.New("invalid http port")
 	}
 
 	grpcPort, err := strconv.Atoi(grpcPortEnv)
 	if err != nil {
-		return errors.New("invalid_grpc_port")
+		return errors.New("invalid grpc port")
 	}
 
 	authConn, err := grpcconn.Dial(ctx, authAddr)
 	if err != nil {
-		return fmt.Errorf("create_auth_connection: %w", err)
+		return fmt.Errorf("create auth connection: %w", err)
 	}
 	defer authConn.Close()
 	authClient := gen.NewAuthServiceClient(authConn)
 
 	fixtureConn, err := grpcconn.Dial(ctx, fixtureAddr)
 	if err != nil {
-		return fmt.Errorf("create_fixture_connection: %w", err)
+		return fmt.Errorf("create fixture connection: %w", err)
 	}
 	defer fixtureConn.Close()
 	fixtureClient := gen.NewFixtureServiceClient(fixtureConn)
 
-	authenticator, err := auth.New(authClient)
-	if err != nil {
-		return fmt.Errorf("create_authenticator: %w", err)
-	}
-
 	fixtureService, err := fixture.New(fixtureClient)
 	if err != nil {
-		return fmt.Errorf("create_fixture_client: %w", err)
+		return fmt.Errorf("create fixture client: %w", err)
 	}
 
 	client, err := mongo.New(ctx)
 	if err != nil {
-		return fmt.Errorf("create_mongo_client: %w", err)
+		return fmt.Errorf("create mongo client: %w", err)
 	}
 
 	store, err := mongostore.New(ctx, client)
 	if err != nil {
-		return fmt.Errorf("create_store: %w", err)
+		return fmt.Errorf("create store: %w", err)
 	}
 	defer store.Close(ctx)
 
 	service, err := svc.New(store, fixtureService)
 	if err != nil {
-		return fmt.Errorf("create_service: %w", err)
+		return fmt.Errorf("create service: %w", err)
 	}
 
 	h, err := httphandler.New(service)
 	if err != nil {
-		return fmt.Errorf("create_http_handler: %w", err)
+		return fmt.Errorf("create http handler: %w", err)
+	}
+
+	authenticator, err := auth.New(authClient, "prediction", h)
+	if err != nil {
+		return fmt.Errorf("create authenticator: %w", err)
 	}
 
 	rpc, err := grpchandler.New(service)
 	if err != nil {
-		return fmt.Errorf("create_grpc_handler: %w", err)
+		return fmt.Errorf("create grpc handler: %w", err)
 	}
 
 	tracer := tracer.New()

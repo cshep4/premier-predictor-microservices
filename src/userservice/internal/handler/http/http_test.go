@@ -1,20 +1,20 @@
-package handler
+package http
 
 import (
 	"bytes"
 	"encoding/json"
-	authmocks "github.com/cshep4/premier-predictor-microservices/src/common/auth/mocks"
-	common "github.com/cshep4/premier-predictor-microservices/src/common/model"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+
+	"github.com/cshep4/premier-predictor-microservices/src/userservice/internal/mocks/service"
 	"github.com/cshep4/premier-predictor-microservices/src/userservice/internal/model"
-	usermocks "github.com/cshep4/premier-predictor-microservices/src/userservice/internal/service/mocks"
+
 	"github.com/golang/mock/gomock"
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"net/http"
-	"net/http/httptest"
-	"testing"
 )
 
 const (
@@ -25,16 +25,15 @@ func TestHttpHandler_getUser(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	service := usermocks.NewMockService(ctrl)
-	auth := authmocks.NewMockAuthenticator(ctrl)
+	service := service_mock.NewMockService(ctrl)
 
-	handler, err  := NewHttpHandler(service, auth)
+	handler, err := New(service)
 	require.NoError(t, err)
 
 	t.Run("it should return not found if no user exists", func(t *testing.T) {
 		req := httptest.NewRequest(
 			http.MethodGet,
-			"/users/" + userId,
+			"/users/"+userId,
 			nil,
 		)
 		rr := httptest.NewRecorder()
@@ -43,11 +42,11 @@ func TestHttpHandler_getUser(t *testing.T) {
 			"id": userId,
 		})
 
-		service.EXPECT().GetUser(userId).Return(nil, model.ErrUserNotFound)
+		service.EXPECT().GetUserById(req.Context(), userId).Return(nil, model.ErrUserNotFound)
 
 		handler.getUser(rr, req)
 
-		var responseBody ServerError
+		var responseBody serverError
 		err = json.NewDecoder(rr.Result().Body).Decode(&responseBody)
 		require.NoError(t, err)
 
@@ -58,7 +57,7 @@ func TestHttpHandler_getUser(t *testing.T) {
 	t.Run("it should return internal server error if another error occurred", func(t *testing.T) {
 		req := httptest.NewRequest(
 			http.MethodGet,
-			"/users/" + userId,
+			"/users/"+userId,
 			nil,
 		)
 		rr := httptest.NewRecorder()
@@ -67,22 +66,22 @@ func TestHttpHandler_getUser(t *testing.T) {
 			"id": userId,
 		})
 
-		service.EXPECT().GetUser(userId).Return(nil, errors.New("some error"))
+		service.EXPECT().GetUserById(req.Context(), userId).Return(nil, errors.New("some error"))
 
 		handler.getUser(rr, req)
 
-		var responseBody ServerError
+		var responseBody serverError
 		err = json.NewDecoder(rr.Result().Body).Decode(&responseBody)
 		require.NoError(t, err)
 
 		assert.Equal(t, http.StatusInternalServerError, rr.Code)
-		assert.Equal(t, "some error", responseBody.Message)
+		assert.Equal(t, "could not get user", responseBody.Message)
 	})
 
 	t.Run("it should return ok with user in body", func(t *testing.T) {
 		req := httptest.NewRequest(
 			http.MethodGet,
-			"/users/" + userId,
+			"/users/"+userId,
 			nil,
 		)
 		rr := httptest.NewRecorder()
@@ -95,7 +94,7 @@ func TestHttpHandler_getUser(t *testing.T) {
 			Id: userId,
 		}
 
-		service.EXPECT().GetUser(userId).Return(user, nil)
+		service.EXPECT().GetUserById(req.Context(), userId).Return(user, nil)
 
 		handler.getUser(rr, req)
 
@@ -112,10 +111,9 @@ func TestHttpHandler_updateUserInfo(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	service := usermocks.NewMockService(ctrl)
-	auth := authmocks.NewMockAuthenticator(ctrl)
+	service := service_mock.NewMockService(ctrl)
 
-	handler, err  := NewHttpHandler(service, auth)
+	handler, err := New(service)
 	require.NoError(t, err)
 
 	userInfo := model.UserInfo{
@@ -138,12 +136,11 @@ func TestHttpHandler_updateUserInfo(t *testing.T) {
 
 		handler.updateUserInfo(rr, req)
 
-		var responseBody ServerError
+		var responseBody serverError
 		err = json.NewDecoder(rr.Result().Body).Decode(&responseBody)
 		require.NoError(t, err)
 
 		assert.Equal(t, http.StatusBadRequest, rr.Code)
-		assert.Equal(t, invalidRequestBody, responseBody.Message)
 	})
 
 	t.Run("it should return not found if no user exists", func(t *testing.T) {
@@ -154,11 +151,11 @@ func TestHttpHandler_updateUserInfo(t *testing.T) {
 		)
 		rr := httptest.NewRecorder()
 
-		service.EXPECT().UpdateUserInfo(userInfo).Return(model.ErrUserNotFound)
+		service.EXPECT().UpdateUserInfo(req.Context(), userInfo).Return(model.ErrUserNotFound)
 
 		handler.updateUserInfo(rr, req)
 
-		var responseBody ServerError
+		var responseBody serverError
 		err = json.NewDecoder(rr.Result().Body).Decode(&responseBody)
 		require.NoError(t, err)
 
@@ -174,19 +171,19 @@ func TestHttpHandler_updateUserInfo(t *testing.T) {
 		)
 		rr := httptest.NewRecorder()
 
-		const errorMessage = "error message"
-		e := errors.Wrap(common.ErrInvalidRequestData, errorMessage)
+		const param = "param"
+		e := model.InvalidParameterError{Parameter: param}
 
-		service.EXPECT().UpdateUserInfo(userInfo).Return(e)
+		service.EXPECT().UpdateUserInfo(req.Context(), userInfo).Return(e)
 
 		handler.updateUserInfo(rr, req)
 
-		var responseBody ServerError
+		var responseBody serverError
 		err = json.NewDecoder(rr.Result().Body).Decode(&responseBody)
 		require.NoError(t, err)
 
 		assert.Equal(t, http.StatusBadRequest, rr.Code)
-		assert.Equal(t, errorMessage, responseBody.Message)
+		assert.Equal(t, e.Error(), responseBody.Message)
 	})
 
 	t.Run("it should return internal server error if another error occurred", func(t *testing.T) {
@@ -199,16 +196,16 @@ func TestHttpHandler_updateUserInfo(t *testing.T) {
 
 		e := errors.New("some error")
 
-		service.EXPECT().UpdateUserInfo(userInfo).Return(e)
+		service.EXPECT().UpdateUserInfo(req.Context(), userInfo).Return(e)
 
 		handler.updateUserInfo(rr, req)
 
-		var responseBody ServerError
+		var responseBody serverError
 		err = json.NewDecoder(rr.Result().Body).Decode(&responseBody)
 		require.NoError(t, err)
 
 		assert.Equal(t, http.StatusInternalServerError, rr.Code)
-		assert.Equal(t, e.Error(), responseBody.Message)
+		assert.Equal(t, "could not update user info", responseBody.Message)
 	})
 
 	t.Run("it should update user info and return ok", func(t *testing.T) {
@@ -219,7 +216,7 @@ func TestHttpHandler_updateUserInfo(t *testing.T) {
 		)
 		rr := httptest.NewRecorder()
 
-		service.EXPECT().UpdateUserInfo(userInfo).Return(nil)
+		service.EXPECT().UpdateUserInfo(req.Context(), userInfo).Return(nil)
 
 		handler.updateUserInfo(rr, req)
 
@@ -231,10 +228,9 @@ func TestHttpHandler_updatePassword(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	service := usermocks.NewMockService(ctrl)
-	auth := authmocks.NewMockAuthenticator(ctrl)
+	service := service_mock.NewMockService(ctrl)
 
-	handler, err  := NewHttpHandler(service, auth)
+	handler, err := New(service)
 	require.NoError(t, err)
 
 	updatePassword := model.UpdatePassword{
@@ -257,12 +253,11 @@ func TestHttpHandler_updatePassword(t *testing.T) {
 
 		handler.updatePassword(rr, req)
 
-		var responseBody ServerError
+		var responseBody serverError
 		err = json.NewDecoder(rr.Result().Body).Decode(&responseBody)
 		require.NoError(t, err)
 
 		assert.Equal(t, http.StatusBadRequest, rr.Code)
-		assert.Equal(t, invalidRequestBody, responseBody.Message)
 	})
 
 	t.Run("it should return not found if no user exists", func(t *testing.T) {
@@ -273,11 +268,11 @@ func TestHttpHandler_updatePassword(t *testing.T) {
 		)
 		rr := httptest.NewRecorder()
 
-		service.EXPECT().UpdatePassword(updatePassword).Return(model.ErrUserNotFound)
+		service.EXPECT().UpdateUserPassword(req.Context(), updatePassword).Return(model.ErrUserNotFound)
 
 		handler.updatePassword(rr, req)
 
-		var responseBody ServerError
+		var responseBody serverError
 		err = json.NewDecoder(rr.Result().Body).Decode(&responseBody)
 		require.NoError(t, err)
 
@@ -293,19 +288,19 @@ func TestHttpHandler_updatePassword(t *testing.T) {
 		)
 		rr := httptest.NewRecorder()
 
-		const errorMessage = "error message"
-		e := errors.Wrap(common.ErrInvalidRequestData, errorMessage)
+		const param = "param"
+		e := model.InvalidParameterError{Parameter: param}
 
-		service.EXPECT().UpdatePassword(updatePassword).Return(e)
+		service.EXPECT().UpdateUserPassword(req.Context(), updatePassword).Return(e)
 
 		handler.updatePassword(rr, req)
 
-		var responseBody ServerError
+		var responseBody serverError
 		err = json.NewDecoder(rr.Result().Body).Decode(&responseBody)
 		require.NoError(t, err)
 
 		assert.Equal(t, http.StatusBadRequest, rr.Code)
-		assert.Equal(t, errorMessage, responseBody.Message)
+		assert.Equal(t, e.Error(), responseBody.Message)
 	})
 
 	t.Run("it should return internal server error if another error occurred", func(t *testing.T) {
@@ -318,16 +313,16 @@ func TestHttpHandler_updatePassword(t *testing.T) {
 
 		e := errors.New("some error")
 
-		service.EXPECT().UpdatePassword(updatePassword).Return(e)
+		service.EXPECT().UpdateUserPassword(req.Context(), updatePassword).Return(e)
 
 		handler.updatePassword(rr, req)
 
-		var responseBody ServerError
+		var responseBody serverError
 		err = json.NewDecoder(rr.Result().Body).Decode(&responseBody)
 		require.NoError(t, err)
 
 		assert.Equal(t, http.StatusInternalServerError, rr.Code)
-		assert.Equal(t, e.Error(), responseBody.Message)
+		assert.Equal(t, "could not update password", responseBody.Message)
 	})
 
 	t.Run("it should update password and return ok", func(t *testing.T) {
@@ -338,7 +333,7 @@ func TestHttpHandler_updatePassword(t *testing.T) {
 		)
 		rr := httptest.NewRecorder()
 
-		service.EXPECT().UpdatePassword(updatePassword).Return(nil)
+		service.EXPECT().UpdateUserPassword(req.Context(), updatePassword).Return(nil)
 
 		handler.updatePassword(rr, req)
 
@@ -350,16 +345,15 @@ func TestHttpHandler_getUserScore(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	service := usermocks.NewMockService(ctrl)
-	auth := authmocks.NewMockAuthenticator(ctrl)
+	service := service_mock.NewMockService(ctrl)
 
-	handler, err  := NewHttpHandler(service, auth)
+	handler, err := New(service)
 	require.NoError(t, err)
 
 	t.Run("it should return not found if no user exists", func(t *testing.T) {
 		req := httptest.NewRequest(
 			http.MethodGet,
-			"/users/score/" + userId,
+			"/users/score/"+userId,
 			nil,
 		)
 		rr := httptest.NewRecorder()
@@ -368,11 +362,11 @@ func TestHttpHandler_getUserScore(t *testing.T) {
 			"id": userId,
 		})
 
-		service.EXPECT().GetUserScore(userId).Return(0, model.ErrUserNotFound)
+		service.EXPECT().GetUserScore(req.Context(), userId).Return(0, model.ErrUserNotFound)
 
 		handler.getUserScore(rr, req)
 
-		var responseBody ServerError
+		var responseBody serverError
 		err = json.NewDecoder(rr.Result().Body).Decode(&responseBody)
 		require.NoError(t, err)
 
@@ -383,7 +377,7 @@ func TestHttpHandler_getUserScore(t *testing.T) {
 	t.Run("it should return internal server error if another error occurred", func(t *testing.T) {
 		req := httptest.NewRequest(
 			http.MethodGet,
-			"/users/score/" + userId,
+			"/users/score/"+userId,
 			nil,
 		)
 		rr := httptest.NewRecorder()
@@ -392,22 +386,22 @@ func TestHttpHandler_getUserScore(t *testing.T) {
 			"id": userId,
 		})
 
-		service.EXPECT().GetUserScore(userId).Return(0, errors.New("some error"))
+		service.EXPECT().GetUserScore(req.Context(), userId).Return(0, errors.New("some error"))
 
 		handler.getUserScore(rr, req)
 
-		var responseBody ServerError
+		var responseBody serverError
 		err = json.NewDecoder(rr.Result().Body).Decode(&responseBody)
 		require.NoError(t, err)
 
 		assert.Equal(t, http.StatusInternalServerError, rr.Code)
-		assert.Equal(t, "some error", responseBody.Message)
+		assert.Equal(t, "could not get user score", responseBody.Message)
 	})
 
 	t.Run("it should return ok with user in body", func(t *testing.T) {
 		req := httptest.NewRequest(
 			http.MethodGet,
-			"/users/score/" + userId,
+			"/users/score/"+userId,
 			nil,
 		)
 		rr := httptest.NewRecorder()
@@ -417,7 +411,7 @@ func TestHttpHandler_getUserScore(t *testing.T) {
 		})
 
 		const score = 1234
-		service.EXPECT().GetUserScore(userId).Return(score, nil)
+		service.EXPECT().GetUserScore(req.Context(), userId).Return(score, nil)
 
 		handler.getUserScore(rr, req)
 

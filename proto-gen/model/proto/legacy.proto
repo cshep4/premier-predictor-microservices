@@ -2,13 +2,12 @@ syntax = "proto3";
 option java_multiple_files = true;
 option java_package = "com.cshep4.premierpredictor.legacy";
 //option go_package = "legacy";
-import "request.proto";
 
 package model;
 
 service LegacyUserService {
     rpc GetLegacyUserById (LegacyIdRequest) returns (LegacyUserResponse);
-    rpc LegacyLogin (LoginRequest) returns (LegacyUserResponse);
+    rpc LegacyLogin (LegacyLoginRequest) returns (LegacyUserResponse);
 }
 
 message LegacyIdRequest {
@@ -23,4 +22,9 @@ message LegacyUserResponse {
     string joined = 5;
     bool adFree = 6;
     bool admin = 7;
+}
+
+message LegacyLoginRequest {
+    string email = 1;
+    string password = 2;
 }

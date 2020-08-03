@@ -10,19 +10,20 @@ import com.cshep4.premierpredictor.auth.result.UpdatePasswordResult
 import com.cshep4.premierpredictor.auth.result.UpdateSignatureResult
 import com.cshep4.premierpredictor.auth.token.Tokenizer
 import com.cshep4.premierpredictor.auth.util.GrpcUtils.withMetadata
-import com.cshep4.premierpredictor.request.EmailRequest
 import com.cshep4.premierpredictor.user.CreateRequest
+import com.cshep4.premierpredictor.user.GetUserByEmailRequest
 import com.cshep4.premierpredictor.user.UpdatePasswordRequest
 import com.cshep4.premierpredictor.user.UpdateSignatureRequest
 import io.grpc.Status.Code.NOT_FOUND
 import io.grpc.StatusRuntimeException
-import io.grpc.stub.AbstractBlockingStub
+import io.grpc.stub.AbstractStub
 import io.quarkus.grpc.runtime.annotations.GrpcService
+import java.time.Duration.ofSeconds
 import javax.enterprise.inject.Default
 import javax.inject.Inject
 import javax.inject.Singleton
-import com.cshep4.premierpredictor.user.User as UserResponse
-import com.cshep4.premierpredictor.user.UserServiceGrpc.UserServiceBlockingStub as UserClient
+import com.cshep4.premierpredictor.user.MutinyUserServiceGrpc.MutinyUserServiceStub as UserClient
+import com.cshep4.premierpredictor.user.User as GrpcUser
 
 @Singleton
 class UserService {
@@ -41,13 +42,16 @@ class UserService {
 
     fun getByEmail(email: String): GetByEmailResult {
         return try {
-            val req = EmailRequest.newBuilder()
+            val req = GetUserByEmailRequest.newBuilder()
                     .setEmail(email)
                     .build()
 
             GetByEmailResult.Success(
                     user = client.withAuth()
                             .getUserByEmail(req)
+                            .await()
+                            .atMost(ofSeconds(1))
+                            .user
                             .toUser()
             )
         } catch (e: Exception) {
@@ -71,6 +75,8 @@ class UserService {
 
         client.withAuth()
                 .updatePassword(req)
+                .await()
+                .atMost(ofSeconds(1))
 
         UpdatePasswordResult.Success
     } catch (e: StatusRuntimeException) {
@@ -89,6 +95,8 @@ class UserService {
 
         client.withAuth()
                 .updateSignature(req)
+                .await()
+                .atMost(ofSeconds(1))
 
         UpdateSignatureResult.Success
     } catch (e: StatusRuntimeException) {
@@ -110,6 +118,8 @@ class UserService {
 
         val res = client.withAuth()
                 .create(req)
+                .await()
+                .atMost(ofSeconds(1))
 
         CreateUserResult.Success(
                 id = res.id
@@ -123,7 +133,7 @@ class UserService {
     }
 
 
-    fun UserResponse.toUser(): User {
+    fun GrpcUser.toUser(): User {
         return User(
                 id = this.id,
                 firstName = this.firstName,
@@ -136,8 +146,14 @@ class UserService {
         )
     }
 
-    fun <T : AbstractBlockingStub<T>> T.withAuth(): T {
+    fun <T : AbstractStub<T>> T.withAuth(): T {
         return this.withMetadata(
+                key = "user-agent",
+                value = "authservice"
+        ).withMetadata(
+                key = "user-agents",
+                value = "authservice"
+        ).withMetadata(
                 key = AUTH_KEY,
                 value = tokenizer.generateToken(SERVICE_NAME, SERVICE)
         )

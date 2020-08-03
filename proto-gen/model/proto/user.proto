@@ -1,30 +1,66 @@
 syntax = "proto3";
 option java_multiple_files = true;
 option java_package = "com.cshep4.premierpredictor.user";
-import "google/protobuf/empty.proto";
-
-import "request.proto";
 
 package model;
 
 service UserService {
-    rpc GetAllUsers (google.protobuf.Empty) returns (UserResponse);
-    rpc GetAllUsersByIds (GroupIdRequest) returns (UserResponse);
-    rpc GetOverallRank (IdRequest) returns (RankResponse);
-    rpc GetRankForGroup (GroupRankRequest) returns (RankResponse);
-    rpc GetUserCount (google.protobuf.Empty) returns (CountResponse);
-    rpc GetUserByEmail (EmailRequest) returns (User);
+    rpc GetAllUsers (GetAllUsersRequest) returns (GetAllUsersResponse);
+    rpc GetUsersByIds (GetUsersByIdsRequest) returns (GetUsersByIdsResponse);
+    rpc GetOverallRank (GetOverallRankRequest) returns (GetOverallRankResponse);
+    rpc GetRankForGroup (GetRankForGroupRequest) returns (GetRankForGroupResponse);
+    rpc GetUserCount (GetUserCountRequest) returns (GetUserCountResponse);
+    rpc GetUserByEmail (GetUserByEmailRequest) returns (GetUserByEmailResponse);
     rpc UpdatePassword (UpdatePasswordRequest) returns (UpdatePasswordResponse);
     rpc UpdateSignature (UpdateSignatureRequest) returns (UpdateSignatureResponse);
     rpc Create (CreateRequest) returns (CreateResponse);
 }
 
-message GroupIdRequest {
+message GetAllUsersRequest {
+}
+
+message GetAllUsersResponse {
+    repeated User users = 1;
+}
+
+message GetUsersByIdsRequest {
     repeated string ids = 1;
 }
 
-message UserResponse {
+message GetUsersByIdsResponse {
     repeated User users = 1;
+}
+
+message GetOverallRankRequest {
+    string id = 1;
+}
+
+message GetOverallRankResponse {
+    int64 rank = 1;
+}
+
+message GetRankForGroupRequest {
+    string id = 1;
+    repeated string ids = 2;
+}
+
+message GetRankForGroupResponse {
+    int64 rank = 1;
+}
+
+message GetUserCountRequest {
+}
+
+message GetUserCountResponse {
+    int64 count = 1;
+}
+
+message GetUserByEmailRequest {
+    string email = 1;
+}
+
+message GetUserByEmailResponse {
+    User user = 1;
 }
 
 message User {
@@ -40,15 +76,6 @@ message User {
 
 message RankResponse {
     int64 rank = 1;
-}
-
-message CountResponse {
-    int64 count = 1;
-}
-
-message GroupRankRequest {
-    string id = 1;
-    repeated string ids = 2;
 }
 
 message UpdatePasswordRequest {

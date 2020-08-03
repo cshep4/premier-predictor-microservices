@@ -125,3 +125,11 @@ func (h *router) sendResponse(ctx context.Context, data interface{}, err error, 
 		})
 	}
 }
+
+func (h *router) IsUnauthenticatedEndpoint(path string) bool {
+	return false
+}
+
+func (h *router) GetRequestAudience(r *http.Request) string {
+	return ""
+}

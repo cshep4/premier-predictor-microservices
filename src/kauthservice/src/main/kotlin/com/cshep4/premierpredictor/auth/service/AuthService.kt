@@ -174,7 +174,16 @@ class AuthService {
             return SIGNATURE_DOES_NOT_MATCH_ERROR
         }
 
-        when (val res = userService.updatePassword(user.id, req.password)) {
+        val password = when (val res = hasher.hash(req.password)) {
+            is HashResult.Success -> res.hash
+            is HashResult.Error -> return ResetPasswordResult.Error(
+                    message = res.message,
+                    cause = res.cause,
+                    internal = res.internal
+            )
+        }
+
+        when (val res = userService.updatePassword(user.id, password)) {
             is UpdatePasswordResult.Error -> return ResetPasswordResult.Error(
                     message = res.message,
                     cause = res.cause,

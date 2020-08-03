@@ -7,7 +7,6 @@ import (
 	context "context"
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
-	empty "github.com/golang/protobuf/ptypes/empty"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -25,80 +24,462 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
-type GroupIdRequest struct {
-	Ids                  []string `protobuf:"bytes,1,rep,name=ids,proto3" json:"ids,omitempty"`
+type GetAllUsersRequest struct {
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *GroupIdRequest) Reset()         { *m = GroupIdRequest{} }
-func (m *GroupIdRequest) String() string { return proto.CompactTextString(m) }
-func (*GroupIdRequest) ProtoMessage()    {}
-func (*GroupIdRequest) Descriptor() ([]byte, []int) {
+func (m *GetAllUsersRequest) Reset()         { *m = GetAllUsersRequest{} }
+func (m *GetAllUsersRequest) String() string { return proto.CompactTextString(m) }
+func (*GetAllUsersRequest) ProtoMessage()    {}
+func (*GetAllUsersRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_116e343673f7ffaf, []int{0}
 }
 
-func (m *GroupIdRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_GroupIdRequest.Unmarshal(m, b)
+func (m *GetAllUsersRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetAllUsersRequest.Unmarshal(m, b)
 }
-func (m *GroupIdRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_GroupIdRequest.Marshal(b, m, deterministic)
+func (m *GetAllUsersRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetAllUsersRequest.Marshal(b, m, deterministic)
 }
-func (m *GroupIdRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_GroupIdRequest.Merge(m, src)
+func (m *GetAllUsersRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetAllUsersRequest.Merge(m, src)
 }
-func (m *GroupIdRequest) XXX_Size() int {
-	return xxx_messageInfo_GroupIdRequest.Size(m)
+func (m *GetAllUsersRequest) XXX_Size() int {
+	return xxx_messageInfo_GetAllUsersRequest.Size(m)
 }
-func (m *GroupIdRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_GroupIdRequest.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_GroupIdRequest proto.InternalMessageInfo
-
-func (m *GroupIdRequest) GetIds() []string {
-	if m != nil {
-		return m.Ids
-	}
-	return nil
+func (m *GetAllUsersRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetAllUsersRequest.DiscardUnknown(m)
 }
 
-type UserResponse struct {
+var xxx_messageInfo_GetAllUsersRequest proto.InternalMessageInfo
+
+type GetAllUsersResponse struct {
 	Users                []*User  `protobuf:"bytes,1,rep,name=users,proto3" json:"users,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *UserResponse) Reset()         { *m = UserResponse{} }
-func (m *UserResponse) String() string { return proto.CompactTextString(m) }
-func (*UserResponse) ProtoMessage()    {}
-func (*UserResponse) Descriptor() ([]byte, []int) {
+func (m *GetAllUsersResponse) Reset()         { *m = GetAllUsersResponse{} }
+func (m *GetAllUsersResponse) String() string { return proto.CompactTextString(m) }
+func (*GetAllUsersResponse) ProtoMessage()    {}
+func (*GetAllUsersResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_116e343673f7ffaf, []int{1}
 }
 
-func (m *UserResponse) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_UserResponse.Unmarshal(m, b)
+func (m *GetAllUsersResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetAllUsersResponse.Unmarshal(m, b)
 }
-func (m *UserResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_UserResponse.Marshal(b, m, deterministic)
+func (m *GetAllUsersResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetAllUsersResponse.Marshal(b, m, deterministic)
 }
-func (m *UserResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_UserResponse.Merge(m, src)
+func (m *GetAllUsersResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetAllUsersResponse.Merge(m, src)
 }
-func (m *UserResponse) XXX_Size() int {
-	return xxx_messageInfo_UserResponse.Size(m)
+func (m *GetAllUsersResponse) XXX_Size() int {
+	return xxx_messageInfo_GetAllUsersResponse.Size(m)
 }
-func (m *UserResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_UserResponse.DiscardUnknown(m)
+func (m *GetAllUsersResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetAllUsersResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_UserResponse proto.InternalMessageInfo
+var xxx_messageInfo_GetAllUsersResponse proto.InternalMessageInfo
 
-func (m *UserResponse) GetUsers() []*User {
+func (m *GetAllUsersResponse) GetUsers() []*User {
 	if m != nil {
 		return m.Users
+	}
+	return nil
+}
+
+type GetUsersByIdsRequest struct {
+	Ids                  []string `protobuf:"bytes,1,rep,name=ids,proto3" json:"ids,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *GetUsersByIdsRequest) Reset()         { *m = GetUsersByIdsRequest{} }
+func (m *GetUsersByIdsRequest) String() string { return proto.CompactTextString(m) }
+func (*GetUsersByIdsRequest) ProtoMessage()    {}
+func (*GetUsersByIdsRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_116e343673f7ffaf, []int{2}
+}
+
+func (m *GetUsersByIdsRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetUsersByIdsRequest.Unmarshal(m, b)
+}
+func (m *GetUsersByIdsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetUsersByIdsRequest.Marshal(b, m, deterministic)
+}
+func (m *GetUsersByIdsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetUsersByIdsRequest.Merge(m, src)
+}
+func (m *GetUsersByIdsRequest) XXX_Size() int {
+	return xxx_messageInfo_GetUsersByIdsRequest.Size(m)
+}
+func (m *GetUsersByIdsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetUsersByIdsRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetUsersByIdsRequest proto.InternalMessageInfo
+
+func (m *GetUsersByIdsRequest) GetIds() []string {
+	if m != nil {
+		return m.Ids
+	}
+	return nil
+}
+
+type GetUsersByIdsResponse struct {
+	Users                []*User  `protobuf:"bytes,1,rep,name=users,proto3" json:"users,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *GetUsersByIdsResponse) Reset()         { *m = GetUsersByIdsResponse{} }
+func (m *GetUsersByIdsResponse) String() string { return proto.CompactTextString(m) }
+func (*GetUsersByIdsResponse) ProtoMessage()    {}
+func (*GetUsersByIdsResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_116e343673f7ffaf, []int{3}
+}
+
+func (m *GetUsersByIdsResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetUsersByIdsResponse.Unmarshal(m, b)
+}
+func (m *GetUsersByIdsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetUsersByIdsResponse.Marshal(b, m, deterministic)
+}
+func (m *GetUsersByIdsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetUsersByIdsResponse.Merge(m, src)
+}
+func (m *GetUsersByIdsResponse) XXX_Size() int {
+	return xxx_messageInfo_GetUsersByIdsResponse.Size(m)
+}
+func (m *GetUsersByIdsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetUsersByIdsResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetUsersByIdsResponse proto.InternalMessageInfo
+
+func (m *GetUsersByIdsResponse) GetUsers() []*User {
+	if m != nil {
+		return m.Users
+	}
+	return nil
+}
+
+type GetOverallRankRequest struct {
+	Id                   string   `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *GetOverallRankRequest) Reset()         { *m = GetOverallRankRequest{} }
+func (m *GetOverallRankRequest) String() string { return proto.CompactTextString(m) }
+func (*GetOverallRankRequest) ProtoMessage()    {}
+func (*GetOverallRankRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_116e343673f7ffaf, []int{4}
+}
+
+func (m *GetOverallRankRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetOverallRankRequest.Unmarshal(m, b)
+}
+func (m *GetOverallRankRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetOverallRankRequest.Marshal(b, m, deterministic)
+}
+func (m *GetOverallRankRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetOverallRankRequest.Merge(m, src)
+}
+func (m *GetOverallRankRequest) XXX_Size() int {
+	return xxx_messageInfo_GetOverallRankRequest.Size(m)
+}
+func (m *GetOverallRankRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetOverallRankRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetOverallRankRequest proto.InternalMessageInfo
+
+func (m *GetOverallRankRequest) GetId() string {
+	if m != nil {
+		return m.Id
+	}
+	return ""
+}
+
+type GetOverallRankResponse struct {
+	Rank                 int64    `protobuf:"varint,1,opt,name=rank,proto3" json:"rank,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *GetOverallRankResponse) Reset()         { *m = GetOverallRankResponse{} }
+func (m *GetOverallRankResponse) String() string { return proto.CompactTextString(m) }
+func (*GetOverallRankResponse) ProtoMessage()    {}
+func (*GetOverallRankResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_116e343673f7ffaf, []int{5}
+}
+
+func (m *GetOverallRankResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetOverallRankResponse.Unmarshal(m, b)
+}
+func (m *GetOverallRankResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetOverallRankResponse.Marshal(b, m, deterministic)
+}
+func (m *GetOverallRankResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetOverallRankResponse.Merge(m, src)
+}
+func (m *GetOverallRankResponse) XXX_Size() int {
+	return xxx_messageInfo_GetOverallRankResponse.Size(m)
+}
+func (m *GetOverallRankResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetOverallRankResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetOverallRankResponse proto.InternalMessageInfo
+
+func (m *GetOverallRankResponse) GetRank() int64 {
+	if m != nil {
+		return m.Rank
+	}
+	return 0
+}
+
+type GetRankForGroupRequest struct {
+	Id                   string   `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Ids                  []string `protobuf:"bytes,2,rep,name=ids,proto3" json:"ids,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *GetRankForGroupRequest) Reset()         { *m = GetRankForGroupRequest{} }
+func (m *GetRankForGroupRequest) String() string { return proto.CompactTextString(m) }
+func (*GetRankForGroupRequest) ProtoMessage()    {}
+func (*GetRankForGroupRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_116e343673f7ffaf, []int{6}
+}
+
+func (m *GetRankForGroupRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetRankForGroupRequest.Unmarshal(m, b)
+}
+func (m *GetRankForGroupRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetRankForGroupRequest.Marshal(b, m, deterministic)
+}
+func (m *GetRankForGroupRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetRankForGroupRequest.Merge(m, src)
+}
+func (m *GetRankForGroupRequest) XXX_Size() int {
+	return xxx_messageInfo_GetRankForGroupRequest.Size(m)
+}
+func (m *GetRankForGroupRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetRankForGroupRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetRankForGroupRequest proto.InternalMessageInfo
+
+func (m *GetRankForGroupRequest) GetId() string {
+	if m != nil {
+		return m.Id
+	}
+	return ""
+}
+
+func (m *GetRankForGroupRequest) GetIds() []string {
+	if m != nil {
+		return m.Ids
+	}
+	return nil
+}
+
+type GetRankForGroupResponse struct {
+	Rank                 int64    `protobuf:"varint,1,opt,name=rank,proto3" json:"rank,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *GetRankForGroupResponse) Reset()         { *m = GetRankForGroupResponse{} }
+func (m *GetRankForGroupResponse) String() string { return proto.CompactTextString(m) }
+func (*GetRankForGroupResponse) ProtoMessage()    {}
+func (*GetRankForGroupResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_116e343673f7ffaf, []int{7}
+}
+
+func (m *GetRankForGroupResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetRankForGroupResponse.Unmarshal(m, b)
+}
+func (m *GetRankForGroupResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetRankForGroupResponse.Marshal(b, m, deterministic)
+}
+func (m *GetRankForGroupResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetRankForGroupResponse.Merge(m, src)
+}
+func (m *GetRankForGroupResponse) XXX_Size() int {
+	return xxx_messageInfo_GetRankForGroupResponse.Size(m)
+}
+func (m *GetRankForGroupResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetRankForGroupResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetRankForGroupResponse proto.InternalMessageInfo
+
+func (m *GetRankForGroupResponse) GetRank() int64 {
+	if m != nil {
+		return m.Rank
+	}
+	return 0
+}
+
+type GetUserCountRequest struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *GetUserCountRequest) Reset()         { *m = GetUserCountRequest{} }
+func (m *GetUserCountRequest) String() string { return proto.CompactTextString(m) }
+func (*GetUserCountRequest) ProtoMessage()    {}
+func (*GetUserCountRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_116e343673f7ffaf, []int{8}
+}
+
+func (m *GetUserCountRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetUserCountRequest.Unmarshal(m, b)
+}
+func (m *GetUserCountRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetUserCountRequest.Marshal(b, m, deterministic)
+}
+func (m *GetUserCountRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetUserCountRequest.Merge(m, src)
+}
+func (m *GetUserCountRequest) XXX_Size() int {
+	return xxx_messageInfo_GetUserCountRequest.Size(m)
+}
+func (m *GetUserCountRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetUserCountRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetUserCountRequest proto.InternalMessageInfo
+
+type GetUserCountResponse struct {
+	Count                int64    `protobuf:"varint,1,opt,name=count,proto3" json:"count,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *GetUserCountResponse) Reset()         { *m = GetUserCountResponse{} }
+func (m *GetUserCountResponse) String() string { return proto.CompactTextString(m) }
+func (*GetUserCountResponse) ProtoMessage()    {}
+func (*GetUserCountResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_116e343673f7ffaf, []int{9}
+}
+
+func (m *GetUserCountResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetUserCountResponse.Unmarshal(m, b)
+}
+func (m *GetUserCountResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetUserCountResponse.Marshal(b, m, deterministic)
+}
+func (m *GetUserCountResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetUserCountResponse.Merge(m, src)
+}
+func (m *GetUserCountResponse) XXX_Size() int {
+	return xxx_messageInfo_GetUserCountResponse.Size(m)
+}
+func (m *GetUserCountResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetUserCountResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetUserCountResponse proto.InternalMessageInfo
+
+func (m *GetUserCountResponse) GetCount() int64 {
+	if m != nil {
+		return m.Count
+	}
+	return 0
+}
+
+type GetUserByEmailRequest struct {
+	Email                string   `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *GetUserByEmailRequest) Reset()         { *m = GetUserByEmailRequest{} }
+func (m *GetUserByEmailRequest) String() string { return proto.CompactTextString(m) }
+func (*GetUserByEmailRequest) ProtoMessage()    {}
+func (*GetUserByEmailRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_116e343673f7ffaf, []int{10}
+}
+
+func (m *GetUserByEmailRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetUserByEmailRequest.Unmarshal(m, b)
+}
+func (m *GetUserByEmailRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetUserByEmailRequest.Marshal(b, m, deterministic)
+}
+func (m *GetUserByEmailRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetUserByEmailRequest.Merge(m, src)
+}
+func (m *GetUserByEmailRequest) XXX_Size() int {
+	return xxx_messageInfo_GetUserByEmailRequest.Size(m)
+}
+func (m *GetUserByEmailRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetUserByEmailRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetUserByEmailRequest proto.InternalMessageInfo
+
+func (m *GetUserByEmailRequest) GetEmail() string {
+	if m != nil {
+		return m.Email
+	}
+	return ""
+}
+
+type GetUserByEmailResponse struct {
+	User                 *User    `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *GetUserByEmailResponse) Reset()         { *m = GetUserByEmailResponse{} }
+func (m *GetUserByEmailResponse) String() string { return proto.CompactTextString(m) }
+func (*GetUserByEmailResponse) ProtoMessage()    {}
+func (*GetUserByEmailResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_116e343673f7ffaf, []int{11}
+}
+
+func (m *GetUserByEmailResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetUserByEmailResponse.Unmarshal(m, b)
+}
+func (m *GetUserByEmailResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetUserByEmailResponse.Marshal(b, m, deterministic)
+}
+func (m *GetUserByEmailResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetUserByEmailResponse.Merge(m, src)
+}
+func (m *GetUserByEmailResponse) XXX_Size() int {
+	return xxx_messageInfo_GetUserByEmailResponse.Size(m)
+}
+func (m *GetUserByEmailResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetUserByEmailResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetUserByEmailResponse proto.InternalMessageInfo
+
+func (m *GetUserByEmailResponse) GetUser() *User {
+	if m != nil {
+		return m.User
 	}
 	return nil
 }
@@ -121,7 +502,7 @@ func (m *User) Reset()         { *m = User{} }
 func (m *User) String() string { return proto.CompactTextString(m) }
 func (*User) ProtoMessage()    {}
 func (*User) Descriptor() ([]byte, []int) {
-	return fileDescriptor_116e343673f7ffaf, []int{2}
+	return fileDescriptor_116e343673f7ffaf, []int{12}
 }
 
 func (m *User) XXX_Unmarshal(b []byte) error {
@@ -209,7 +590,7 @@ func (m *RankResponse) Reset()         { *m = RankResponse{} }
 func (m *RankResponse) String() string { return proto.CompactTextString(m) }
 func (*RankResponse) ProtoMessage()    {}
 func (*RankResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_116e343673f7ffaf, []int{3}
+	return fileDescriptor_116e343673f7ffaf, []int{13}
 }
 
 func (m *RankResponse) XXX_Unmarshal(b []byte) error {
@@ -237,92 +618,6 @@ func (m *RankResponse) GetRank() int64 {
 	return 0
 }
 
-type CountResponse struct {
-	Count                int64    `protobuf:"varint,1,opt,name=count,proto3" json:"count,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *CountResponse) Reset()         { *m = CountResponse{} }
-func (m *CountResponse) String() string { return proto.CompactTextString(m) }
-func (*CountResponse) ProtoMessage()    {}
-func (*CountResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_116e343673f7ffaf, []int{4}
-}
-
-func (m *CountResponse) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_CountResponse.Unmarshal(m, b)
-}
-func (m *CountResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_CountResponse.Marshal(b, m, deterministic)
-}
-func (m *CountResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_CountResponse.Merge(m, src)
-}
-func (m *CountResponse) XXX_Size() int {
-	return xxx_messageInfo_CountResponse.Size(m)
-}
-func (m *CountResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_CountResponse.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_CountResponse proto.InternalMessageInfo
-
-func (m *CountResponse) GetCount() int64 {
-	if m != nil {
-		return m.Count
-	}
-	return 0
-}
-
-type GroupRankRequest struct {
-	Id                   string   `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Ids                  []string `protobuf:"bytes,2,rep,name=ids,proto3" json:"ids,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *GroupRankRequest) Reset()         { *m = GroupRankRequest{} }
-func (m *GroupRankRequest) String() string { return proto.CompactTextString(m) }
-func (*GroupRankRequest) ProtoMessage()    {}
-func (*GroupRankRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_116e343673f7ffaf, []int{5}
-}
-
-func (m *GroupRankRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_GroupRankRequest.Unmarshal(m, b)
-}
-func (m *GroupRankRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_GroupRankRequest.Marshal(b, m, deterministic)
-}
-func (m *GroupRankRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_GroupRankRequest.Merge(m, src)
-}
-func (m *GroupRankRequest) XXX_Size() int {
-	return xxx_messageInfo_GroupRankRequest.Size(m)
-}
-func (m *GroupRankRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_GroupRankRequest.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_GroupRankRequest proto.InternalMessageInfo
-
-func (m *GroupRankRequest) GetId() string {
-	if m != nil {
-		return m.Id
-	}
-	return ""
-}
-
-func (m *GroupRankRequest) GetIds() []string {
-	if m != nil {
-		return m.Ids
-	}
-	return nil
-}
-
 type UpdatePasswordRequest struct {
 	Id                   string   `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	Password             string   `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
@@ -335,7 +630,7 @@ func (m *UpdatePasswordRequest) Reset()         { *m = UpdatePasswordRequest{} }
 func (m *UpdatePasswordRequest) String() string { return proto.CompactTextString(m) }
 func (*UpdatePasswordRequest) ProtoMessage()    {}
 func (*UpdatePasswordRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_116e343673f7ffaf, []int{6}
+	return fileDescriptor_116e343673f7ffaf, []int{14}
 }
 
 func (m *UpdatePasswordRequest) XXX_Unmarshal(b []byte) error {
@@ -380,7 +675,7 @@ func (m *UpdatePasswordResponse) Reset()         { *m = UpdatePasswordResponse{}
 func (m *UpdatePasswordResponse) String() string { return proto.CompactTextString(m) }
 func (*UpdatePasswordResponse) ProtoMessage()    {}
 func (*UpdatePasswordResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_116e343673f7ffaf, []int{7}
+	return fileDescriptor_116e343673f7ffaf, []int{15}
 }
 
 func (m *UpdatePasswordResponse) XXX_Unmarshal(b []byte) error {
@@ -413,7 +708,7 @@ func (m *UpdateSignatureRequest) Reset()         { *m = UpdateSignatureRequest{}
 func (m *UpdateSignatureRequest) String() string { return proto.CompactTextString(m) }
 func (*UpdateSignatureRequest) ProtoMessage()    {}
 func (*UpdateSignatureRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_116e343673f7ffaf, []int{8}
+	return fileDescriptor_116e343673f7ffaf, []int{16}
 }
 
 func (m *UpdateSignatureRequest) XXX_Unmarshal(b []byte) error {
@@ -458,7 +753,7 @@ func (m *UpdateSignatureResponse) Reset()         { *m = UpdateSignatureResponse
 func (m *UpdateSignatureResponse) String() string { return proto.CompactTextString(m) }
 func (*UpdateSignatureResponse) ProtoMessage()    {}
 func (*UpdateSignatureResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_116e343673f7ffaf, []int{9}
+	return fileDescriptor_116e343673f7ffaf, []int{17}
 }
 
 func (m *UpdateSignatureResponse) XXX_Unmarshal(b []byte) error {
@@ -494,7 +789,7 @@ func (m *CreateRequest) Reset()         { *m = CreateRequest{} }
 func (m *CreateRequest) String() string { return proto.CompactTextString(m) }
 func (*CreateRequest) ProtoMessage()    {}
 func (*CreateRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_116e343673f7ffaf, []int{10}
+	return fileDescriptor_116e343673f7ffaf, []int{18}
 }
 
 func (m *CreateRequest) XXX_Unmarshal(b []byte) error {
@@ -561,7 +856,7 @@ func (m *CreateResponse) Reset()         { *m = CreateResponse{} }
 func (m *CreateResponse) String() string { return proto.CompactTextString(m) }
 func (*CreateResponse) ProtoMessage()    {}
 func (*CreateResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_116e343673f7ffaf, []int{11}
+	return fileDescriptor_116e343673f7ffaf, []int{19}
 }
 
 func (m *CreateResponse) XXX_Unmarshal(b []byte) error {
@@ -590,12 +885,20 @@ func (m *CreateResponse) GetId() string {
 }
 
 func init() {
-	proto.RegisterType((*GroupIdRequest)(nil), "model.GroupIdRequest")
-	proto.RegisterType((*UserResponse)(nil), "model.UserResponse")
+	proto.RegisterType((*GetAllUsersRequest)(nil), "model.GetAllUsersRequest")
+	proto.RegisterType((*GetAllUsersResponse)(nil), "model.GetAllUsersResponse")
+	proto.RegisterType((*GetUsersByIdsRequest)(nil), "model.GetUsersByIdsRequest")
+	proto.RegisterType((*GetUsersByIdsResponse)(nil), "model.GetUsersByIdsResponse")
+	proto.RegisterType((*GetOverallRankRequest)(nil), "model.GetOverallRankRequest")
+	proto.RegisterType((*GetOverallRankResponse)(nil), "model.GetOverallRankResponse")
+	proto.RegisterType((*GetRankForGroupRequest)(nil), "model.GetRankForGroupRequest")
+	proto.RegisterType((*GetRankForGroupResponse)(nil), "model.GetRankForGroupResponse")
+	proto.RegisterType((*GetUserCountRequest)(nil), "model.GetUserCountRequest")
+	proto.RegisterType((*GetUserCountResponse)(nil), "model.GetUserCountResponse")
+	proto.RegisterType((*GetUserByEmailRequest)(nil), "model.GetUserByEmailRequest")
+	proto.RegisterType((*GetUserByEmailResponse)(nil), "model.GetUserByEmailResponse")
 	proto.RegisterType((*User)(nil), "model.User")
 	proto.RegisterType((*RankResponse)(nil), "model.RankResponse")
-	proto.RegisterType((*CountResponse)(nil), "model.CountResponse")
-	proto.RegisterType((*GroupRankRequest)(nil), "model.GroupRankRequest")
 	proto.RegisterType((*UpdatePasswordRequest)(nil), "model.UpdatePasswordRequest")
 	proto.RegisterType((*UpdatePasswordResponse)(nil), "model.UpdatePasswordResponse")
 	proto.RegisterType((*UpdateSignatureRequest)(nil), "model.UpdateSignatureRequest")
@@ -607,47 +910,49 @@ func init() {
 func init() { proto.RegisterFile("user.proto", fileDescriptor_116e343673f7ffaf) }
 
 var fileDescriptor_116e343673f7ffaf = []byte{
-	// 629 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x7c, 0x54, 0xdd, 0x4e, 0xd4, 0x4e,
-	0x14, 0x4f, 0xbb, 0x5b, 0x3e, 0xce, 0xc2, 0xb2, 0x99, 0x3f, 0x1f, 0xfd, 0x57, 0x34, 0x6b, 0xa3,
-	0xc9, 0x5e, 0x95, 0x88, 0x18, 0x13, 0x63, 0x34, 0x42, 0x60, 0xc3, 0x85, 0x4a, 0x4a, 0x88, 0xd7,
-	0xa5, 0x3d, 0x60, 0x43, 0xdb, 0xa9, 0x33, 0x53, 0xcc, 0x3e, 0x8f, 0xcf, 0xe3, 0x2b, 0xf8, 0x2c,
-	0x66, 0x66, 0xda, 0xd2, 0x96, 0xad, 0x77, 0x73, 0x7e, 0xe7, 0xfb, 0x9c, 0xdf, 0x19, 0x80, 0x82,
-	0x23, 0xf3, 0x72, 0x46, 0x05, 0x25, 0x56, 0x4a, 0x23, 0x4c, 0x9c, 0x27, 0xb7, 0x94, 0xde, 0x26,
-	0x78, 0xa0, 0xc0, 0xeb, 0xe2, 0xe6, 0x00, 0xd3, 0x5c, 0x2c, 0xb4, 0x8d, 0xb3, 0xc9, 0xf0, 0x47,
-	0x81, 0x5c, 0x68, 0xd1, 0x75, 0x61, 0x3c, 0x67, 0xb4, 0xc8, 0xcf, 0x23, 0x5f, 0xe3, 0x64, 0x02,
-	0x83, 0x38, 0xe2, 0xb6, 0x31, 0x1d, 0xcc, 0xd6, 0x7d, 0xf9, 0x74, 0x5f, 0xc1, 0xc6, 0x15, 0x47,
-	0xe6, 0x23, 0xcf, 0x69, 0xc6, 0x91, 0x3c, 0x07, 0x4b, 0x26, 0xd5, 0x36, 0xa3, 0xc3, 0x91, 0xa7,
-	0xd2, 0x7a, 0xca, 0x46, 0x6b, 0xdc, 0x3f, 0x06, 0x0c, 0xa5, 0x4c, 0xc6, 0x60, 0xc6, 0x91, 0x6d,
-	0x4c, 0x8d, 0xd9, 0xba, 0x6f, 0xc6, 0x11, 0xd9, 0x87, 0xf5, 0x9b, 0x98, 0x71, 0xf1, 0x25, 0x48,
-	0xd1, 0x36, 0x15, 0xfc, 0x00, 0x10, 0x1b, 0x56, 0x79, 0xc1, 0x32, 0xa9, 0x1b, 0x28, 0x5d, 0x25,
-	0x92, 0x19, 0x6c, 0xe5, 0x0c, 0xa3, 0x38, 0x14, 0x18, 0x7d, 0x8b, 0xb3, 0x0c, 0x99, 0x3d, 0x54,
-	0x16, 0x5d, 0x98, 0x6c, 0x83, 0xc5, 0x43, 0xca, 0xd0, 0xb6, 0xa6, 0xc6, 0xcc, 0xf2, 0xb5, 0x20,
-	0x51, 0x4c, 0x83, 0x38, 0xb1, 0x57, 0x94, 0x97, 0x16, 0x88, 0x03, 0x6b, 0x79, 0xc0, 0xf9, 0x4f,
-	0xca, 0x22, 0x7b, 0x55, 0x29, 0x6a, 0x59, 0x56, 0xca, 0xe3, 0xdb, 0x2c, 0x10, 0x05, 0x43, 0x7b,
-	0x4d, 0x57, 0x5a, 0x03, 0xae, 0x0b, 0x1b, 0x7e, 0x90, 0xdd, 0xd5, 0x33, 0x21, 0x30, 0x64, 0x41,
-	0x76, 0xa7, 0x3a, 0x1d, 0xf8, 0xea, 0xed, 0xbe, 0x84, 0xcd, 0x13, 0x5a, 0x64, 0xa2, 0x36, 0xda,
-	0x06, 0x2b, 0x94, 0x40, 0x69, 0xa5, 0x05, 0xf7, 0x08, 0x26, 0x6a, 0x05, 0x3a, 0x9e, 0x5e, 0x42,
-	0x77, 0x6c, 0xe5, 0x52, 0xcc, 0x87, 0xa5, 0x9c, 0xc0, 0xce, 0x55, 0x1e, 0x05, 0x02, 0x2f, 0xca,
-	0x82, 0xfb, 0x5c, 0x9b, 0x3d, 0x9a, 0xed, 0x1e, 0x5d, 0x1b, 0x76, 0xbb, 0x41, 0x74, 0xa9, 0xee,
-	0x59, 0xa5, 0xb9, 0xac, 0x5a, 0xee, 0x8b, 0xdf, 0x9a, 0x93, 0xd9, 0x9d, 0xd3, 0xff, 0xb0, 0xf7,
-	0x28, 0x4e, 0x99, 0xe2, 0x97, 0x01, 0x9b, 0x27, 0x0c, 0x03, 0x51, 0x87, 0x6e, 0x91, 0xc3, 0xf8,
-	0x07, 0x39, 0xcc, 0x36, 0x39, 0xea, 0xe5, 0x0e, 0xfa, 0x96, 0x3b, 0xec, 0x2c, 0x77, 0x09, 0x9d,
-	0xac, 0xa5, 0x74, 0x72, 0xa7, 0x30, 0xae, 0x8a, 0x2c, 0xb7, 0xd8, 0x19, 0xc0, 0xe1, 0xef, 0x21,
-	0x8c, 0x24, 0xd7, 0x2f, 0x91, 0xdd, 0xc7, 0x21, 0x92, 0x77, 0x30, 0x9a, 0xa3, 0xf8, 0x94, 0x24,
-	0x12, 0xe4, 0x64, 0xd7, 0xd3, 0xe7, 0xe8, 0x55, 0xe7, 0xe8, 0x9d, 0xca, 0x73, 0x74, 0xfe, 0x6b,
-	0x9e, 0x4d, 0x15, 0xfb, 0x03, 0x4c, 0x1a, 0xbe, 0xc7, 0x8b, 0xf3, 0x88, 0x93, 0x9d, 0xd2, 0xb0,
-	0x7d, 0xa7, 0xcb, 0xfd, 0xdf, 0xc2, 0x78, 0x8e, 0xe2, 0xeb, 0x3d, 0xb2, 0x20, 0x49, 0x24, 0xa1,
-	0xc8, 0xa4, 0x34, 0x7b, 0xec, 0xd8, 0xe2, 0xef, 0x47, 0xd8, 0x9a, 0xa3, 0x90, 0xd0, 0x19, 0x65,
-	0x2a, 0x13, 0xd9, 0x6b, 0xe6, 0x6d, 0x90, 0x73, 0x79, 0x80, 0xf7, 0xb0, 0x31, 0x47, 0x21, 0x8b,
-	0x51, 0x9c, 0xef, 0x6d, 0x7b, 0xbb, 0x74, 0x6e, 0x5f, 0xc6, 0xa1, 0xaa, 0x5b, 0x7a, 0x1f, 0x2f,
-	0x4e, 0xd5, 0xf6, 0xaa, 0x24, 0x4a, 0xaa, 0x32, 0x37, 0xbf, 0x1a, 0xf2, 0x19, 0xc6, 0x6d, 0xf2,
-	0x92, 0xfd, 0x4a, 0xbd, 0xec, 0x30, 0x9c, 0xa7, 0x3d, 0xda, 0xb2, 0x84, 0x0b, 0xd8, 0xea, 0x30,
-	0x95, 0xb4, 0x3d, 0xba, 0x97, 0xe0, 0x3c, 0xeb, 0x53, 0x97, 0x11, 0xdf, 0xc0, 0x8a, 0xa6, 0x0e,
-	0xa9, 0x9b, 0x6e, 0xd2, 0xdd, 0xd9, 0xe9, 0xa0, 0xda, 0xed, 0xf8, 0x05, 0x4c, 0x43, 0x9a, 0x7a,
-	0x21, 0xff, 0x8e, 0xf9, 0x91, 0x97, 0x33, 0x4c, 0x63, 0x64, 0x25, 0x2d, 0x29, 0xf3, 0xe4, 0x07,
-	0x7b, 0x61, 0x5c, 0xaf, 0xa8, 0xb9, 0xbe, 0xfe, 0x1b, 0x00, 0x00, 0xff, 0xff, 0xae, 0x1c, 0x76,
-	0x2b, 0x00, 0x06, 0x00, 0x00,
+	// 671 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x55, 0xdf, 0x6e, 0xd3, 0x3e,
+	0x14, 0x56, 0xd2, 0x66, 0x7f, 0x4e, 0xb7, 0xee, 0x27, 0xff, 0xda, 0x2d, 0xcb, 0x06, 0x14, 0x0b,
+	0x89, 0x5e, 0x6c, 0xbd, 0x18, 0x20, 0xc1, 0xee, 0xd8, 0x60, 0x15, 0x48, 0x83, 0x2a, 0xd3, 0xc4,
+	0x75, 0x48, 0x0c, 0x44, 0x4b, 0x93, 0x60, 0x27, 0x43, 0x7b, 0x1e, 0x5e, 0x80, 0x27, 0xe2, 0x59,
+	0x90, 0x1d, 0x27, 0x8d, 0x9d, 0x64, 0x70, 0x17, 0x9f, 0x3f, 0xdf, 0x39, 0xe7, 0xb3, 0xcf, 0x17,
+	0x80, 0x9c, 0x11, 0x3a, 0x4b, 0x69, 0x92, 0x25, 0xc8, 0x5a, 0x26, 0x01, 0x89, 0xf0, 0x08, 0xd0,
+	0x9c, 0x64, 0xaf, 0xa3, 0xe8, 0x9a, 0x11, 0xca, 0x5c, 0xf2, 0x3d, 0x27, 0x2c, 0xc3, 0x2f, 0xe1,
+	0x7f, 0xc5, 0xca, 0xd2, 0x24, 0x66, 0x04, 0x3d, 0x06, 0x8b, 0x23, 0x30, 0xdb, 0x98, 0xf4, 0xa6,
+	0x83, 0x93, 0xc1, 0x4c, 0x60, 0xcc, 0x78, 0x90, 0x5b, 0x78, 0xf0, 0x14, 0x46, 0x73, 0x92, 0x89,
+	0xb4, 0xb3, 0xbb, 0x77, 0x41, 0x89, 0x88, 0xfe, 0x83, 0x5e, 0x18, 0x14, 0x89, 0x9b, 0x2e, 0xff,
+	0xc4, 0xa7, 0x30, 0xd6, 0x22, 0xff, 0xbd, 0xca, 0x53, 0x91, 0xfb, 0xf1, 0x96, 0x50, 0x2f, 0x8a,
+	0x5c, 0x2f, 0xbe, 0x29, 0xcb, 0x0c, 0xc1, 0x0c, 0x03, 0xdb, 0x98, 0x18, 0xd3, 0x4d, 0xd7, 0x0c,
+	0x03, 0x7c, 0x04, 0xbb, 0x7a, 0xa0, 0xac, 0x82, 0xa0, 0x4f, 0xbd, 0xf8, 0x46, 0xc4, 0xf6, 0x5c,
+	0xf1, 0x8d, 0x4f, 0x45, 0x34, 0x0f, 0xbb, 0x48, 0xe8, 0x9c, 0x26, 0x79, 0xda, 0x81, 0x5b, 0x8e,
+	0x63, 0xae, 0xc6, 0x39, 0x86, 0xbd, 0x46, 0xee, 0x3d, 0xa5, 0xc6, 0x82, 0x61, 0x3e, 0xd3, 0x79,
+	0x92, 0xc7, 0x59, 0x49, 0xfc, 0x51, 0x45, 0x9f, 0x34, 0x4b, 0x88, 0x11, 0x58, 0x3e, 0x37, 0x48,
+	0x8c, 0xe2, 0x80, 0x8f, 0x2b, 0x0a, 0xcf, 0xee, 0xde, 0x2e, 0xbd, 0x30, 0x2a, 0xdb, 0x1d, 0x81,
+	0x45, 0xf8, 0x59, 0x76, 0x5c, 0x1c, 0xf0, 0x2b, 0x31, 0x9e, 0x12, 0x2e, 0xe1, 0x1f, 0x41, 0x9f,
+	0x13, 0x2b, 0xc2, 0x35, 0xc6, 0x85, 0x03, 0xff, 0x36, 0xa0, 0xcf, 0x8f, 0x0d, 0x22, 0x0e, 0x61,
+	0xf3, 0x4b, 0x48, 0x59, 0xf6, 0xc1, 0x5b, 0x12, 0xdb, 0x14, 0xe6, 0x95, 0x01, 0xd9, 0xb0, 0xce,
+	0x72, 0x1a, 0x73, 0x5f, 0x4f, 0xf8, 0xca, 0x23, 0x9a, 0xc2, 0x4e, 0x4a, 0x49, 0x10, 0xfa, 0x19,
+	0x09, 0x3e, 0x85, 0x71, 0x4c, 0xa8, 0xdd, 0x17, 0x11, 0xba, 0x99, 0xcf, 0xc2, 0xfc, 0x84, 0x12,
+	0xdb, 0x9a, 0x18, 0x53, 0xcb, 0x2d, 0x0e, 0xab, 0x09, 0xd7, 0x6a, 0x13, 0x22, 0x07, 0x36, 0x52,
+	0x8f, 0xb1, 0x1f, 0x09, 0x0d, 0xec, 0x75, 0xe1, 0xa8, 0xce, 0xbc, 0x53, 0x16, 0x7e, 0x8d, 0xbd,
+	0x2c, 0xa7, 0xc4, 0xde, 0x28, 0x3a, 0xad, 0x0c, 0x18, 0xc3, 0xd6, 0x5f, 0x9f, 0xc7, 0x39, 0x8c,
+	0xaf, 0xd3, 0xc0, 0xcb, 0xc8, 0x42, 0x62, 0x76, 0xbd, 0x8e, 0x7a, 0x1b, 0xa6, 0xda, 0x06, 0xb6,
+	0x61, 0x57, 0x07, 0x29, 0x4a, 0xe2, 0x8b, 0xd2, 0x73, 0x55, 0x76, 0xd5, 0x85, 0xaf, 0x8c, 0x62,
+	0xea, 0xa3, 0xec, 0xc3, 0x5e, 0x03, 0x47, 0x96, 0xf8, 0x69, 0xc0, 0xf6, 0x39, 0x25, 0x5e, 0x56,
+	0x41, 0x2b, 0xf7, 0x67, 0xdc, 0x73, 0x7f, 0xa6, 0x7a, 0x7f, 0x15, 0xff, 0xbd, 0x2e, 0xfe, 0xfb,
+	0x1a, 0xff, 0x2d, 0x37, 0x6e, 0xb5, 0xde, 0x38, 0x9e, 0xc0, 0xb0, 0x6c, 0x52, 0xde, 0x86, 0x46,
+	0xc0, 0xc9, 0x2f, 0x0b, 0x06, 0xfc, 0x39, 0x5e, 0x11, 0x7a, 0x1b, 0xfa, 0x04, 0xbd, 0x81, 0x41,
+	0x4d, 0xaf, 0xd0, 0xbe, 0x7c, 0xc0, 0x4d, 0x65, 0x73, 0x9c, 0x36, 0x97, 0xac, 0xf2, 0x1e, 0xb6,
+	0x15, 0x45, 0x42, 0x07, 0xab, 0xe0, 0x86, 0xa2, 0x39, 0x87, 0xed, 0x4e, 0x89, 0x75, 0x09, 0x43,
+	0x55, 0x78, 0x50, 0x2d, 0xbe, 0x29, 0x5c, 0xce, 0x83, 0x0e, 0xaf, 0x84, 0x5b, 0xc0, 0x8e, 0xa6,
+	0x2e, 0xa8, 0x96, 0xd1, 0xa2, 0x58, 0xce, 0xc3, 0x2e, 0xb7, 0x44, 0x9c, 0xc3, 0x56, 0x5d, 0x69,
+	0x90, 0xa3, 0x8e, 0x53, 0x57, 0x25, 0xe7, 0xa0, 0xd5, 0xa7, 0x4c, 0x5a, 0x53, 0x15, 0xa4, 0x31,
+	0xa3, 0x6a, 0x53, 0x7d, 0xd2, 0x36, 0x29, 0xba, 0x84, 0xa1, 0xba, 0x1f, 0x15, 0x5c, 0xeb, 0xee,
+	0x55, 0x70, 0xed, 0x4b, 0xc5, 0x89, 0xd3, 0x96, 0x01, 0xa9, 0x19, 0xfa, 0xb2, 0x55, 0xc4, 0x75,
+	0xec, 0x10, 0x7a, 0x01, 0x6b, 0xc5, 0xeb, 0x44, 0x23, 0x19, 0xa9, 0x6c, 0x94, 0x33, 0xd6, 0xac,
+	0x45, 0xda, 0xd9, 0x13, 0x98, 0xf8, 0xc9, 0x72, 0xe6, 0xb3, 0x6f, 0x24, 0x7d, 0x3e, 0x4b, 0x29,
+	0x59, 0x86, 0x84, 0xca, 0x97, 0x9f, 0xd0, 0x19, 0x57, 0xd9, 0x85, 0xf1, 0x79, 0x4d, 0xfc, 0x9c,
+	0x9f, 0xfd, 0x09, 0x00, 0x00, 0xff, 0xff, 0x20, 0xba, 0xe2, 0x4f, 0xaa, 0x07, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -662,12 +967,12 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type UserServiceClient interface {
-	GetAllUsers(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*UserResponse, error)
-	GetAllUsersByIds(ctx context.Context, in *GroupIdRequest, opts ...grpc.CallOption) (*UserResponse, error)
-	GetOverallRank(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*RankResponse, error)
-	GetRankForGroup(ctx context.Context, in *GroupRankRequest, opts ...grpc.CallOption) (*RankResponse, error)
-	GetUserCount(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*CountResponse, error)
-	GetUserByEmail(ctx context.Context, in *EmailRequest, opts ...grpc.CallOption) (*User, error)
+	GetAllUsers(ctx context.Context, in *GetAllUsersRequest, opts ...grpc.CallOption) (*GetAllUsersResponse, error)
+	GetUsersByIds(ctx context.Context, in *GetUsersByIdsRequest, opts ...grpc.CallOption) (*GetUsersByIdsResponse, error)
+	GetOverallRank(ctx context.Context, in *GetOverallRankRequest, opts ...grpc.CallOption) (*GetOverallRankResponse, error)
+	GetRankForGroup(ctx context.Context, in *GetRankForGroupRequest, opts ...grpc.CallOption) (*GetRankForGroupResponse, error)
+	GetUserCount(ctx context.Context, in *GetUserCountRequest, opts ...grpc.CallOption) (*GetUserCountResponse, error)
+	GetUserByEmail(ctx context.Context, in *GetUserByEmailRequest, opts ...grpc.CallOption) (*GetUserByEmailResponse, error)
 	UpdatePassword(ctx context.Context, in *UpdatePasswordRequest, opts ...grpc.CallOption) (*UpdatePasswordResponse, error)
 	UpdateSignature(ctx context.Context, in *UpdateSignatureRequest, opts ...grpc.CallOption) (*UpdateSignatureResponse, error)
 	Create(ctx context.Context, in *CreateRequest, opts ...grpc.CallOption) (*CreateResponse, error)
@@ -681,8 +986,8 @@ func NewUserServiceClient(cc *grpc.ClientConn) UserServiceClient {
 	return &userServiceClient{cc}
 }
 
-func (c *userServiceClient) GetAllUsers(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*UserResponse, error) {
-	out := new(UserResponse)
+func (c *userServiceClient) GetAllUsers(ctx context.Context, in *GetAllUsersRequest, opts ...grpc.CallOption) (*GetAllUsersResponse, error) {
+	out := new(GetAllUsersResponse)
 	err := c.cc.Invoke(ctx, "/model.UserService/GetAllUsers", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -690,17 +995,17 @@ func (c *userServiceClient) GetAllUsers(ctx context.Context, in *empty.Empty, op
 	return out, nil
 }
 
-func (c *userServiceClient) GetAllUsersByIds(ctx context.Context, in *GroupIdRequest, opts ...grpc.CallOption) (*UserResponse, error) {
-	out := new(UserResponse)
-	err := c.cc.Invoke(ctx, "/model.UserService/GetAllUsersByIds", in, out, opts...)
+func (c *userServiceClient) GetUsersByIds(ctx context.Context, in *GetUsersByIdsRequest, opts ...grpc.CallOption) (*GetUsersByIdsResponse, error) {
+	out := new(GetUsersByIdsResponse)
+	err := c.cc.Invoke(ctx, "/model.UserService/GetUsersByIds", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *userServiceClient) GetOverallRank(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*RankResponse, error) {
-	out := new(RankResponse)
+func (c *userServiceClient) GetOverallRank(ctx context.Context, in *GetOverallRankRequest, opts ...grpc.CallOption) (*GetOverallRankResponse, error) {
+	out := new(GetOverallRankResponse)
 	err := c.cc.Invoke(ctx, "/model.UserService/GetOverallRank", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -708,8 +1013,8 @@ func (c *userServiceClient) GetOverallRank(ctx context.Context, in *IdRequest, o
 	return out, nil
 }
 
-func (c *userServiceClient) GetRankForGroup(ctx context.Context, in *GroupRankRequest, opts ...grpc.CallOption) (*RankResponse, error) {
-	out := new(RankResponse)
+func (c *userServiceClient) GetRankForGroup(ctx context.Context, in *GetRankForGroupRequest, opts ...grpc.CallOption) (*GetRankForGroupResponse, error) {
+	out := new(GetRankForGroupResponse)
 	err := c.cc.Invoke(ctx, "/model.UserService/GetRankForGroup", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -717,8 +1022,8 @@ func (c *userServiceClient) GetRankForGroup(ctx context.Context, in *GroupRankRe
 	return out, nil
 }
 
-func (c *userServiceClient) GetUserCount(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*CountResponse, error) {
-	out := new(CountResponse)
+func (c *userServiceClient) GetUserCount(ctx context.Context, in *GetUserCountRequest, opts ...grpc.CallOption) (*GetUserCountResponse, error) {
+	out := new(GetUserCountResponse)
 	err := c.cc.Invoke(ctx, "/model.UserService/GetUserCount", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -726,8 +1031,8 @@ func (c *userServiceClient) GetUserCount(ctx context.Context, in *empty.Empty, o
 	return out, nil
 }
 
-func (c *userServiceClient) GetUserByEmail(ctx context.Context, in *EmailRequest, opts ...grpc.CallOption) (*User, error) {
-	out := new(User)
+func (c *userServiceClient) GetUserByEmail(ctx context.Context, in *GetUserByEmailRequest, opts ...grpc.CallOption) (*GetUserByEmailResponse, error) {
+	out := new(GetUserByEmailResponse)
 	err := c.cc.Invoke(ctx, "/model.UserService/GetUserByEmail", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -764,12 +1069,12 @@ func (c *userServiceClient) Create(ctx context.Context, in *CreateRequest, opts 
 
 // UserServiceServer is the server API for UserService service.
 type UserServiceServer interface {
-	GetAllUsers(context.Context, *empty.Empty) (*UserResponse, error)
-	GetAllUsersByIds(context.Context, *GroupIdRequest) (*UserResponse, error)
-	GetOverallRank(context.Context, *IdRequest) (*RankResponse, error)
-	GetRankForGroup(context.Context, *GroupRankRequest) (*RankResponse, error)
-	GetUserCount(context.Context, *empty.Empty) (*CountResponse, error)
-	GetUserByEmail(context.Context, *EmailRequest) (*User, error)
+	GetAllUsers(context.Context, *GetAllUsersRequest) (*GetAllUsersResponse, error)
+	GetUsersByIds(context.Context, *GetUsersByIdsRequest) (*GetUsersByIdsResponse, error)
+	GetOverallRank(context.Context, *GetOverallRankRequest) (*GetOverallRankResponse, error)
+	GetRankForGroup(context.Context, *GetRankForGroupRequest) (*GetRankForGroupResponse, error)
+	GetUserCount(context.Context, *GetUserCountRequest) (*GetUserCountResponse, error)
+	GetUserByEmail(context.Context, *GetUserByEmailRequest) (*GetUserByEmailResponse, error)
 	UpdatePassword(context.Context, *UpdatePasswordRequest) (*UpdatePasswordResponse, error)
 	UpdateSignature(context.Context, *UpdateSignatureRequest) (*UpdateSignatureResponse, error)
 	Create(context.Context, *CreateRequest) (*CreateResponse, error)
@@ -779,22 +1084,22 @@ type UserServiceServer interface {
 type UnimplementedUserServiceServer struct {
 }
 
-func (*UnimplementedUserServiceServer) GetAllUsers(ctx context.Context, req *empty.Empty) (*UserResponse, error) {
+func (*UnimplementedUserServiceServer) GetAllUsers(ctx context.Context, req *GetAllUsersRequest) (*GetAllUsersResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAllUsers not implemented")
 }
-func (*UnimplementedUserServiceServer) GetAllUsersByIds(ctx context.Context, req *GroupIdRequest) (*UserResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetAllUsersByIds not implemented")
+func (*UnimplementedUserServiceServer) GetUsersByIds(ctx context.Context, req *GetUsersByIdsRequest) (*GetUsersByIdsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUsersByIds not implemented")
 }
-func (*UnimplementedUserServiceServer) GetOverallRank(ctx context.Context, req *IdRequest) (*RankResponse, error) {
+func (*UnimplementedUserServiceServer) GetOverallRank(ctx context.Context, req *GetOverallRankRequest) (*GetOverallRankResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetOverallRank not implemented")
 }
-func (*UnimplementedUserServiceServer) GetRankForGroup(ctx context.Context, req *GroupRankRequest) (*RankResponse, error) {
+func (*UnimplementedUserServiceServer) GetRankForGroup(ctx context.Context, req *GetRankForGroupRequest) (*GetRankForGroupResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetRankForGroup not implemented")
 }
-func (*UnimplementedUserServiceServer) GetUserCount(ctx context.Context, req *empty.Empty) (*CountResponse, error) {
+func (*UnimplementedUserServiceServer) GetUserCount(ctx context.Context, req *GetUserCountRequest) (*GetUserCountResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserCount not implemented")
 }
-func (*UnimplementedUserServiceServer) GetUserByEmail(ctx context.Context, req *EmailRequest) (*User, error) {
+func (*UnimplementedUserServiceServer) GetUserByEmail(ctx context.Context, req *GetUserByEmailRequest) (*GetUserByEmailResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserByEmail not implemented")
 }
 func (*UnimplementedUserServiceServer) UpdatePassword(ctx context.Context, req *UpdatePasswordRequest) (*UpdatePasswordResponse, error) {
@@ -812,7 +1117,7 @@ func RegisterUserServiceServer(s *grpc.Server, srv UserServiceServer) {
 }
 
 func _UserService_GetAllUsers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(empty.Empty)
+	in := new(GetAllUsersRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -824,31 +1129,31 @@ func _UserService_GetAllUsers_Handler(srv interface{}, ctx context.Context, dec 
 		FullMethod: "/model.UserService/GetAllUsers",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).GetAllUsers(ctx, req.(*empty.Empty))
+		return srv.(UserServiceServer).GetAllUsers(ctx, req.(*GetAllUsersRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _UserService_GetAllUsersByIds_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GroupIdRequest)
+func _UserService_GetUsersByIds_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUsersByIdsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserServiceServer).GetAllUsersByIds(ctx, in)
+		return srv.(UserServiceServer).GetUsersByIds(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/model.UserService/GetAllUsersByIds",
+		FullMethod: "/model.UserService/GetUsersByIds",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).GetAllUsersByIds(ctx, req.(*GroupIdRequest))
+		return srv.(UserServiceServer).GetUsersByIds(ctx, req.(*GetUsersByIdsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _UserService_GetOverallRank_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(IdRequest)
+	in := new(GetOverallRankRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -860,13 +1165,13 @@ func _UserService_GetOverallRank_Handler(srv interface{}, ctx context.Context, d
 		FullMethod: "/model.UserService/GetOverallRank",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).GetOverallRank(ctx, req.(*IdRequest))
+		return srv.(UserServiceServer).GetOverallRank(ctx, req.(*GetOverallRankRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _UserService_GetRankForGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GroupRankRequest)
+	in := new(GetRankForGroupRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -878,13 +1183,13 @@ func _UserService_GetRankForGroup_Handler(srv interface{}, ctx context.Context, 
 		FullMethod: "/model.UserService/GetRankForGroup",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).GetRankForGroup(ctx, req.(*GroupRankRequest))
+		return srv.(UserServiceServer).GetRankForGroup(ctx, req.(*GetRankForGroupRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _UserService_GetUserCount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(empty.Empty)
+	in := new(GetUserCountRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -896,13 +1201,13 @@ func _UserService_GetUserCount_Handler(srv interface{}, ctx context.Context, dec
 		FullMethod: "/model.UserService/GetUserCount",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).GetUserCount(ctx, req.(*empty.Empty))
+		return srv.(UserServiceServer).GetUserCount(ctx, req.(*GetUserCountRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _UserService_GetUserByEmail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(EmailRequest)
+	in := new(GetUserByEmailRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -914,7 +1219,7 @@ func _UserService_GetUserByEmail_Handler(srv interface{}, ctx context.Context, d
 		FullMethod: "/model.UserService/GetUserByEmail",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).GetUserByEmail(ctx, req.(*EmailRequest))
+		return srv.(UserServiceServer).GetUserByEmail(ctx, req.(*GetUserByEmailRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -982,8 +1287,8 @@ var _UserService_serviceDesc = grpc.ServiceDesc{
 			Handler:    _UserService_GetAllUsers_Handler,
 		},
 		{
-			MethodName: "GetAllUsersByIds",
-			Handler:    _UserService_GetAllUsersByIds_Handler,
+			MethodName: "GetUsersByIds",
+			Handler:    _UserService_GetUsersByIds_Handler,
 		},
 		{
 			MethodName: "GetOverallRank",

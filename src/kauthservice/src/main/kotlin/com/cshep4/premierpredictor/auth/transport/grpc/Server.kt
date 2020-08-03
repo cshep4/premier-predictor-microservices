@@ -9,7 +9,6 @@ import com.cshep4.premierpredictor.auth.result.RegisterResult.Companion.EMAIL_AL
 import com.cshep4.premierpredictor.auth.service.AuthService
 import com.cshep4.premierpredictor.auth.util.StringUtils.isValidEmailAddress
 import com.cshep4.premierpredictor.auth.util.StringUtils.isValidPassword
-import com.cshep4.premierpredictor.request.LoginRequest
 import com.google.protobuf.GeneratedMessageV3
 import io.grpc.Status
 import io.grpc.Status.*
@@ -99,9 +98,9 @@ class Server : AuthServiceImplBase() {
 
         when (val res = authService.validate(req.token, req.audience, req.role.toRole())) {
             is ValidateTokenResult.Error -> {
-                if (res.internal) {
+//                if (res.internal) {
                     logger.errorf(res.cause, "validate_error: %s", res.message)
-                }
+//                }
                 throw UNAUTHENTICATED.error(res.message, res.cause)
             }
         }

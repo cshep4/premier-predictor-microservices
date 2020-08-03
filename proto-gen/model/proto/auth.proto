@@ -1,9 +1,6 @@
 syntax = "proto3";
 option java_multiple_files = true;
 option java_package = "com.cshep4.premierpredictor.auth";
-import "google/protobuf/empty.proto";
-
-import "request.proto";
 
 package model;
 
@@ -14,6 +11,11 @@ service AuthService {
     rpc IssueServiceToken (IssueServiceTokenRequest) returns (IssueServiceTokenResponse);
     rpc InitiatePasswordReset (InitiatePasswordResetRequest) returns (InitiatePasswordResetResponse);
     rpc ResetPassword (ResetPasswordRequest) returns (ResetPasswordResponse);
+}
+
+message LoginRequest {
+    string email = 1;
+    string password = 2;
 }
 
 message LoginResponse {

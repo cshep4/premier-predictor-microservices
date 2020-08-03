@@ -1,9 +1,10 @@
 package com.cshep4.premierpredictor.auth.transport.http
 
+import com.cshep4.premierpredictor.auth.html.ResetPassword.buildResetPasswordForm
 import com.cshep4.premierpredictor.auth.model.InitiatePasswordResetRequest
 import com.cshep4.premierpredictor.auth.model.LoginRequest
 import com.cshep4.premierpredictor.auth.model.RegisterRequest
-import com.cshep4.premierpredictor.auth.model.ResetPasswordRequest
+import com.cshep4.premierpredictor.auth.model.ResetPasswordForm
 import com.cshep4.premierpredictor.auth.result.InitiatePasswordResetResult
 import com.cshep4.premierpredictor.auth.result.LoginResult
 import com.cshep4.premierpredictor.auth.result.RegisterResult
@@ -18,10 +19,11 @@ import com.cshep4.premierpredictor.auth.util.ResponseUtils.unauthorized
 import com.cshep4.premierpredictor.auth.util.StringUtils.isValidEmailAddress
 import com.cshep4.premierpredictor.auth.util.StringUtils.isValidPassword
 import org.jboss.logging.Logger
+import org.jboss.resteasy.annotations.providers.multipart.MultipartForm
 import javax.enterprise.inject.Default
 import javax.inject.Inject
 import javax.ws.rs.*
-import javax.ws.rs.core.MediaType.APPLICATION_JSON
+import javax.ws.rs.core.MediaType.*
 import javax.ws.rs.core.Response
 
 @Path("/")
@@ -104,7 +106,8 @@ class Handler {
 
     @POST
     @Path("/reset-password")
-    fun resetPassword(req: ResetPasswordRequest): Response {
+    @Consumes(MULTIPART_FORM_DATA)
+    fun resetPassword(@MultipartForm req: ResetPasswordForm): Response {
         when {
             req.email.isEmpty() -> return badRequest("email is empty")
             req.signature.isEmpty() -> return badRequest("signature is empty")
@@ -114,10 +117,10 @@ class Handler {
             req.password != req.confirmation -> return badRequest("password and confirmation do not match")
         }
 
-        when (val res = authService.resetPassword(req)) {
+        when (val res = authService.resetPassword(req.toResetPasswordRequest())) {
             is ResetPasswordResult.Error -> {
                 if (res.internal) {
-                    logger.errorf(res.cause, "initiate_password_reset_error: %s", res.message)
+                    logger.errorf(res.cause, "reset_password_error: %s", res.message)
                 }
                 return internal("could not reset password")
             }
@@ -128,34 +131,6 @@ class Handler {
 
     @GET
     @Path("/reset-password")
-    fun resetPassword(@QueryParam("email") email: String?,
-                      @QueryParam("signature") signature: String?,
-                      @QueryParam("password") password: String?,
-                      @QueryParam("confirmation") confirmation: String?): Response {
-        when {
-            email == null || email.isEmpty() -> return badRequest("email is empty")
-            signature == null || signature.isEmpty() -> return badRequest("signature is empty")
-            password == null || password.isEmpty() -> return badRequest("password is empty")
-            confirmation == null || confirmation.isEmpty() -> return badRequest("confirmation is empty")
-            !password.isValidPassword() -> return badRequest("password is invalid")
-            password != confirmation -> return badRequest("password and confirmation do not match")
-        }
-
-        val req = ResetPasswordRequest(
-                email = email!!,
-                signature = signature!!,
-                password = password!!,
-                confirmation = confirmation!!
-        )
-        when (val res = authService.resetPassword(req)) {
-            is ResetPasswordResult.Error -> {
-                if (res.internal) {
-                    logger.errorf(res.cause, "initiate_password_reset_error: %s", res.message)
-                }
-                return internal("could not reset password")
-            }
-        }
-
-        return ok()
-    }
+    @Produces(TEXT_HTML)
+    fun resetPassword(): String = buildResetPasswordForm()
 }

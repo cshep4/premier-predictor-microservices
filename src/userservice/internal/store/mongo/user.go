@@ -1,10 +1,12 @@
-package user
+package mongo
 
 import (
 	"errors"
-	"github.com/cshep4/premier-predictor-microservices/src/userservice/internal/model"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"time"
+
+	"github.com/cshep4/premier-predictor-microservices/src/userservice/internal/model"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type userEntity struct {
@@ -34,7 +36,7 @@ func fromUser(user model.User) (*userEntity, error) {
 		Email:           user.Email,
 		Password:        user.Password,
 		PredictedWinner: user.PredictedWinner,
-		Signature: 		 user.Signature,
+		Signature:       user.Signature,
 		Score:           user.Score,
 		Joined:          user.Joined,
 		Admin:           user.Admin,
@@ -50,7 +52,7 @@ func toUser(user userEntity) *model.User {
 		Email:           user.Email,
 		Password:        user.Password,
 		PredictedWinner: user.PredictedWinner,
-		Signature: 		 user.Signature,
+		Signature:       user.Signature,
 		Score:           user.Score,
 		Joined:          user.Joined,
 		Admin:           user.Admin,

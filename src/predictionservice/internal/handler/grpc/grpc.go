@@ -20,7 +20,7 @@ type server struct {
 
 func New(service handler.Servicer) (*server, error) {
 	if service == nil {
-		return nil, errors.New("service_is_nil")
+		return nil, errors.New("service is nil")
 	}
 
 	return &server{
@@ -36,7 +36,7 @@ func (s *server) GetPrediction(ctx context.Context, req *gen.PredictionRequest) 
 	prediction, err := s.service.GetPrediction(ctx, req.UserId, req.MatchId)
 	if err != nil {
 		if errors.Is(err, model.ErrPredictionNotFound) {
-			return nil, status.Error(codes.NotFound, model.ErrPredictionNotFound.Error())
+			return nil, status.Error(codes.NotFound, "prediction not found")
 		}
 		log.Error(ctx, "error_getting_prediction", log.ErrorParam(err))
 		return nil, err

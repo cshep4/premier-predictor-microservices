@@ -76,11 +76,6 @@ func start(ctx context.Context) error {
 	defer predictionConn.Close()
 	predictionClient := gen.NewPredictionServiceClient(predictionConn)
 
-	authenticator, err := auth.New(authClient)
-	if err != nil {
-		return fmt.Errorf("create_authenticator: %w", err)
-	}
-
 	predictor, err := prediction.New(predictionClient)
 	if err != nil {
 		return fmt.Errorf("create_predictor: %w", err)
@@ -110,6 +105,11 @@ func start(ctx context.Context) error {
 	rpc, err := grpchandler.New(service, time.Minute)
 	if err != nil {
 		return fmt.Errorf("create_grpc_handler: %w", err)
+	}
+
+	authenticator, err := auth.New(authClient, "livematch", h)
+	if err != nil {
+		return fmt.Errorf("create_authenticator: %w", err)
 	}
 
 	tracer := tracer.New()
