@@ -5,6 +5,8 @@ import com.cshep4.premierpredictor.auth.MutinyAuthServiceGrpc.AuthServiceImplBas
 import com.cshep4.premierpredictor.auth.Role.ROLE_INVALID
 import com.cshep4.premierpredictor.auth.enum.toRole
 import com.cshep4.premierpredictor.auth.result.*
+import com.cshep4.premierpredictor.auth.result.LoginResult.Companion.PASSWORD_DOES_NOT_MATCH_ERROR
+import com.cshep4.premierpredictor.auth.result.LoginResult.Companion.USER_NOT_FOUND_ERROR
 import com.cshep4.premierpredictor.auth.result.RegisterResult.Companion.EMAIL_ALREADY_EXISTS_ERROR
 import com.cshep4.premierpredictor.auth.service.AuthService
 import com.cshep4.premierpredictor.auth.util.StringUtils.isValidEmailAddress
@@ -37,10 +39,10 @@ class Server : AuthServiceImplBase() {
 
         val res = when (val res = authService.login(req.email, req.password)) {
             is LoginResult.Success -> res
+            PASSWORD_DOES_NOT_MATCH_ERROR -> throw UNAUTHENTICATED.error("password does not match")
+            USER_NOT_FOUND_ERROR -> throw UNAUTHENTICATED.error("user not found")
             is LoginResult.Error -> {
-                if (res.internal) {
-                    logger.errorf(res.cause, "login_error: %s", res.message)
-                }
+                logger.errorf(res.cause, "login_error: %s", res.message)
                 throw UNAUTHENTICATED.error(res.message, res.cause)
             }
         }
@@ -98,9 +100,7 @@ class Server : AuthServiceImplBase() {
 
         when (val res = authService.validate(req.token, req.audience, req.role.toRole())) {
             is ValidateTokenResult.Error -> {
-//                if (res.internal) {
-                    logger.errorf(res.cause, "validate_error: %s", res.message)
-//                }
+                logger.errorf(res.cause, "validate_error: %s", res.message)
                 throw UNAUTHENTICATED.error(res.message, res.cause)
             }
         }
@@ -123,10 +123,9 @@ class Server : AuthServiceImplBase() {
         }
 
         when (val res = authService.initiatePasswordReset(req.email)) {
+            InitiatePasswordResetResult.USER_NOT_FOUND_ERROR -> throw INVALID_ARGUMENT.error("user not found")
             is InitiatePasswordResetResult.Error -> {
-                if (res.internal) {
-                    logger.errorf(res.cause, "initiate_password_reset_error: %s", res.message)
-                }
+                logger.errorf(res.cause, "initiate_password_reset_error: %s", res.message)
                 throw INTERNAL.error(res.message, res.cause)
             }
         }
@@ -151,10 +150,10 @@ class Server : AuthServiceImplBase() {
         )
 
         when (val res = authService.resetPassword(rr)) {
+            ResetPasswordResult.SIGNATURE_DOES_NOT_MATCH_ERROR -> throw INVALID_ARGUMENT.error("signature does not match")
+            ResetPasswordResult.USER_NOT_FOUND_ERROR -> throw INVALID_ARGUMENT.error("user not found")
             is ResetPasswordResult.Error -> {
-                if (res.internal) {
-                    logger.errorf(res.cause, "reset_password_error: %s", res.message)
-                }
+                logger.errorf(res.cause, "reset_password_error: %s", res.message)
                 throw INTERNAL.error(res.message, res.cause)
             }
         }

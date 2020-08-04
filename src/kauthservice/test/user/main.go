@@ -4,9 +4,8 @@ import (
 	"context"
 	"net"
 
-	"github.com/dgrijalva/jwt-go"
 	gen "github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen"
-	"github.com/golang/protobuf/ptypes/empty"
+	"github.com/dgrijalva/jwt-go"
 	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -25,27 +24,27 @@ const (
 	jwtSecret = "some-jwt-secret"
 )
 
-func (s server) GetAllUsers(context.Context, *empty.Empty) (*gen.UserResponse, error) {
+func (s server) GetAllUsers(context.Context, *gen.GetAllUsersRequest) (*gen.GetAllUsersResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetAllUsers not implemented")
 }
 
-func (s server) GetAllUsersByIds(context.Context, *gen.GroupIdRequest) (*gen.UserResponse, error) {
+func (s server) GetUsersByIds(context.Context, *gen.GetUsersByIdsRequest) (*gen.GetUsersByIdsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetAllUsersByIds not implemented")
 }
 
-func (s server) GetOverallRank(context.Context, *gen.IdRequest) (*gen.RankResponse, error) {
+func (s server) GetOverallRank(context.Context, *gen.GetOverallRankRequest) (*gen.GetOverallRankResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetOverallRank not implemented")
 }
 
-func (s server) GetRankForGroup(context.Context, *gen.GroupRankRequest) (*gen.RankResponse, error) {
+func (s server) GetRankForGroup(context.Context, *gen.GetRankForGroupRequest) (*gen.GetRankForGroupResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetRankForGroup not implemented")
 }
 
-func (s server) GetUserCount(context.Context, *empty.Empty) (*gen.CountResponse, error) {
+func (s server) GetUserCount(context.Context, *gen.GetUserCountRequest) (*gen.GetUserCountResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetUserCount not implemented")
 }
 
-func (s server) GetUserByEmail(_ context.Context, req *gen.EmailRequest) (*gen.User, error) {
+func (s server) GetUserByEmail(_ context.Context, req *gen.GetUserByEmailRequest) (*gen.GetUserByEmailResponse, error) {
 	switch req.Email {
 	case "notfound@test.com", "failcreate@test.com":
 		return nil, status.Error(codes.NotFound, "user not found")
@@ -64,13 +63,15 @@ func (s server) GetUserByEmail(_ context.Context, req *gen.EmailRequest) (*gen.U
 		return nil, status.Error(codes.Internal, "error generating signature")
 	}
 
-	return &gen.User{
-		Id:        getUserId(req.Email),
-		FirstName: "first name",
-		Surname:   "last name",
-		Email:     req.Email,
-		Password:  string(password),
-		Signature: signature,
+	return &gen.GetUserByEmailResponse{
+		User: &gen.User{
+			Id:        getUserId(req.Email),
+			FirstName: "first name",
+			Surname:   "last name",
+			Email:     req.Email,
+			Password:  string(password),
+			Signature: signature,
+		},
 	}, nil
 }
 

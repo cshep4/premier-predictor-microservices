@@ -11,5 +11,6 @@ data class SendEmailRequest(
         val recipientEmail: String,
         val subject: String,
         val content: String,
+        val htmlContent: String,
         val idempotencyKey: String = UUID.randomUUID().toString()
 )

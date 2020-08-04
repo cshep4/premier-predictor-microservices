@@ -1,13 +1,9 @@
 package com.cshep4.premierpredictor.auth.user
 
 import com.cshep4.premierpredictor.auth.enum.Role.SERVICE
+import com.cshep4.premierpredictor.auth.exception.UserNotFoundException
 import com.cshep4.premierpredictor.auth.model.CreateUserRequest
 import com.cshep4.premierpredictor.auth.model.User
-import com.cshep4.premierpredictor.auth.result.CreateUserResult
-import com.cshep4.premierpredictor.auth.result.GetByEmailResult
-import com.cshep4.premierpredictor.auth.result.GetByEmailResult.Companion.USER_NOT_FOUND_ERROR
-import com.cshep4.premierpredictor.auth.result.UpdatePasswordResult
-import com.cshep4.premierpredictor.auth.result.UpdateSignatureResult
 import com.cshep4.premierpredictor.auth.token.Tokenizer
 import com.cshep4.premierpredictor.auth.util.GrpcUtils.withMetadata
 import com.cshep4.premierpredictor.user.CreateRequest
@@ -40,34 +36,28 @@ class UserService {
     @field: Default
     lateinit var tokenizer: Tokenizer
 
-    fun getByEmail(email: String): GetByEmailResult {
+    fun getByEmail(email: String): User {
         return try {
             val req = GetUserByEmailRequest.newBuilder()
                     .setEmail(email)
                     .build()
 
-            GetByEmailResult.Success(
-                    user = client.withAuth()
-                            .getUserByEmail(req)
-                            .await()
-                            .atMost(ofSeconds(1))
-                            .user
-                            .toUser()
-            )
+            client.withAuth()
+                    .getUserByEmail(req)
+                    .await()
+                    .atMost(ofSeconds(1))
+                    .user
+                    .toUser()
         } catch (e: Exception) {
             if (e is StatusRuntimeException && e.status.code == NOT_FOUND) {
-                return USER_NOT_FOUND_ERROR
+                throw UserNotFoundException()
             }
 
-            GetByEmailResult.Error(
-                    message = "could not get user by email",
-                    cause = e,
-                    internal = true
-            )
+            throw e
         }
     }
 
-    fun updatePassword(id: String, password: String): UpdatePasswordResult = try {
+    fun updatePassword(id: String, password: String) {
         val req = UpdatePasswordRequest.newBuilder()
                 .setId(id)
                 .setPassword(password)
@@ -77,17 +67,9 @@ class UserService {
                 .updatePassword(req)
                 .await()
                 .atMost(ofSeconds(1))
-
-        UpdatePasswordResult.Success
-    } catch (e: StatusRuntimeException) {
-        UpdatePasswordResult.Error(
-                message = "could not update password",
-                cause = e,
-                internal = true
-        )
     }
 
-    fun updateSignature(id: String, signature: String): UpdateSignatureResult = try {
+    fun updateSignature(id: String, signature: String) {
         val req = UpdateSignatureRequest.newBuilder()
                 .setId(id)
                 .setSignature(signature)
@@ -97,17 +79,9 @@ class UserService {
                 .updateSignature(req)
                 .await()
                 .atMost(ofSeconds(1))
-
-        UpdateSignatureResult.Success
-    } catch (e: StatusRuntimeException) {
-        UpdateSignatureResult.Error(
-                message = "could not update signature",
-                cause = e,
-                internal = true
-        )
     }
 
-    fun create(registerReq: CreateUserRequest): CreateUserResult = try {
+    fun create(registerReq: CreateUserRequest): String {
         val req = CreateRequest.newBuilder()
                 .setFirstName(registerReq.firstName)
                 .setSurname(registerReq.surname)
@@ -116,20 +90,11 @@ class UserService {
                 .setPredictedWinner(registerReq.predictedWinner)
                 .build()
 
-        val res = client.withAuth()
+        return client.withAuth()
                 .create(req)
                 .await()
                 .atMost(ofSeconds(1))
-
-        CreateUserResult.Success(
-                id = res.id
-        )
-    } catch (e: StatusRuntimeException) {
-        CreateUserResult.Error(
-                message = "could not create user",
-                cause = e,
-                internal = true
-        )
+                .id
     }
 
 
@@ -148,12 +113,6 @@ class UserService {
 
     fun <T : AbstractStub<T>> T.withAuth(): T {
         return this.withMetadata(
-                key = "user-agent",
-                value = "authservice"
-        ).withMetadata(
-                key = "user-agents",
-                value = "authservice"
-        ).withMetadata(
                 key = AUTH_KEY,
                 value = tokenizer.generateToken(SERVICE_NAME, SERVICE)
         )

@@ -76,7 +76,7 @@ func TestGRPC_Login(t *testing.T) {
 		require.True(t, ok)
 
 		assert.Equal(t, codes.Unauthenticated, st.Code())
-		assert.Equal(t, "could not get user by email", st.Message())
+		assert.Equal(t, "could not login", st.Message())
 	})
 
 	t.Run("will return error if user not found", func(t *testing.T) {
@@ -413,7 +413,7 @@ func TestGRPC_Register(t *testing.T) {
 		require.True(t, ok)
 
 		assert.Equal(t, codes.Internal, st.Code())
-		assert.Equal(t, "could not get user by email", st.Message())
+		assert.Equal(t, "could not get user", st.Message())
 	})
 
 	t.Run("will return error if error creating user", func(t *testing.T) {
@@ -439,7 +439,7 @@ func TestGRPC_Register(t *testing.T) {
 		require.True(t, ok)
 
 		assert.Equal(t, codes.Internal, st.Code())
-		assert.Equal(t, "could not create user", st.Message())
+		assert.Equal(t, "could not register", st.Message())
 	})
 
 	t.Run("will return user's ID and token if user created successfully", func(t *testing.T) {
@@ -534,7 +534,7 @@ func TestGRPC_Validate(t *testing.T) {
 		require.True(t, ok)
 
 		assert.Equal(t, codes.Unauthenticated, st.Code())
-		assert.Equal(t, "failed to verify token", st.Message())
+		assert.Equal(t, "could not verify token", st.Message())
 	})
 
 	t.Run("will return authenticated if token signed with different secret", func(t *testing.T) {
@@ -560,7 +560,7 @@ func TestGRPC_Validate(t *testing.T) {
 		require.True(t, ok)
 
 		assert.Equal(t, codes.Unauthenticated, st.Code())
-		assert.Equal(t, "failed to verify token", st.Message())
+		assert.Equal(t, "could not verify token", st.Message())
 	})
 
 	t.Run("will return unauthenticated if expired", func(t *testing.T) {
@@ -589,7 +589,7 @@ func TestGRPC_Validate(t *testing.T) {
 		require.True(t, ok)
 
 		assert.Equal(t, codes.Unauthenticated, st.Code())
-		assert.Equal(t, "failed to verify token", st.Message())
+		assert.Equal(t, "could not verify token", st.Message())
 	})
 
 	t.Run("will return unauthenticated if audience is incorrect", func(t *testing.T) {
@@ -620,7 +620,7 @@ func TestGRPC_Validate(t *testing.T) {
 		require.True(t, ok)
 
 		assert.Equal(t, codes.Unauthenticated, st.Code())
-		assert.Equal(t, "failed to verify token", st.Message())
+		assert.Equal(t, "could not verify token", st.Message())
 	})
 
 	t.Run("will return unauthenticated if role does not match", func(t *testing.T) {
@@ -657,7 +657,7 @@ func TestGRPC_Validate(t *testing.T) {
 		require.True(t, ok)
 
 		assert.Equal(t, codes.Unauthenticated, st.Code())
-		assert.Equal(t, "failed to verify token", st.Message())
+		assert.Equal(t, "could not verify token", st.Message())
 	})
 
 	t.Run("will validate service token", func(t *testing.T) {
@@ -892,7 +892,7 @@ func TestGRPC_InitiatePasswordReset(t *testing.T) {
 		st, ok := status.FromError(err)
 		require.True(t, ok)
 
-		assert.Equal(t, codes.Internal, st.Code())
+		assert.Equal(t, codes.InvalidArgument, st.Code())
 		assert.Equal(t, "user not found", st.Message())
 	})
 
@@ -914,7 +914,7 @@ func TestGRPC_InitiatePasswordReset(t *testing.T) {
 		require.True(t, ok)
 
 		assert.Equal(t, codes.Internal, st.Code())
-		assert.Equal(t, "could not update signature", st.Message())
+		assert.Equal(t, "could not initiate password reset", st.Message())
 	})
 
 	t.Run("will return error if error sending email", func(t *testing.T) {
@@ -935,7 +935,7 @@ func TestGRPC_InitiatePasswordReset(t *testing.T) {
 		require.True(t, ok)
 
 		assert.Equal(t, codes.Internal, st.Code())
-		assert.Equal(t, "could not send email", st.Message())
+		assert.Equal(t, "could not initiate password reset", st.Message())
 	})
 
 	t.Run("will update user's signature and send password reset email", func(t *testing.T) {
@@ -1113,7 +1113,7 @@ func TestGRPC_ResetPassword(t *testing.T) {
 		require.True(t, ok)
 
 		assert.Equal(t, codes.Internal, st.Code())
-		assert.Equal(t, "invalid signature", st.Message())
+		assert.Equal(t, "could not reset password", st.Message())
 	})
 
 	t.Run("will return error if error getting user", func(t *testing.T) {
@@ -1141,7 +1141,7 @@ func TestGRPC_ResetPassword(t *testing.T) {
 		require.True(t, ok)
 
 		assert.Equal(t, codes.Internal, st.Code())
-		assert.Equal(t, "could not get user by email", st.Message())
+		assert.Equal(t, "could not reset password", st.Message())
 	})
 
 	t.Run("will return error if signature does not match", func(t *testing.T) {
@@ -1170,7 +1170,7 @@ func TestGRPC_ResetPassword(t *testing.T) {
 		st, ok := status.FromError(err)
 		require.True(t, ok)
 
-		assert.Equal(t, codes.Internal, st.Code())
+		assert.Equal(t, codes.InvalidArgument, st.Code())
 		assert.Equal(t, "signature does not match", st.Message())
 	})
 
@@ -1199,7 +1199,7 @@ func TestGRPC_ResetPassword(t *testing.T) {
 		require.True(t, ok)
 
 		assert.Equal(t, codes.Internal, st.Code())
-		assert.Equal(t, "could not update password", st.Message())
+		assert.Equal(t, "could not reset password", st.Message())
 	})
 
 	t.Run("will successfully update user's password", func(t *testing.T) {

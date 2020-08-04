@@ -1,12 +1,16 @@
 package com.cshep4.premierpredictor.auth.transport.http
 
 import com.cshep4.premierpredictor.auth.html.ResetPassword.buildResetPasswordForm
+import com.cshep4.premierpredictor.auth.html.ResetPasswordFailed.buildResetPasswordFailedForm
+import com.cshep4.premierpredictor.auth.html.ResetPasswordSuccess.buildResetPasswordSuccessForm
 import com.cshep4.premierpredictor.auth.model.InitiatePasswordResetRequest
 import com.cshep4.premierpredictor.auth.model.LoginRequest
 import com.cshep4.premierpredictor.auth.model.RegisterRequest
 import com.cshep4.premierpredictor.auth.model.ResetPasswordForm
 import com.cshep4.premierpredictor.auth.result.InitiatePasswordResetResult
 import com.cshep4.premierpredictor.auth.result.LoginResult
+import com.cshep4.premierpredictor.auth.result.LoginResult.Companion.PASSWORD_DOES_NOT_MATCH_ERROR
+import com.cshep4.premierpredictor.auth.result.LoginResult.Companion.USER_NOT_FOUND_ERROR
 import com.cshep4.premierpredictor.auth.result.RegisterResult
 import com.cshep4.premierpredictor.auth.result.RegisterResult.Companion.EMAIL_ALREADY_EXISTS_ERROR
 import com.cshep4.premierpredictor.auth.result.ResetPasswordResult
@@ -46,11 +50,10 @@ class Handler {
 
         return when (val res = authService.login(req.email, req.password)) {
             is LoginResult.Success -> ok(res)
+            PASSWORD_DOES_NOT_MATCH_ERROR -> return unauthorized("password does not match")
+            USER_NOT_FOUND_ERROR -> return unauthorized("user not found")
             is LoginResult.Error -> {
-                if (res.internal) {
-                    logger.errorf(res.cause, "login_error: %s", res.message)
-                }
-
+                logger.errorf(res.cause, "login_error: %s", res.message)
                 unauthorized("could not login")
             }
         }
@@ -75,10 +78,7 @@ class Handler {
             is RegisterResult.Success -> ok(res)
             EMAIL_ALREADY_EXISTS_ERROR -> conflict(EMAIL_ALREADY_EXISTS_ERROR.message)
             is RegisterResult.Error -> {
-                if (res.internal) {
-                    logger.errorf(res.cause, "register_error: %s", res.message)
-                }
-
+                logger.errorf(res.cause, "register_error: %s", res.message)
                 internal("could not register")
             }
         }
@@ -93,10 +93,9 @@ class Handler {
         }
 
         when (val res = authService.initiatePasswordReset(req.email)) {
+            InitiatePasswordResetResult.USER_NOT_FOUND_ERROR -> return badRequest("user not found")
             is InitiatePasswordResetResult.Error -> {
-                if (res.internal) {
-                    logger.errorf(res.cause, "initiate_password_reset_error: %s", res.message)
-                }
+                logger.errorf(res.cause, "initiate_password_reset_error: %s", res.message)
                 return internal("could not initiate password reset")
             }
         }
@@ -107,26 +106,25 @@ class Handler {
     @POST
     @Path("/reset-password")
     @Consumes(MULTIPART_FORM_DATA)
-    fun resetPassword(@MultipartForm req: ResetPasswordForm): Response {
+    @Produces(TEXT_HTML)
+    fun resetPassword(@MultipartForm req: ResetPasswordForm): String {
         when {
-            req.email.isEmpty() -> return badRequest("email is empty")
-            req.signature.isEmpty() -> return badRequest("signature is empty")
-            req.password.isEmpty() -> return badRequest("password is empty")
-            req.confirmation.isEmpty() -> return badRequest("confirmation is empty")
-            !req.password.isValidPassword() -> return badRequest("password is invalid")
-            req.password != req.confirmation -> return badRequest("password and confirmation do not match")
+            req.email.isEmpty() -> return buildResetPasswordFailedForm()
+            req.signature.isEmpty() -> return buildResetPasswordFailedForm()
+            req.password.isEmpty() -> return buildResetPasswordFailedForm("password cannot be blank")
+            req.confirmation.isEmpty() -> return buildResetPasswordFailedForm("confirmation cannot be blank")
+            !req.password.isValidPassword() -> return buildResetPasswordFailedForm("password is invalid")
+            req.password != req.confirmation -> return buildResetPasswordFailedForm("password and confirmation do not match")
         }
 
         when (val res = authService.resetPassword(req.toResetPasswordRequest())) {
             is ResetPasswordResult.Error -> {
-                if (res.internal) {
-                    logger.errorf(res.cause, "reset_password_error: %s", res.message)
-                }
-                return internal("could not reset password")
+                logger.errorf(res.cause, "reset_password_error: %s", res.message)
+                return buildResetPasswordFailedForm()
             }
         }
 
-        return ok()
+        return buildResetPasswordSuccessForm()
     }
 
     @GET

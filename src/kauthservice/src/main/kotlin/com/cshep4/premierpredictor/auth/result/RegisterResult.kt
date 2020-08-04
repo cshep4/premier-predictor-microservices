@@ -6,5 +6,5 @@ sealed class RegisterResult {
     }
 
     data class Success(val id: String, val token: String) : RegisterResult()
-    data class Error(val message: String, val cause: Exception? = null, val internal: Boolean = false) : RegisterResult()
+    data class Error(val message: String, val cause: Exception? = null) : RegisterResult()
 }

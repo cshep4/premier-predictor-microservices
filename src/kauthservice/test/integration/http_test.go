@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
-	"net/url"
 	"testing"
 	"time"
 
@@ -133,7 +132,7 @@ func TestHTTP_POST_Login(t *testing.T) {
 		err = json.Unmarshal(buf, &res)
 		require.NoError(t, err)
 
-		assert.Equal(t, "could not login", res.Message)
+		assert.Equal(t, "user not found", res.Message)
 	})
 
 	t.Run("will return error if password does not match", func(t *testing.T) {
@@ -162,7 +161,7 @@ func TestHTTP_POST_Login(t *testing.T) {
 		err = json.Unmarshal(buf, &res)
 		require.NoError(t, err)
 
-		assert.Equal(t, "could not login", res.Message)
+		assert.Equal(t, "password does not match", res.Message)
 	})
 
 	t.Run("will return user's ID and token if the credentials are correct", func(t *testing.T) {
@@ -726,7 +725,7 @@ func TestHTTP_POST_InitiatePasswordReset(t *testing.T) {
 		resp, err := client.Do(req)
 		require.NoError(t, err)
 
-		assert.Equal(t, http.StatusInternalServerError, resp.StatusCode)
+		assert.Equal(t, http.StatusBadRequest, resp.StatusCode)
 
 		defer resp.Body.Close()
 		buf, err := ioutil.ReadAll(resp.Body)
@@ -736,7 +735,7 @@ func TestHTTP_POST_InitiatePasswordReset(t *testing.T) {
 		err = json.Unmarshal(buf, &res)
 		require.NoError(t, err)
 
-		assert.Equal(t, "could not initiate password reset", res.Message)
+		assert.Equal(t, "user not found", res.Message)
 	})
 
 	t.Run("will return error if error updating signature user", func(t *testing.T) {
@@ -1171,363 +1170,363 @@ func TestHTTP_POST_ResetPassword(t *testing.T) {
 }
 
 func TestHTTP_GET_ResetPassword(t *testing.T) {
-	t.Run("will return error if email is empty", func(t *testing.T) {
-		req, err := http.NewRequest(http.MethodGet, buildUrl("reset-password"), nil)
-		require.NoError(t, err)
-
-		req.Header.Add("Content-Type", "application/json")
-
-		client := &http.Client{}
-		resp, err := client.Do(req)
-		require.NoError(t, err)
-
-		assert.Equal(t, http.StatusBadRequest, resp.StatusCode)
-
-		defer resp.Body.Close()
-		buf, err := ioutil.ReadAll(resp.Body)
-		require.NoError(t, err)
-
-		var res errorResponse
-		err = json.Unmarshal(buf, &res)
-		require.NoError(t, err)
-
-		assert.Equal(t, "email is empty", res.Message)
-	})
-
-	t.Run("will return error if signature is empty", func(t *testing.T) {
-		u, err := url.Parse(buildUrl("reset-password"))
-		require.NoError(t, err)
-
-		q := u.Query()
-		q.Add("email", validEmail)
-		u.RawQuery = q.Encode()
-
-		req, err := http.NewRequest(http.MethodGet, u.String(), nil)
-		require.NoError(t, err)
-
-		req.Header.Add("Content-Type", "application/json")
-
-		client := &http.Client{}
-		resp, err := client.Do(req)
-		require.NoError(t, err)
-
-		assert.Equal(t, http.StatusBadRequest, resp.StatusCode)
-
-		defer resp.Body.Close()
-		buf, err := ioutil.ReadAll(resp.Body)
-		require.NoError(t, err)
-
-		var res errorResponse
-		err = json.Unmarshal(buf, &res)
-		require.NoError(t, err)
-
-		assert.Equal(t, "signature is empty", res.Message)
-	})
-
-	t.Run("will return error if password is empty", func(t *testing.T) {
-		u, err := url.Parse(buildUrl("reset-password"))
-		require.NoError(t, err)
-
-		q := u.Query()
-		q.Add("email", validEmail)
-		q.Add("signature", "signature")
-		u.RawQuery = q.Encode()
-
-		req, err := http.NewRequest(http.MethodGet, u.String(), nil)
-		require.NoError(t, err)
-
-		req.Header.Add("Content-Type", "application/json")
-
-		client := &http.Client{}
-		resp, err := client.Do(req)
-		require.NoError(t, err)
-
-		assert.Equal(t, http.StatusBadRequest, resp.StatusCode)
-
-		defer resp.Body.Close()
-		buf, err := ioutil.ReadAll(resp.Body)
-		require.NoError(t, err)
-
-		var res errorResponse
-		err = json.Unmarshal(buf, &res)
-		require.NoError(t, err)
-
-		assert.Equal(t, "password is empty", res.Message)
-	})
-
-	t.Run("will return error if confirmation is empty", func(t *testing.T) {
-		u, err := url.Parse(buildUrl("reset-password"))
-		require.NoError(t, err)
-
-		q := u.Query()
-		q.Add("email", validEmail)
-		q.Add("signature", "signature")
-		q.Add("password", "password")
-		u.RawQuery = q.Encode()
-
-		req, err := http.NewRequest(http.MethodGet, u.String(), nil)
-		require.NoError(t, err)
-
-		req.Header.Add("Content-Type", "application/json")
-
-		client := &http.Client{}
-		resp, err := client.Do(req)
-		require.NoError(t, err)
-
-		assert.Equal(t, http.StatusBadRequest, resp.StatusCode)
-
-		defer resp.Body.Close()
-		buf, err := ioutil.ReadAll(resp.Body)
-		require.NoError(t, err)
-
-		var res errorResponse
-		err = json.Unmarshal(buf, &res)
-		require.NoError(t, err)
-
-		assert.Equal(t, "confirmation is empty", res.Message)
-	})
-
-	t.Run("will return error if password is invalid", func(t *testing.T) {
-		u, err := url.Parse(buildUrl("reset-password"))
-		require.NoError(t, err)
-
-		q := u.Query()
-		q.Add("email", validEmail)
-		q.Add("signature", "signature")
-		q.Add("password", "password")
-		q.Add("confirmation", "confirmation")
-		u.RawQuery = q.Encode()
-
-		req, err := http.NewRequest(http.MethodGet, u.String(), nil)
-		require.NoError(t, err)
-
-		req.Header.Add("Content-Type", "application/json")
-
-		client := &http.Client{}
-		resp, err := client.Do(req)
-		require.NoError(t, err)
-
-		assert.Equal(t, http.StatusBadRequest, resp.StatusCode)
-
-		defer resp.Body.Close()
-		buf, err := ioutil.ReadAll(resp.Body)
-		require.NoError(t, err)
-
-		var res errorResponse
-		err = json.Unmarshal(buf, &res)
-		require.NoError(t, err)
-
-		assert.Equal(t, "password is invalid", res.Message)
-	})
-
-	t.Run("will return error if password and confirmation does not match", func(t *testing.T) {
-		u, err := url.Parse(buildUrl("reset-password"))
-		require.NoError(t, err)
-
-		q := u.Query()
-		q.Add("email", validEmail)
-		q.Add("signature", "signature")
-		q.Add("password", password)
-		q.Add("confirmation", "confirmation")
-		u.RawQuery = q.Encode()
-
-		req, err := http.NewRequest(http.MethodGet, u.String(), nil)
-		require.NoError(t, err)
-
-		req.Header.Add("Content-Type", "application/json")
-
-		client := &http.Client{}
-		resp, err := client.Do(req)
-		require.NoError(t, err)
-
-		assert.Equal(t, http.StatusBadRequest, resp.StatusCode)
-
-		defer resp.Body.Close()
-		buf, err := ioutil.ReadAll(resp.Body)
-		require.NoError(t, err)
-
-		var res errorResponse
-		err = json.Unmarshal(buf, &res)
-		require.NoError(t, err)
-
-		assert.Equal(t, "password and confirmation do not match", res.Message)
-	})
-
-	t.Run("will return error if signature not valid", func(t *testing.T) {
-		signature, err := jwt.NewWithClaims(jwt.SigningMethodHS512, &jwt.StandardClaims{}).
-			SignedString([]byte("different secret"))
-		require.NoError(t, err)
-
-		u, err := url.Parse(buildUrl("reset-password"))
-		require.NoError(t, err)
-
-		q := u.Query()
-		q.Add("email", validEmail)
-		q.Add("signature", signature)
-		q.Add("password", password)
-		q.Add("confirmation", password)
-		u.RawQuery = q.Encode()
-
-		req, err := http.NewRequest(http.MethodGet, u.String(), nil)
-		require.NoError(t, err)
-
-		req.Header.Add("Content-Type", "application/json")
-
-		client := &http.Client{}
-		resp, err := client.Do(req)
-		require.NoError(t, err)
-
-		assert.Equal(t, http.StatusInternalServerError, resp.StatusCode)
-
-		defer resp.Body.Close()
-		buf, err := ioutil.ReadAll(resp.Body)
-		require.NoError(t, err)
-
-		var res errorResponse
-		err = json.Unmarshal(buf, &res)
-		require.NoError(t, err)
-
-		assert.Equal(t, "could not reset password", res.Message)
-	})
-
-	t.Run("will return error if error getting user", func(t *testing.T) {
-		signature, err := jwt.NewWithClaims(jwt.SigningMethodHS512, &jwt.StandardClaims{}).
-			SignedString([]byte(jwtSecret))
-		require.NoError(t, err)
-
-		u, err := url.Parse(buildUrl("reset-password"))
-		require.NoError(t, err)
-
-		q := u.Query()
-		q.Add("email", getUserErrorEmail)
-		q.Add("signature", signature)
-		q.Add("password", password)
-		q.Add("confirmation", password)
-		u.RawQuery = q.Encode()
-
-		req, err := http.NewRequest(http.MethodGet, u.String(), nil)
-		require.NoError(t, err)
-
-		req.Header.Add("Content-Type", "application/json")
-
-		client := &http.Client{}
-		resp, err := client.Do(req)
-		require.NoError(t, err)
-
-		assert.Equal(t, http.StatusInternalServerError, resp.StatusCode)
-
-		defer resp.Body.Close()
-		buf, err := ioutil.ReadAll(resp.Body)
-		require.NoError(t, err)
-
-		var res errorResponse
-		err = json.Unmarshal(buf, &res)
-		require.NoError(t, err)
-
-		assert.Equal(t, "could not reset password", res.Message)
-	})
-
-	t.Run("will return error if signature does not match", func(t *testing.T) {
-		claims := &jwt.StandardClaims{
-			Audience: "will create different signature",
-		}
-		signature, err := jwt.NewWithClaims(jwt.SigningMethodHS512, claims).
-			SignedString([]byte(jwtSecret))
-		require.NoError(t, err)
-
-		u, err := url.Parse(buildUrl("reset-password"))
-		require.NoError(t, err)
-
-		q := u.Query()
-		q.Add("email", validEmail)
-		q.Add("signature", signature)
-		q.Add("password", password)
-		q.Add("confirmation", password)
-		u.RawQuery = q.Encode()
-
-		req, err := http.NewRequest(http.MethodGet, u.String(), nil)
-		require.NoError(t, err)
-
-		req.Header.Add("Content-Type", "application/json")
-
-		client := &http.Client{}
-		resp, err := client.Do(req)
-		require.NoError(t, err)
-
-		assert.Equal(t, http.StatusInternalServerError, resp.StatusCode)
-
-		defer resp.Body.Close()
-		buf, err := ioutil.ReadAll(resp.Body)
-		require.NoError(t, err)
-
-		var res errorResponse
-		err = json.Unmarshal(buf, &res)
-		require.NoError(t, err)
-
-		assert.Equal(t, "could not reset password", res.Message)
-	})
-
-	t.Run("will return error if error updating password", func(t *testing.T) {
-		signature, err := jwt.NewWithClaims(jwt.SigningMethodHS512, &jwt.StandardClaims{}).
-			SignedString([]byte(jwtSecret))
-		require.NoError(t, err)
-
-		u, err := url.Parse(buildUrl("reset-password"))
-		require.NoError(t, err)
-
-		q := u.Query()
-		q.Add("email", failUpdatePasswordErrorEmail)
-		q.Add("signature", signature)
-		q.Add("password", password)
-		q.Add("confirmation", password)
-		u.RawQuery = q.Encode()
-
-		req, err := http.NewRequest(http.MethodGet, u.String(), nil)
-		require.NoError(t, err)
-
-		req.Header.Add("Content-Type", "application/json")
-
-		client := &http.Client{}
-		resp, err := client.Do(req)
-		require.NoError(t, err)
-
-		assert.Equal(t, http.StatusInternalServerError, resp.StatusCode)
-
-		defer resp.Body.Close()
-		buf, err := ioutil.ReadAll(resp.Body)
-		require.NoError(t, err)
-
-		var res errorResponse
-		err = json.Unmarshal(buf, &res)
-		require.NoError(t, err)
-
-		assert.Equal(t, "could not reset password", res.Message)
-	})
-
-	t.Run("will successfully update user's password", func(t *testing.T) {
-		signature, err := jwt.NewWithClaims(jwt.SigningMethodHS512, &jwt.StandardClaims{}).
-			SignedString([]byte(jwtSecret))
-		require.NoError(t, err)
-
-		u, err := url.Parse(buildUrl("reset-password"))
-		require.NoError(t, err)
-
-		q := u.Query()
-		q.Add("email", validEmail)
-		q.Add("signature", signature)
-		q.Add("password", password)
-		q.Add("confirmation", password)
-		u.RawQuery = q.Encode()
-
-		req, err := http.NewRequest(http.MethodGet, u.String(), nil)
-		require.NoError(t, err)
-
-		req.Header.Add("Content-Type", "application/json")
-
-		client := &http.Client{}
-		resp, err := client.Do(req)
-		require.NoError(t, err)
-
-		assert.Equal(t, http.StatusOK, resp.StatusCode)
-	})
+	//t.Run("will return error if email is empty", func(t *testing.T) {
+	//	req, err := http.NewRequest(http.MethodGet, buildUrl("reset-password"), nil)
+	//	require.NoError(t, err)
+	//
+	//	req.Header.Add("Content-Type", "application/json")
+	//
+	//	client := &http.Client{}
+	//	resp, err := client.Do(req)
+	//	require.NoError(t, err)
+	//
+	//	assert.Equal(t, http.StatusBadRequest, resp.StatusCode)
+	//
+	//	defer resp.Body.Close()
+	//	buf, err := ioutil.ReadAll(resp.Body)
+	//	require.NoError(t, err)
+	//
+	//	var res errorResponse
+	//	err = json.Unmarshal(buf, &res)
+	//	require.NoError(t, err)
+	//
+	//	assert.Equal(t, "email is empty", res.Message)
+	//})
+	//
+	//t.Run("will return error if signature is empty", func(t *testing.T) {
+	//	u, err := url.Parse(buildUrl("reset-password"))
+	//	require.NoError(t, err)
+	//
+	//	q := u.Query()
+	//	q.Add("email", validEmail)
+	//	u.RawQuery = q.Encode()
+	//
+	//	req, err := http.NewRequest(http.MethodGet, u.String(), nil)
+	//	require.NoError(t, err)
+	//
+	//	req.Header.Add("Content-Type", "application/json")
+	//
+	//	client := &http.Client{}
+	//	resp, err := client.Do(req)
+	//	require.NoError(t, err)
+	//
+	//	assert.Equal(t, http.StatusBadRequest, resp.StatusCode)
+	//
+	//	defer resp.Body.Close()
+	//	buf, err := ioutil.ReadAll(resp.Body)
+	//	require.NoError(t, err)
+	//
+	//	var res errorResponse
+	//	err = json.Unmarshal(buf, &res)
+	//	require.NoError(t, err)
+	//
+	//	assert.Equal(t, "signature is empty", res.Message)
+	//})
+	//
+	//t.Run("will return error if password is empty", func(t *testing.T) {
+	//	u, err := url.Parse(buildUrl("reset-password"))
+	//	require.NoError(t, err)
+	//
+	//	q := u.Query()
+	//	q.Add("email", validEmail)
+	//	q.Add("signature", "signature")
+	//	u.RawQuery = q.Encode()
+	//
+	//	req, err := http.NewRequest(http.MethodGet, u.String(), nil)
+	//	require.NoError(t, err)
+	//
+	//	req.Header.Add("Content-Type", "application/json")
+	//
+	//	client := &http.Client{}
+	//	resp, err := client.Do(req)
+	//	require.NoError(t, err)
+	//
+	//	assert.Equal(t, http.StatusBadRequest, resp.StatusCode)
+	//
+	//	defer resp.Body.Close()
+	//	buf, err := ioutil.ReadAll(resp.Body)
+	//	require.NoError(t, err)
+	//
+	//	var res errorResponse
+	//	err = json.Unmarshal(buf, &res)
+	//	require.NoError(t, err)
+	//
+	//	assert.Equal(t, "password is empty", res.Message)
+	//})
+	//
+	//t.Run("will return error if confirmation is empty", func(t *testing.T) {
+	//	u, err := url.Parse(buildUrl("reset-password"))
+	//	require.NoError(t, err)
+	//
+	//	q := u.Query()
+	//	q.Add("email", validEmail)
+	//	q.Add("signature", "signature")
+	//	q.Add("password", "password")
+	//	u.RawQuery = q.Encode()
+	//
+	//	req, err := http.NewRequest(http.MethodGet, u.String(), nil)
+	//	require.NoError(t, err)
+	//
+	//	req.Header.Add("Content-Type", "application/json")
+	//
+	//	client := &http.Client{}
+	//	resp, err := client.Do(req)
+	//	require.NoError(t, err)
+	//
+	//	assert.Equal(t, http.StatusBadRequest, resp.StatusCode)
+	//
+	//	defer resp.Body.Close()
+	//	buf, err := ioutil.ReadAll(resp.Body)
+	//	require.NoError(t, err)
+	//
+	//	var res errorResponse
+	//	err = json.Unmarshal(buf, &res)
+	//	require.NoError(t, err)
+	//
+	//	assert.Equal(t, "confirmation is empty", res.Message)
+	//})
+	//
+	//t.Run("will return error if password is invalid", func(t *testing.T) {
+	//	u, err := url.Parse(buildUrl("reset-password"))
+	//	require.NoError(t, err)
+	//
+	//	q := u.Query()
+	//	q.Add("email", validEmail)
+	//	q.Add("signature", "signature")
+	//	q.Add("password", "password")
+	//	q.Add("confirmation", "confirmation")
+	//	u.RawQuery = q.Encode()
+	//
+	//	req, err := http.NewRequest(http.MethodGet, u.String(), nil)
+	//	require.NoError(t, err)
+	//
+	//	req.Header.Add("Content-Type", "application/json")
+	//
+	//	client := &http.Client{}
+	//	resp, err := client.Do(req)
+	//	require.NoError(t, err)
+	//
+	//	assert.Equal(t, http.StatusBadRequest, resp.StatusCode)
+	//
+	//	defer resp.Body.Close()
+	//	buf, err := ioutil.ReadAll(resp.Body)
+	//	require.NoError(t, err)
+	//
+	//	var res errorResponse
+	//	err = json.Unmarshal(buf, &res)
+	//	require.NoError(t, err)
+	//
+	//	assert.Equal(t, "password is invalid", res.Message)
+	//})
+	//
+	//t.Run("will return error if password and confirmation does not match", func(t *testing.T) {
+	//	u, err := url.Parse(buildUrl("reset-password"))
+	//	require.NoError(t, err)
+	//
+	//	q := u.Query()
+	//	q.Add("email", validEmail)
+	//	q.Add("signature", "signature")
+	//	q.Add("password", password)
+	//	q.Add("confirmation", "confirmation")
+	//	u.RawQuery = q.Encode()
+	//
+	//	req, err := http.NewRequest(http.MethodGet, u.String(), nil)
+	//	require.NoError(t, err)
+	//
+	//	req.Header.Add("Content-Type", "application/json")
+	//
+	//	client := &http.Client{}
+	//	resp, err := client.Do(req)
+	//	require.NoError(t, err)
+	//
+	//	assert.Equal(t, http.StatusBadRequest, resp.StatusCode)
+	//
+	//	defer resp.Body.Close()
+	//	buf, err := ioutil.ReadAll(resp.Body)
+	//	require.NoError(t, err)
+	//
+	//	var res errorResponse
+	//	err = json.Unmarshal(buf, &res)
+	//	require.NoError(t, err)
+	//
+	//	assert.Equal(t, "password and confirmation do not match", res.Message)
+	//})
+	//
+	//t.Run("will return error if signature not valid", func(t *testing.T) {
+	//	signature, err := jwt.NewWithClaims(jwt.SigningMethodHS512, &jwt.StandardClaims{}).
+	//		SignedString([]byte("different secret"))
+	//	require.NoError(t, err)
+	//
+	//	u, err := url.Parse(buildUrl("reset-password"))
+	//	require.NoError(t, err)
+	//
+	//	q := u.Query()
+	//	q.Add("email", validEmail)
+	//	q.Add("signature", signature)
+	//	q.Add("password", password)
+	//	q.Add("confirmation", password)
+	//	u.RawQuery = q.Encode()
+	//
+	//	req, err := http.NewRequest(http.MethodGet, u.String(), nil)
+	//	require.NoError(t, err)
+	//
+	//	req.Header.Add("Content-Type", "application/json")
+	//
+	//	client := &http.Client{}
+	//	resp, err := client.Do(req)
+	//	require.NoError(t, err)
+	//
+	//	assert.Equal(t, http.StatusInternalServerError, resp.StatusCode)
+	//
+	//	defer resp.Body.Close()
+	//	buf, err := ioutil.ReadAll(resp.Body)
+	//	require.NoError(t, err)
+	//
+	//	var res errorResponse
+	//	err = json.Unmarshal(buf, &res)
+	//	require.NoError(t, err)
+	//
+	//	assert.Equal(t, "could not reset password", res.Message)
+	//})
+	//
+	//t.Run("will return error if error getting user", func(t *testing.T) {
+	//	signature, err := jwt.NewWithClaims(jwt.SigningMethodHS512, &jwt.StandardClaims{}).
+	//		SignedString([]byte(jwtSecret))
+	//	require.NoError(t, err)
+	//
+	//	u, err := url.Parse(buildUrl("reset-password"))
+	//	require.NoError(t, err)
+	//
+	//	q := u.Query()
+	//	q.Add("email", getUserErrorEmail)
+	//	q.Add("signature", signature)
+	//	q.Add("password", password)
+	//	q.Add("confirmation", password)
+	//	u.RawQuery = q.Encode()
+	//
+	//	req, err := http.NewRequest(http.MethodGet, u.String(), nil)
+	//	require.NoError(t, err)
+	//
+	//	req.Header.Add("Content-Type", "application/json")
+	//
+	//	client := &http.Client{}
+	//	resp, err := client.Do(req)
+	//	require.NoError(t, err)
+	//
+	//	assert.Equal(t, http.StatusInternalServerError, resp.StatusCode)
+	//
+	//	defer resp.Body.Close()
+	//	buf, err := ioutil.ReadAll(resp.Body)
+	//	require.NoError(t, err)
+	//
+	//	var res errorResponse
+	//	err = json.Unmarshal(buf, &res)
+	//	require.NoError(t, err)
+	//
+	//	assert.Equal(t, "could not reset password", res.Message)
+	//})
+	//
+	//t.Run("will return error if signature does not match", func(t *testing.T) {
+	//	claims := &jwt.StandardClaims{
+	//		Audience: "will create different signature",
+	//	}
+	//	signature, err := jwt.NewWithClaims(jwt.SigningMethodHS512, claims).
+	//		SignedString([]byte(jwtSecret))
+	//	require.NoError(t, err)
+	//
+	//	u, err := url.Parse(buildUrl("reset-password"))
+	//	require.NoError(t, err)
+	//
+	//	q := u.Query()
+	//	q.Add("email", validEmail)
+	//	q.Add("signature", signature)
+	//	q.Add("password", password)
+	//	q.Add("confirmation", password)
+	//	u.RawQuery = q.Encode()
+	//
+	//	req, err := http.NewRequest(http.MethodGet, u.String(), nil)
+	//	require.NoError(t, err)
+	//
+	//	req.Header.Add("Content-Type", "application/json")
+	//
+	//	client := &http.Client{}
+	//	resp, err := client.Do(req)
+	//	require.NoError(t, err)
+	//
+	//	assert.Equal(t, http.StatusInternalServerError, resp.StatusCode)
+	//
+	//	defer resp.Body.Close()
+	//	buf, err := ioutil.ReadAll(resp.Body)
+	//	require.NoError(t, err)
+	//
+	//	var res errorResponse
+	//	err = json.Unmarshal(buf, &res)
+	//	require.NoError(t, err)
+	//
+	//	assert.Equal(t, "could not reset password", res.Message)
+	//})
+	//
+	//t.Run("will return error if error updating password", func(t *testing.T) {
+	//	signature, err := jwt.NewWithClaims(jwt.SigningMethodHS512, &jwt.StandardClaims{}).
+	//		SignedString([]byte(jwtSecret))
+	//	require.NoError(t, err)
+	//
+	//	u, err := url.Parse(buildUrl("reset-password"))
+	//	require.NoError(t, err)
+	//
+	//	q := u.Query()
+	//	q.Add("email", failUpdatePasswordErrorEmail)
+	//	q.Add("signature", signature)
+	//	q.Add("password", password)
+	//	q.Add("confirmation", password)
+	//	u.RawQuery = q.Encode()
+	//
+	//	req, err := http.NewRequest(http.MethodGet, u.String(), nil)
+	//	require.NoError(t, err)
+	//
+	//	req.Header.Add("Content-Type", "application/json")
+	//
+	//	client := &http.Client{}
+	//	resp, err := client.Do(req)
+	//	require.NoError(t, err)
+	//
+	//	assert.Equal(t, http.StatusInternalServerError, resp.StatusCode)
+	//
+	//	defer resp.Body.Close()
+	//	buf, err := ioutil.ReadAll(resp.Body)
+	//	require.NoError(t, err)
+	//
+	//	var res errorResponse
+	//	err = json.Unmarshal(buf, &res)
+	//	require.NoError(t, err)
+	//
+	//	assert.Equal(t, "could not reset password", res.Message)
+	//})
+	//
+	//t.Run("will successfully update user's password", func(t *testing.T) {
+	//	signature, err := jwt.NewWithClaims(jwt.SigningMethodHS512, &jwt.StandardClaims{}).
+	//		SignedString([]byte(jwtSecret))
+	//	require.NoError(t, err)
+	//
+	//	u, err := url.Parse(buildUrl("reset-password"))
+	//	require.NoError(t, err)
+	//
+	//	q := u.Query()
+	//	q.Add("email", validEmail)
+	//	q.Add("signature", signature)
+	//	q.Add("password", password)
+	//	q.Add("confirmation", password)
+	//	u.RawQuery = q.Encode()
+	//
+	//	req, err := http.NewRequest(http.MethodGet, u.String(), nil)
+	//	require.NoError(t, err)
+	//
+	//	req.Header.Add("Content-Type", "application/json")
+	//
+	//	client := &http.Client{}
+	//	resp, err := client.Do(req)
+	//	require.NoError(t, err)
+	//
+	//	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	//})
 }
