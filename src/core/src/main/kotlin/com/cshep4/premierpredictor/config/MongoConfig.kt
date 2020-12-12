@@ -35,7 +35,11 @@ class MongoConfig {
 
     @Bean
     fun mongo(): MongoClient {
-        var mongoUri = "$mongoScheme://$mongoUsername:$mongoPassword@$mongoHost"
+        var mongoUri = if (mongoUsername == "" || mongoPassword == "") {
+            "$mongoScheme://$mongoHost"
+        } else {
+            "$mongoScheme://$mongoUsername:$mongoPassword@$mongoHost"
+        }
 
         if (!isEmpty(mongoPort)) {
             mongoUri += ":$mongoPort"

@@ -1,9 +1,9 @@
 package model
 
 import (
-	gen "github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen"
-	_ "github.com/golang/protobuf/proto"
 	"time"
+
+	"github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen"
 )
 
 type User struct {
@@ -13,29 +13,34 @@ type User struct {
 	Email           string    `json:"email"`
 	Password        string    `json:"password"`
 	PredictedWinner string    `json:"predictedWinner"`
+	Signature       string    `json:"signature"`
 	Score           int       `json:"score"`
 	Joined          time.Time `json:"joined"`
 	Admin           bool      `json:"admin"`
 	AdFree          bool      `json:"adFree"`
 }
 
-func UserToGrpc(user *User) *gen.User {
-	return &gen.User{
+func UserToGrpc(user *User) *model.User {
+	return &model.User{
 		Id:              user.Id,
 		FirstName:       user.FirstName,
 		Surname:         user.Surname,
+		Email:           user.Email,
 		PredictedWinner: user.PredictedWinner,
+		Password:        user.Password,
+		Signature:       user.Signature,
 		Score:           int32(user.Score),
 	}
 }
 
-func UserFromGrpc(user *gen.User) *User {
-	return &User{
-		Id:              user.Id,
-		FirstName:       user.FirstName,
-		Surname:         user.Surname,
-		PredictedWinner: user.PredictedWinner,
-		Score:           int(user.Score),
+func UserFromCreateReq(req model.CreateRequest) User {
+	return User{
+		FirstName:       req.FirstName,
+		Surname:         req.Surname,
+		Email:           req.Email,
+		Password:        req.Password,
+		PredictedWinner: req.PredictedWinner,
+		Joined:          time.Now(),
 	}
 }
 

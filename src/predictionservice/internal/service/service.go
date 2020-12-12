@@ -47,7 +47,7 @@ func (s *service) GetFixturesWithPredictions(ctx context.Context, id string) ([]
 	fixturesChan := make(chan []common.Fixture)
 	predictionsChan := make(chan []common.Prediction)
 
-	g, _ := errgroup.WithContext(ctx)
+	g, ctx := errgroup.WithContext(ctx)
 	g.Go(func() error {
 		f, err := s.fixtureService.GetMatches(ctx)
 		fixturesChan <- f
@@ -105,7 +105,7 @@ func (s *service) GetPredictorData(ctx context.Context, id string) (*model.Predi
 	fixturePredictionsChan := make(chan []model.FixturePrediction)
 	formChan := make(chan map[string]model.TeamForm)
 
-	g, _ := errgroup.WithContext(ctx)
+	g, ctx := errgroup.WithContext(ctx)
 
 	g.Go(func() error {
 		f, err := s.GetFixturesWithPredictions(ctx, id)
@@ -154,6 +154,15 @@ func (s *service) GetUsersPastPredictions(ctx context.Context, id string) (*mode
 	return &model.PredictionSummary{
 		Matches: fp,
 	}, nil
+}
+
+func (s *service) GetUsersPredictions(ctx context.Context, id string) ([]common.Prediction, error) {
+	p, err := s.store.GetPredictionsByUserId(ctx, id)
+	if err != nil {
+		return nil, fmt.Errorf("get_users_predictions: %w", err)
+	}
+
+	return p, nil
 }
 
 func (s *service) UpdatePredictions(ctx context.Context, predictions []common.Prediction) error {

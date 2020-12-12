@@ -1,0 +1,79 @@
+syntax = "proto3";
+option java_multiple_files = true;
+option java_package = "com.cshep4.premierpredictor.auth";
+
+package model;
+
+service AuthService {
+    rpc Login (LoginRequest) returns (LoginResponse);
+    rpc Register (RegisterRequest) returns (RegisterResponse);
+    rpc Validate (ValidateRequest) returns (ValidateResponse);
+    rpc IssueServiceToken (IssueServiceTokenRequest) returns (IssueServiceTokenResponse);
+    rpc InitiatePasswordReset (InitiatePasswordResetRequest) returns (InitiatePasswordResetResponse);
+    rpc ResetPassword (ResetPasswordRequest) returns (ResetPasswordResponse);
+}
+
+message LoginRequest {
+    string email = 1;
+    string password = 2;
+}
+
+message LoginResponse {
+    string id = 1;
+    string token = 2;
+}
+
+message RegisterRequest {
+    string firstName = 1;
+    string surname = 2;
+    string email = 3;
+    string password = 4;
+    string confirmation = 5;
+    string predictedWinner = 6;
+}
+
+message RegisterResponse {
+    string id = 1;
+    string token = 2;
+}
+
+message ValidateRequest {
+    string token = 1;
+    string audience = 2;
+    Role role = 3;
+}
+
+message ValidateResponse {
+}
+
+message IssueServiceTokenRequest {
+    string audience = 1;
+}
+
+message IssueServiceTokenResponse {
+    string token = 1;
+}
+
+message InitiatePasswordResetRequest {
+    string email = 1;
+}
+
+message InitiatePasswordResetResponse {
+}
+
+message ResetPasswordRequest {
+    string email = 1;
+    string signature = 2;
+    string password = 3;
+    string confirmation = 4;
+}
+
+message ResetPasswordResponse {
+}
+
+enum Role {
+    ROLE_INVALID = 0;
+    ROLE_USER = 1;
+    ROLE_SERVICE = 2;
+    ROLE_ADMIN = 3;
+}

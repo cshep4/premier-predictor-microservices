@@ -1,0 +1,109 @@
+syntax = "proto3";
+option java_multiple_files = true;
+option java_package = "com.cshep4.premierpredictor.user";
+
+package model;
+
+service UserService {
+    rpc GetAllUsers (GetAllUsersRequest) returns (GetAllUsersResponse);
+    rpc GetUsersByIds (GetUsersByIdsRequest) returns (GetUsersByIdsResponse);
+    rpc GetOverallRank (GetOverallRankRequest) returns (GetOverallRankResponse);
+    rpc GetRankForGroup (GetRankForGroupRequest) returns (GetRankForGroupResponse);
+    rpc GetUserCount (GetUserCountRequest) returns (GetUserCountResponse);
+    rpc GetUserByEmail (GetUserByEmailRequest) returns (GetUserByEmailResponse);
+    rpc UpdatePassword (UpdatePasswordRequest) returns (UpdatePasswordResponse);
+    rpc UpdateSignature (UpdateSignatureRequest) returns (UpdateSignatureResponse);
+    rpc Create (CreateRequest) returns (CreateResponse);
+}
+
+message GetAllUsersRequest {
+}
+
+message GetAllUsersResponse {
+    repeated User users = 1;
+}
+
+message GetUsersByIdsRequest {
+    repeated string ids = 1;
+}
+
+message GetUsersByIdsResponse {
+    repeated User users = 1;
+}
+
+message GetOverallRankRequest {
+    string id = 1;
+}
+
+message GetOverallRankResponse {
+    int64 rank = 1;
+}
+
+message GetRankForGroupRequest {
+    string id = 1;
+    repeated string ids = 2;
+}
+
+message GetRankForGroupResponse {
+    int64 rank = 1;
+}
+
+message GetUserCountRequest {
+}
+
+message GetUserCountResponse {
+    int64 count = 1;
+}
+
+message GetUserByEmailRequest {
+    string email = 1;
+}
+
+message GetUserByEmailResponse {
+    User user = 1;
+}
+
+message User {
+    string id = 1;
+    string firstName = 2;
+    string surname = 3;
+    string predictedWinner = 4;
+    int32 score = 5;
+    string email = 6;
+    string password = 7;
+    string signature = 8;
+}
+
+message RankResponse {
+    int64 rank = 1;
+}
+
+message UpdatePasswordRequest {
+    string id = 1;
+    string password = 2;
+}
+
+message UpdatePasswordResponse {
+
+}
+
+message UpdateSignatureRequest {
+    string id = 1;
+    string signature = 2;
+}
+
+message UpdateSignatureResponse {
+
+}
+
+message CreateRequest {
+    string firstName = 1;
+    string surname = 2;
+    string email = 3;
+    string password = 4;
+    string predictedWinner = 5;
+}
+
+message CreateResponse {
+    string id = 1;
+}

@@ -26,18 +26,16 @@ build:
 #    context: src/chatservice
   - image: premierpredictor
     context: src/core
-#  - image: emailservice
-#    context: src/emailservice
   - image: fixtureservice
     context: src/fixtureservice
+#  - image: kauthservice
+#    context: src/kauthservice
   - image: livematchservice
     context: src/livematchservice
 #  - image: notificationservice
 #    context: src/notificationservice
   - image: predictionservice
     context: src/predictionservice
-  - image: legacyuserservice
-    context: src/legacyuserservice
   - image: leagueservice
     context: src/leagueservice
   - image: userservice

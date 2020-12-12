@@ -1,0 +1,29 @@
+type MatchSummary {
+    match: MatchFacts!
+    predictionSummary: MatchPredictionSummary!
+    prediction: Prediction
+}
+
+type LiveMatchSummary {
+    liveMatch: MatchFacts!
+    predictionSummary: MatchPredictionSummary!
+    prediction: Prediction
+}
+
+type MatchPredictionSummary {
+    homeWin: Int!
+    draw: Int!
+    awayWin: Int!
+}
+
+type Prediction {
+    userId: String!
+    matchId: String!
+    hGoals: Int
+    aGoals: Int
+}
+
+input MatchSummaryInput {
+    userId: String!
+    matchId: String!
+}

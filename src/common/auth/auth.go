@@ -2,29 +2,44 @@ package auth
 
 import (
 	"context"
-	"errors"
-	gen "github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen"
+	"net/http"
+
+	grpcAuth "github.com/cshep4/premier-predictor-microservices/src/common/auth/grpc"
+	httpAuth "github.com/cshep4/premier-predictor-microservices/src/common/auth/http"
+
+	"github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen"
+	"google.golang.org/grpc"
 )
 
-type authenticator struct {
-	client gen.AuthServiceClient
-}
-
-func New(client gen.AuthServiceClient) (*authenticator, error) {
-	if client == nil {
-		return nil, errors.New("client_is_nil")
+type (
+	httpAuthenticator interface {
+		Http(next http.Handler) http.Handler
 	}
 
-	return &authenticator{
-		client: client,
-	}, nil
-}
+	grpcAuthenticator interface {
+		GrpcUnary(ctx context.Context, req interface{}, _ *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error)
+		GrpcStream(srv interface{}, stream grpc.ServerStream, _ *grpc.StreamServerInfo, handler grpc.StreamHandler) error
+	}
 
-func (a *authenticator) doAuth(ctx context.Context, token string) (context.Context, error) {
-	_, err := a.client.Validate(ctx, &gen.ValidateRequest{Token: token})
+	authenticator struct {
+		httpAuthenticator
+		grpcAuthenticator
+	}
+)
+
+func New(authClient model.AuthServiceClient, serviceName string, authorizer httpAuth.Authorizer) (*authenticator, error) {
+	httpAuthenticator, err := httpAuth.New(authClient, authorizer)
 	if err != nil {
 		return nil, err
 	}
 
-	return tokenCtx(ctx, token), nil
+	grpcAuthenticator, err := grpcAuth.New(authClient, serviceName)
+	if err != nil {
+		return nil, err
+	}
+
+	return &authenticator{
+		httpAuthenticator: httpAuthenticator,
+		grpcAuthenticator: grpcAuthenticator,
+	}, nil
 }

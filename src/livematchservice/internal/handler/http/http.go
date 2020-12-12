@@ -3,15 +3,14 @@ package http
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 
 	"github.com/cshep4/premier-predictor-microservices/src/common/log"
-	m "github.com/cshep4/premier-predictor-microservices/src/common/model"
-	"github.com/cshep4/premier-predictor-microservices/src/common/util"
+	common "github.com/cshep4/premier-predictor-microservices/src/common/model"
 	"github.com/cshep4/premier-predictor-microservices/src/livematchservice/internal/handler"
 	"github.com/cshep4/premier-predictor-microservices/src/livematchservice/internal/model"
 	"github.com/gorilla/mux"
-	"github.com/pkg/errors"
 	"google.golang.org/grpc/metadata"
 )
 
@@ -43,7 +42,7 @@ func (h *router) Route(router *mux.Router) {
 }
 
 func (h *router) getUpcomingMatches(w http.ResponseWriter, r *http.Request) {
-	upcomingMatches, err := h.service.GetUpcomingMatches()
+	upcomingMatches, err := h.service.GetUpcomingMatches(r.Context())
 
 	h.sendResponse(r.Context(), upcomingMatches, err, w)
 }
@@ -68,31 +67,32 @@ func (h *router) getMatchSummary(w http.ResponseWriter, r *http.Request) {
 func (h *router) sendResponse(ctx context.Context, data interface{}, err error, w http.ResponseWriter) {
 	switch {
 	case err == nil:
-		w.WriteHeader(http.StatusOK)
 		if data != nil {
-			_ = json.NewEncoder(w).Encode(data)
+			json.NewEncoder(w).Encode(data)
 			return
 		}
-		return
-
-	case err == model.ErrMatchNotFound:
+		w.WriteHeader(http.StatusOK)
+	case errors.Is(err, model.ErrMatchNotFound):
+		log.Debug(ctx, "match_not_found", log.ErrorParam(err))
 		w.WriteHeader(http.StatusNotFound)
-		_ = json.NewEncoder(w).Encode(ServerError{
-			Message: err.Error(),
-		})
-
-	case errors.Cause(err) == m.ErrInvalidRequestData:
+	case errors.Is(err, common.ErrInvalidRequestData):
 		w.WriteHeader(http.StatusBadRequest)
-		_ = json.NewEncoder(w).Encode(ServerError{
-			Message: util.GetErrorMessage(err),
+		json.NewEncoder(w).Encode(ServerError{
+			Message: errors.Unwrap(err).Error(),
 		})
-
 	default:
+		log.Error(ctx, "server_error", log.ErrorParam(err))
 		w.WriteHeader(http.StatusInternalServerError)
-		_ = json.NewEncoder(w).Encode(ServerError{
-			Message: err.Error(),
+		json.NewEncoder(w).Encode(ServerError{
+			Message: errors.Unwrap(err).Error(),
 		})
 	}
+}
 
-	log.Error(ctx, "request_error", log.ErrorParam(err))
+func (h *router) IsUnauthenticatedEndpoint(path string) bool {
+	return false
+}
+
+func (h *router) GetRequestAudience(r *http.Request) string {
+	return ""
 }

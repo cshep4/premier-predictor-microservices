@@ -1,0 +1,30 @@
+query predictorData($request: PredictorDataInput!) {
+    predictorData(request: $request) {
+        fixtures {
+            ...fixture
+        }
+        predictions {
+            ...prediction
+        }
+        forms {
+            team
+            forms {
+                location
+                opponent
+                result
+                score
+            }
+        }
+    }
+}
+
+fragment fixture on Fixture {
+    id
+    hTeam
+    aTeam
+    hGoals
+    aGoals
+    played
+    dateTime
+    matchday
+}

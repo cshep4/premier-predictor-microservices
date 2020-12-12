@@ -37,7 +37,7 @@ sourceSets {
             srcDir 'src/main/java'
         }
         proto {
-            srcDir 'protodefs'
+            srcDir '../../proto-gen/model/proto'
         }
     }
 }

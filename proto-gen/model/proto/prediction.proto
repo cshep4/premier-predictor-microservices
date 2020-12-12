@@ -1,0 +1,35 @@
+syntax = "proto3";
+option java_multiple_files = true;
+option java_package = "com.cshep4.premierpredictor.prediction";
+//option go_package = "prediction";
+
+import "request.proto";
+
+package model;
+
+service PredictionService {
+    rpc GetPrediction (PredictionRequest) returns (Prediction) {}
+    rpc GetUserPredictions (GetUserPredictionsRequest) returns (GetUserPredictionsResponse) {}
+    rpc GetPredictionSummary (IdRequest) returns (MatchPredictionSummary) {}
+}
+
+message GetUserPredictionsRequest {
+    string userId = 1;
+}
+
+message GetUserPredictionsResponse {
+    repeated Prediction predictions = 1;
+}
+
+message Prediction {
+    string userId = 1;
+    string matchId = 2;
+    int32 hGoals = 3;
+    int32 aGoals = 4;
+}
+
+message MatchPredictionSummary {
+    int32 homeWin = 1;
+    int32 draw = 2;
+    int32 awayWin = 3;
+}

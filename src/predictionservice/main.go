@@ -11,10 +11,8 @@ import (
 	"github.com/cshep4/premier-predictor-microservices/src/common/app"
 	"github.com/cshep4/premier-predictor-microservices/src/common/auth"
 	"github.com/cshep4/premier-predictor-microservices/src/common/gcp"
-	"github.com/cshep4/premier-predictor-microservices/src/common/gcp/tracer"
 	grpcconn "github.com/cshep4/premier-predictor-microservices/src/common/grpc"
 	"github.com/cshep4/premier-predictor-microservices/src/common/log"
-	"github.com/cshep4/premier-predictor-microservices/src/common/run"
 	"github.com/cshep4/premier-predictor-microservices/src/common/runner/grpc"
 	"github.com/cshep4/premier-predictor-microservices/src/common/runner/http"
 	"github.com/cshep4/premier-predictor-microservices/src/common/store/mongo"
@@ -23,7 +21,6 @@ import (
 	httphandler "github.com/cshep4/premier-predictor-microservices/src/predictionservice/internal/handler/http"
 	svc "github.com/cshep4/premier-predictor-microservices/src/predictionservice/internal/service"
 	mongostore "github.com/cshep4/premier-predictor-microservices/src/predictionservice/internal/store/mongo"
-	"golang.org/x/sync/errgroup"
 )
 
 const (
@@ -47,71 +44,71 @@ func start(ctx context.Context) error {
 	} {
 		var ok bool
 		if *v, ok = os.LookupEnv(k); !ok {
-			return fmt.Errorf("missing_env_variable: %s", k)
+			return fmt.Errorf("missing env variable: %s", k)
 		}
 	}
 
 	httpPort, err := strconv.Atoi(httpPortEnv)
 	if err != nil {
-		return errors.New("invalid_http_port")
+		return errors.New("invalid http port")
 	}
 
 	grpcPort, err := strconv.Atoi(grpcPortEnv)
 	if err != nil {
-		return errors.New("invalid_grpc_port")
+		return errors.New("invalid grpc port")
 	}
 
 	authConn, err := grpcconn.Dial(ctx, authAddr)
 	if err != nil {
-		return fmt.Errorf("create_auth_connection: %w", err)
+		return fmt.Errorf("create auth connection: %w", err)
 	}
 	defer authConn.Close()
 	authClient := gen.NewAuthServiceClient(authConn)
 
 	fixtureConn, err := grpcconn.Dial(ctx, fixtureAddr)
 	if err != nil {
-		return fmt.Errorf("create_fixture_connection: %w", err)
+		return fmt.Errorf("create fixture connection: %w", err)
 	}
 	defer fixtureConn.Close()
 	fixtureClient := gen.NewFixtureServiceClient(fixtureConn)
 
-	authenticator, err := auth.New(authClient)
-	if err != nil {
-		return fmt.Errorf("create_authenticator: %w", err)
-	}
-
 	fixtureService, err := fixture.New(fixtureClient)
 	if err != nil {
-		return fmt.Errorf("create_fixture_client: %w", err)
+		return fmt.Errorf("create fixture client: %w", err)
 	}
 
 	client, err := mongo.New(ctx)
 	if err != nil {
-		return fmt.Errorf("create_mongo_client: %w", err)
+		return fmt.Errorf("create mongo client: %w", err)
 	}
 
 	store, err := mongostore.New(ctx, client)
 	if err != nil {
-		return fmt.Errorf("create_store: %w", err)
+		return fmt.Errorf("create store: %w", err)
 	}
 	defer store.Close(ctx)
 
 	service, err := svc.New(store, fixtureService)
 	if err != nil {
-		return fmt.Errorf("create_service: %w", err)
+		return fmt.Errorf("create service: %w", err)
 	}
 
 	h, err := httphandler.New(service)
 	if err != nil {
-		return fmt.Errorf("create_http_handler: %w", err)
+		return fmt.Errorf("create http handler: %w", err)
+	}
+
+	authenticator, err := auth.New(authClient, "prediction", h)
+	if err != nil {
+		return fmt.Errorf("create authenticator: %w", err)
 	}
 
 	rpc, err := grpchandler.New(service)
 	if err != nil {
-		return fmt.Errorf("create_grpc_handler: %w", err)
+		return fmt.Errorf("create grpc handler: %w", err)
 	}
 
-	tracer := tracer.New()
+	//tracer := tracer.New()
 
 	app := app.New(
 		app.WithStartupFunc(gcp.Profile(serviceName, version)),
@@ -123,8 +120,8 @@ func start(ctx context.Context) error {
 			grpc.New(
 				grpc.WithPort(grpcPort),
 				grpc.WithLogger(serviceName, logLevel),
-				grpc.WithUnaryInterceptor(tracer.GrpcUnary),
-				grpc.WithStreamInterceptor(tracer.GrpcStream),
+				//grpc.WithUnaryInterceptor(tracer.GrpcUnary),
+				//grpc.WithStreamInterceptor(tracer.GrpcStream),
 				grpc.WithUnaryInterceptor(authenticator.GrpcUnary),
 				grpc.WithStreamInterceptor(authenticator.GrpcStream),
 				grpc.WithRegisterer(rpc),
@@ -134,7 +131,7 @@ func start(ctx context.Context) error {
 			http.New(
 				http.WithPort(httpPort),
 				http.WithLogger(serviceName, logLevel),
-				http.WithHandler(tracer),
+				//http.WithHandler(tracer),
 				http.WithMiddleware(authenticator.Http),
 				http.WithRouter(h),
 				http.WithRegisterer(http.Health()),
@@ -142,13 +139,7 @@ func start(ctx context.Context) error {
 		),
 	)
 
-	ctx, cancel := context.WithCancel(ctx)
-	g, ctx := errgroup.WithContext(ctx)
-
-	g.Go(func() error { return app.Run(ctx) })
-	g.Go(run.HandleShutdown(g, ctx, cancel, app.Shutdown))
-
-	return g.Wait()
+	return app.Run(ctx)
 }
 
 func main() {

@@ -1,24 +1,24 @@
-FROM golang:1.10-alpine as builder
-RUN apk add --no-cache ca-certificates git && \
-      wget -qO/go/bin/dep https://github.com/golang/dep/releases/download/v0.5.0/dep-linux-amd64 && \
-      chmod +x /go/bin/dep
+FROM golang:1.14-alpine as build
 
 ENV PROJECT github.com/cshep4/premier-predictor-microservices/src/leagueservice
-WORKDIR /go/src/$PROJECT
 
-# restore dependencies
-COPY Gopkg.* ./
-RUN dep ensure --vendor-only -v
+WORKDIR /build
 
-COPY . .
-RUN go build -gcflags='-N -l' -o /leagueservice .
+COPY proto-gen/model/gen github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen
+
+COPY src/common github.com/cshep4/premier-predictor-microservices/src/common
+
+COPY src/leagueservice $PROJECT
+
+WORKDIR $PROJECT
+
+RUN go build -mod mod -gcflags='-N -l' -ldflags "-s -w" -o /leagueservice ./cmd/league
 
 FROM alpine as release
-RUN apk add --no-cache ca-certificates
-RUN GRPC_HEALTH_PROBE_VERSION=v0.2.0 && \
-    wget -qO/bin/grpc_health_probe https://github.com/grpc-ecosystem/grpc-health-probe/releases/download/${GRPC_HEALTH_PROBE_VERSION}/grpc_health_probe-linux-amd64 && \
-    chmod +x /bin/grpc_health_probe
-COPY --from=builder /leagueservice /leagueservice
 
-EXPOSE 8089
+COPY --from=build /leagueservice /leagueservice
+
+RUN ls
+
+EXPOSE 3009 8089
 ENTRYPOINT ["/leagueservice"]

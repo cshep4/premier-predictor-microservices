@@ -5,7 +5,6 @@ import (
 	"errors"
 	gen "github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen"
 	common "github.com/cshep4/premier-predictor-microservices/src/common/model"
-	"github.com/cshep4/premier-predictor-microservices/src/common/util"
 	"github.com/cshep4/premier-predictor-microservices/src/livematchservice/internal/model"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -15,12 +14,8 @@ type predictor struct {
 	client gen.PredictionServiceClient
 }
 
-const (
-	predictionNotFound = "prediction not found"
-)
-
 var (
-	ErrPredictionNotFound = errors.New(predictionNotFound)
+	ErrPredictionNotFound = errors.New("prediction not found")
 )
 
 func New(client gen.PredictionServiceClient) (*predictor, error) {
@@ -30,18 +25,15 @@ func New(client gen.PredictionServiceClient) (*predictor, error) {
 }
 
 func (p *predictor) GetPrediction(ctx context.Context, req model.PredictionRequest) (*common.Prediction, error) {
-	r := &gen.PredictionRequest{
+	//metadata, err := auth.MetadataFromContext(ctx)
+	//if err != nil {
+	//	return nil, err
+	//}
+
+	prediction, err := p.client.GetPrediction(ctx, &gen.PredictionRequest{
 		UserId:  req.UserId,
 		MatchId: req.MatchId,
-	}
-
-	metadata, err := util.CreateRequestMetadata(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	prediction, err := p.client.GetPrediction(metadata, r)
-
+	})
 	if err != nil {
 		statusErr, ok := status.FromError(err)
 
@@ -59,16 +51,14 @@ func (p *predictor) GetPrediction(ctx context.Context, req model.PredictionReque
 }
 
 func (p *predictor) GetPredictionSummary(ctx context.Context, matchId string) (*common.MatchPredictionSummary, error) {
-	r := &gen.IdRequest{
+	//metadata, err := auth.MetadataFromContext(ctx)
+	//if err != nil {
+	//	return nil, err
+	//}
+
+	predictionSummary, err := p.client.GetPredictionSummary(ctx, &gen.IdRequest{
 		Id: matchId,
-	}
-
-	metadata, err := util.CreateRequestMetadata(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	predictionSummary, err := p.client.GetPredictionSummary(metadata, r)
+	})
 	if err != nil {
 		return nil, err
 	}

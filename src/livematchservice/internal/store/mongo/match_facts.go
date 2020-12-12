@@ -14,6 +14,9 @@ type matchFactsEntity struct {
 	Venue            string      `bson:"venue,omitempty"`
 	VenueId          string      `bson:"venueId,omitempty"`
 	VenueCity        string      `bson:"venueCity,omitempty"`
+	VenueLatitude    string      `bson:"venueLatitude,omitempty"`
+	VenueLongitude   string      `bson:"venueLongitude,omitempty"`
+	VenueCountry     string      `bson:"venueCountry,omitempty"`
 	Status           string      `bson:"status,omitempty"`
 	Timer            string      `bson:"timer,omitempty"`
 	Time             string      `bson:"time,omitempty"`
@@ -48,6 +51,9 @@ func fromMatchFacts(matchFacts *model.MatchFacts) *matchFactsEntity {
 		Venue:            matchFacts.Venue,
 		VenueId:          matchFacts.VenueId,
 		VenueCity:        matchFacts.VenueCity,
+		VenueLatitude:    matchFacts.VenueLatitude,
+		VenueLongitude:   matchFacts.VenueLongitude,
+		VenueCountry:     matchFacts.VenueCountry,
 		Status:           matchFacts.Status,
 		Timer:            matchFacts.Timer,
 		Time:             matchFacts.Time,
@@ -83,6 +89,9 @@ func toMatchFacts(matchFacts *matchFactsEntity) *model.MatchFacts {
 		Venue:            matchFacts.Venue,
 		VenueId:          matchFacts.VenueId,
 		VenueCity:        matchFacts.VenueCity,
+		VenueLatitude:    matchFacts.VenueLatitude,
+		VenueLongitude:   matchFacts.VenueLongitude,
+		VenueCountry:     matchFacts.VenueCountry,
 		Status:           matchFacts.Status,
 		Timer:            matchFacts.Timer,
 		Time:             matchFacts.Time,
@@ -156,7 +165,7 @@ func toEvent(e *event) *model.Event {
 
 type commentary struct {
 	MatchId       string         `bson:"matchId,omitempty"`
-	MatchInfo     []*matchInfo   `bson:"matchInfo,omitempty"`
+	MatchInfo     *matchInfo     `bson:"matchInfo,omitempty"`
 	Lineup        *lineup        `bson:"lineup,omitempty"`
 	Subs          *lineup        `bson:"subs,omitempty"`
 	Substitutions *substitutions `bson:"substitutions,omitempty"`
@@ -170,11 +179,6 @@ func fromCommentary(c *model.Commentary) *commentary {
 		return nil
 	}
 
-	var matchInfo []*matchInfo
-	for _, m := range c.MatchInfo {
-		matchInfo = append(matchInfo, fromMatchInfo(m))
-	}
-
 	var comments []*comment
 	for _, cmt := range c.Comments {
 		comments = append(comments, fromComment(cmt))
@@ -182,7 +186,7 @@ func fromCommentary(c *model.Commentary) *commentary {
 
 	return &commentary{
 		MatchId:       c.MatchId,
-		MatchInfo:     matchInfo,
+		MatchInfo:     fromMatchInfo(c.MatchInfo),
 		Lineup:        fromLineup(c.Lineup),
 		Subs:          fromLineup(c.Subs),
 		Substitutions: fromSubstitutions(c.Substitutions),
@@ -197,11 +201,6 @@ func toCommentary(c *commentary) *model.Commentary {
 		return nil
 	}
 
-	var matchInfo []*model.MatchInfo
-	for _, m := range c.MatchInfo {
-		matchInfo = append(matchInfo, toMatchInfo(m))
-	}
-
 	var comments []*model.Comment
 	for _, cmt := range c.Comments {
 		comments = append(comments, toComment(cmt))
@@ -209,7 +208,7 @@ func toCommentary(c *commentary) *model.Commentary {
 
 	return &model.Commentary{
 		MatchId:       c.MatchId,
-		MatchInfo:     matchInfo,
+		MatchInfo:     toMatchInfo(c.MatchInfo),
 		Lineup:        toLineup(c.Lineup),
 		Subs:          toLineup(c.Subs),
 		Substitutions: toSubstitutions(c.Substitutions),

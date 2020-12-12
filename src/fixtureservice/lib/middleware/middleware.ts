@@ -3,8 +3,8 @@ import {NextFunction, Request, response, Response} from "express";
 export class Middleware {
     private client;
 
-    constructor(grpc: any, private tracer: any) {
-        const PROTO_PATH = __dirname + '/../../protodefs/auth.proto';
+    constructor(grpc: any) {
+        const PROTO_PATH = __dirname + '/../../../../proto-gen/model/proto/auth.proto';
         const protoLoader = require('@grpc/proto-loader');
         const packageDefinition = protoLoader.loadSync(
             PROTO_PATH,
@@ -28,27 +28,35 @@ export class Middleware {
     }
 
     public validateHttp(req: Request, res: Response, next: NextFunction) {
-        const span = this.tracer.startChildSpan({ name: req.url });
+        // const span = this.tracer.startChildSpan({ name: req.url });
 
         const token = req.header("Authorization");
 
-        this.client.validate({token: token}, (err, response) => {
+        const validateReq = {
+            token: token,
+            role: 1,
+        };
+        this.client.validate(validateReq, (err, response) => {
             if (err) {
                 res.status(401)
                     .send(err);
-                span.end();
+                // span.end();
                 return;
             }
 
             next();
-            span.end();
+            // span.end();
         });
     }
 
     public validateGrpc(req: Request, res: Response, next: NextFunction) {
         const token = req.header("Authorization");
 
-        this.client.validate({token: token}, (err, response) => {
+        const validateReq = {
+            token: token,
+            role: 1,
+        };
+        this.client.validate(validateReq, (err, response) => {
             if (err) {
                 res.status(401)
                     .send(err);

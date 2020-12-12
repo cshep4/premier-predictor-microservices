@@ -52,7 +52,7 @@ func TestPredictor_GetPrediction(t *testing.T) {
 			HGoals:  hGoals,
 			AGoals:  aGoals,
 		}
-		predictionClient.EXPECT().GetPrediction(gomock.Any(), req).Return(prediction, nil)
+		predictionClient.EXPECT().GetPrediction(ctx, req).Return(prediction, nil)
 
 		r := model.PredictionRequest{
 			UserId:  userId,

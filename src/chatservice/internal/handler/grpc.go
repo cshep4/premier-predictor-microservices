@@ -40,7 +40,7 @@ func (c *chatServiceServer) LeaveChat(ctx context.Context, req *AddRequest) (*em
 func (c *chatServiceServer) GetLatestMessages(ctx context.Context, req *LatestMessagesRequest) (*MessageList, error) {
 	messages, err := c.service.GetLatestMessages(req.ChatId)
 	if err != nil {
-		return  nil, err
+		return nil, err
 	}
 
 	return c.toMessageList(messages)
@@ -49,7 +49,7 @@ func (c *chatServiceServer) GetLatestMessages(ctx context.Context, req *LatestMe
 func (c *chatServiceServer) GetPreviousMessages(ctx context.Context, req *PreviousMessagesRequest) (*MessageList, error) {
 	messages, err := c.service.GetPreviousMessages(req.ChatId, req.CurrentMessageId)
 	if err != nil {
-		return  nil, err
+		return nil, err
 	}
 
 	return c.toMessageList(messages)
@@ -58,13 +58,13 @@ func (c *chatServiceServer) GetPreviousMessages(ctx context.Context, req *Previo
 func (c *chatServiceServer) GetRecentMessages(ctx context.Context, req *PreviousMessagesRequest) (*MessageList, error) {
 	messages, err := c.service.GetRecentMessages(req.ChatId, req.CurrentMessageId)
 	if err != nil {
-		return  nil, err
+		return nil, err
 	}
 
 	return c.toMessageList(messages)
 }
 
-func (c * chatServiceServer) toMessageList(messages []model.Message) (*MessageList, error) {
+func (c *chatServiceServer) toMessageList(messages []model.Message) (*MessageList, error) {
 	var m []*Message
 	for i := range messages {
 		msg, err := model.MessageToGrpcMessage(messages[i])
@@ -91,10 +91,10 @@ func (c *chatServiceServer) Send(ctx context.Context, req *SendRequest) (*empty.
 	//Send to other clients
 	m := Message{
 		MessageId: id,
-		SenderId: req.UserId,
-		Type:     Message_MESSAGE,
-		Text:     req.Message,
-		DateTime: req.DateTime,
+		SenderId:  req.UserId,
+		Type:      Message_MESSAGE,
+		Text:      req.Message,
+		DateTime:  req.DateTime,
 	}
 
 	for u := range c.msg[req.ChatId] {
@@ -103,10 +103,10 @@ func (c *chatServiceServer) Send(ctx context.Context, req *SendRequest) (*empty.
 
 			go func() {
 				read := model.ReadReceipt{
-					SenderId: u,
-					ChatId: req.ChatId,
+					SenderId:  u,
+					ChatId:    req.ChatId,
 					MessageId: id,
-					DateTime: time.Now(),
+					DateTime:  time.Now(),
 				}
 
 				err := c.service.UpdateReadMessage(read)

@@ -2,12 +2,27 @@ import {schema as schemaPublic} from './graphql';
 import express from 'express';
 import {ApolloServer} from 'apollo-server-express'
 import * as http from "http";
+import WebSocket from "ws";
 
 const server = new ApolloServer({
     schema: schemaPublic,
     subscriptions: {
         onConnect: (connectionParams: any, webSocket) => {
-            return {token: connectionParams.token}
+            if (connectionParams.authorization) {
+                return {
+                    connectionParams: connectionParams,
+                    webSocket: webSocket,
+                    token: connectionParams.authorization,
+                }
+            }
+            return {
+                connectionParams: connectionParams,
+                webSocket: webSocket,
+                token: connectionParams.token,
+            }
+        },
+        onDisconnect: (webSocket, context) => {
+            console.log("onDisconnect");
         },
     },
     context: async ({req, connection}) => {

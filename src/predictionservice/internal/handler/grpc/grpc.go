@@ -3,7 +3,6 @@ package grpc
 import (
 	"context"
 	"errors"
-
 	gen "github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen"
 	"github.com/cshep4/premier-predictor-microservices/src/common/log"
 	common "github.com/cshep4/premier-predictor-microservices/src/common/model"
@@ -20,7 +19,7 @@ type server struct {
 
 func New(service handler.Servicer) (*server, error) {
 	if service == nil {
-		return nil, errors.New("service_is_nil")
+		return nil, errors.New("service is nil")
 	}
 
 	return &server{
@@ -36,13 +35,30 @@ func (s *server) GetPrediction(ctx context.Context, req *gen.PredictionRequest) 
 	prediction, err := s.service.GetPrediction(ctx, req.UserId, req.MatchId)
 	if err != nil {
 		if errors.Is(err, model.ErrPredictionNotFound) {
-			return nil, status.Error(codes.NotFound, model.ErrPredictionNotFound.Error())
+			return nil, status.Error(codes.NotFound, "prediction not found")
 		}
 		log.Error(ctx, "error_getting_prediction", log.ErrorParam(err))
 		return nil, err
 	}
 
 	return common.PredictionToGrpc(prediction), nil
+}
+
+func (s *server) GetUserPredictions(ctx context.Context, req *gen.GetUserPredictionsRequest) (*gen.GetUserPredictionsResponse, error) {
+	predictions, err := s.service.GetUsersPredictions(ctx, req.GetUserId())
+	if err != nil {
+		log.Error(ctx, "error_getting_prediction", log.ErrorParam(err))
+		return nil, status.Error(codes.Internal, "could not get predictions")
+	}
+
+	preds := make([]*gen.Prediction, 0, len(predictions))
+	for _, p := range predictions {
+		preds = append(preds, common.PredictionToGrpc(&p))
+	}
+
+	return &gen.GetUserPredictionsResponse{
+		Predictions: preds,
+	}, nil
 }
 
 func (s *server) GetPredictionSummary(ctx context.Context, req *gen.IdRequest) (*gen.MatchPredictionSummary, error) {

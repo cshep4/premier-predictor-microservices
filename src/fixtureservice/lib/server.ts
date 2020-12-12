@@ -22,40 +22,40 @@ require('@google-cloud/profiler').start({
     }
 });
 
-const {plugin} = require('@opencensus/instrumentation-grpc');
-const tracing = require('@opencensus/nodejs');
-const {StackdriverTraceExporter} = require('@opencensus/exporter-stackdriver');
-
-const exporter = new StackdriverTraceExporter({projectId: "prempred"});
-tracing.registerExporter(exporter).start();
-const tracer = tracing.start({
-    samplingRate: 1,
-    plugins: {
-        http: {
-            module: "@opencensus/instrumentation-http",
-            config: {
-                ignoreIncomingPaths: [
-                    /^\/health/,
-                ],
-            },
-        },
-    },
-}).tracer;
+// const {plugin} = require('@opencensus/instrumentation-grpc');
+// const tracing = require('@opencensus/nodejs');
+// const {StackdriverTraceExporter} = require('@opencensus/exporter-stackdriver');
+//
+// const exporter = new StackdriverTraceExporter({projectId: "prempred"});
+// tracing.registerExporter(exporter).start();
+// const tracer = tracing.start({
+//     samplingRate: 1,
+//     plugins: {
+//         http: {
+//             module: "@opencensus/instrumentation-http",
+//             config: {
+//                 ignoreIncomingPaths: [
+//                     /^\/health/,
+//                 ],
+//             },
+//         },
+//     },
+// }).tracer;
 
 const basedir = path.dirname(require.resolve('grpc'));
-plugin.enable(grpc, tracer, "1.0.0", {}, basedir);
+// plugin.enable(grpc, tracer, "1.0.0", {}, basedir);
 
 const repository = new Repository();
 const fixtureFormatter = new FixtureFormatter();
 const formFormatter = new FormFormatter();
 const service = new Service(repository, fixtureFormatter, formFormatter);
-const middleware = new Middleware(grpc, tracer);
+const middleware = new Middleware(grpc);
 
 const controller = new Controller(service);
 const router = new Router(controller, middleware);
 const httpServer = new Http(router);
 
-const handler = new Handler(service, tracer);
+const handler = new Handler(service);
 const grpcServer = new Grpc(handler);
 
 httpServer.start();

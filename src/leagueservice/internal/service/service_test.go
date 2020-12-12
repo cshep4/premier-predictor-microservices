@@ -1,19 +1,24 @@
-package league
+package league_test
 
 import (
-	"github.com/cshep4/premier-predictor-microservices/src/common/timer/mocks"
-	"github.com/cshep4/premier-predictor-microservices/src/leagueservice/internal/model"
-	"github.com/cshep4/premier-predictor-microservices/src/leagueservice/internal/repository/mocks"
-	"github.com/cshep4/premier-predictor-microservices/src/leagueservice/internal/user/mocks"
-	"github.com/golang/mock/gomock"
-	"github.com/pkg/errors"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
+	"context"
+	"errors"
 	"testing"
 	"time"
+
+	"github.com/cshep4/premier-predictor-microservices/src/leagueservice/internal/mocks/store"
+	"github.com/cshep4/premier-predictor-microservices/src/leagueservice/internal/mocks/table"
+	"github.com/cshep4/premier-predictor-microservices/src/leagueservice/internal/mocks/time"
+	"github.com/cshep4/premier-predictor-microservices/src/leagueservice/internal/mocks/user"
+	"github.com/cshep4/premier-predictor-microservices/src/leagueservice/internal/model"
+	"github.com/cshep4/premier-predictor-microservices/src/leagueservice/internal/service"
+
+	"github.com/golang/mock/gomock"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
-var e = errors.New("error")
+var testErr = errors.New("error")
 
 const (
 	id1   = "🆔"
@@ -49,114 +54,139 @@ func TestService_GetUsersLeagueList(t *testing.T) {
 		},
 	}
 
-	e := errors.New("error")
+	testErr := errors.New("error")
 
 	t.Run("returns error if there is a problem getting info for a league from db", func(t *testing.T) {
-		ctrl := gomock.NewController(t)
+		ctrl, ctx := gomock.WithContext(context.Background(), t)
 		defer ctrl.Finish()
 
-		repository := leaguemocks.NewMockRepository(ctrl)
-		userService := usermocks.NewMockUserService(ctrl)
-		timer := timermocks.NewMockTime(ctrl)
+		store := store_mock.NewMockStore(ctrl)
+		userService := user_mock.NewMockUserService(ctrl)
+		overallTable := table_mock.NewMockLeagueTable(ctrl)
+		timer := time_mock.NewMockTimer(ctrl)
 
-		service, err := NewService(repository, userService, timer)
+		service, err := league.New(store, userService, overallTable, timer)
 		require.NoError(t, err)
 
-		repository.EXPECT().GetLeaguesByUserId(id1).MaxTimes(1).Return(nil, e)
-		userService.EXPECT().GetUserCount().MaxTimes(1).Return(count, nil)
-		userService.EXPECT().GetOverallRank(id1).MaxTimes(1).Return(overallRank, nil)
+		store.EXPECT().GetLeaguesByUserId(gomock.Any(), id1).Return(nil, testErr)
+		userService.EXPECT().GetUserCount(gomock.Any()).MaxTimes(1).Return(count, nil)
+		overallTable.EXPECT().Rank(id1).MaxTimes(1).Return(123, true)
 
-		result, err := service.GetUsersLeagueList(id1)
+		result, err := service.GetUsersLeagueList(ctx, id1)
 		require.Error(t, err)
 
 		assert.Empty(t, result)
 	})
 
 	t.Run("returns error if there is a problem getting overall rank", func(t *testing.T) {
-		ctrl := gomock.NewController(t)
+		ctrl, ctx := gomock.WithContext(context.Background(), t)
 		defer ctrl.Finish()
 
-		repository := leaguemocks.NewMockRepository(ctrl)
-		userService := usermocks.NewMockUserService(ctrl)
-		timer := timermocks.NewMockTime(ctrl)
+		store := store_mock.NewMockStore(ctrl)
+		userService := user_mock.NewMockUserService(ctrl)
+		overallTable := table_mock.NewMockLeagueTable(ctrl)
+		timer := time_mock.NewMockTimer(ctrl)
 
-		service, err := NewService(repository, userService, timer)
+		service, err := league.New(store, userService, overallTable, timer)
 		require.NoError(t, err)
 
-		repository.EXPECT().GetLeaguesByUserId(id1).MaxTimes(1).Return(leagues, nil)
-		userService.EXPECT().GetOverallRank(id1).Return(int64(0), e)
-		userService.EXPECT().GetUserCount().MaxTimes(1).Return(count, nil)
-		userService.EXPECT().GetLeagueRank(id1, users1).MaxTimes(1).Return(league1Rank, nil)
-		userService.EXPECT().GetLeagueRank(id1, users2).MaxTimes(1).Return(league2Rank, nil)
+		store.EXPECT().GetLeaguesByUserId(gomock.Any(), id1).MaxTimes(1).Return(leagues, nil)
+		overallTable.EXPECT().Rank(id1).Return(0, false)
+		userService.EXPECT().GetUserCount(gomock.Any()).MaxTimes(1).Return(count, nil)
 
-		result, err := service.GetUsersLeagueList(id1)
+		result, err := service.GetUsersLeagueList(ctx, id1)
 		require.Error(t, err)
 
 		assert.Empty(t, result)
 	})
 
 	t.Run("returns error if there is a problem getting overall user count", func(t *testing.T) {
-		ctrl := gomock.NewController(t)
+		ctrl, ctx := gomock.WithContext(context.Background(), t)
 		defer ctrl.Finish()
 
-		repository := leaguemocks.NewMockRepository(ctrl)
-		userService := usermocks.NewMockUserService(ctrl)
-		timer := timermocks.NewMockTime(ctrl)
+		store := store_mock.NewMockStore(ctrl)
+		userService := user_mock.NewMockUserService(ctrl)
+		overallTable := table_mock.NewMockLeagueTable(ctrl)
+		timer := time_mock.NewMockTimer(ctrl)
 
-		service, err := NewService(repository, userService, timer)
+		service, err := league.New(store, userService, overallTable, timer)
 		require.NoError(t, err)
 
-		repository.EXPECT().GetLeaguesByUserId(id1).MaxTimes(1).Return(leagues, nil)
-		userService.EXPECT().GetOverallRank(id1).MaxTimes(1).Return(overallRank, nil)
-		userService.EXPECT().GetUserCount().Return(int64(0), e)
-		userService.EXPECT().GetLeagueRank(id1, users1).MaxTimes(1).Return(league1Rank, nil)
-		userService.EXPECT().GetLeagueRank(id1, users2).MaxTimes(1).Return(league2Rank, nil)
+		store.EXPECT().GetLeaguesByUserId(gomock.Any(), id1).MaxTimes(1).Return(leagues, nil)
+		overallTable.EXPECT().Rank(id1).MaxTimes(1).Return(123, true)
+		userService.EXPECT().GetUserCount(gomock.Any()).Return(int64(0), testErr)
 
-		result, err := service.GetUsersLeagueList(id1)
+		result, err := service.GetUsersLeagueList(ctx, id1)
 		require.Error(t, err)
 
 		assert.Empty(t, result)
 	})
 
 	t.Run("returns error if there is a problem getting rank for a league", func(t *testing.T) {
-		ctrl := gomock.NewController(t)
+		ctrl, ctx := gomock.WithContext(context.Background(), t)
 		defer ctrl.Finish()
 
-		repository := leaguemocks.NewMockRepository(ctrl)
-		userService := usermocks.NewMockUserService(ctrl)
-		timer := timermocks.NewMockTime(ctrl)
+		store := store_mock.NewMockStore(ctrl)
+		userService := user_mock.NewMockUserService(ctrl)
+		overallTable := table_mock.NewMockLeagueTable(ctrl)
+		timer := time_mock.NewMockTimer(ctrl)
 
-		service, err := NewService(repository, userService, timer)
+		service, err := league.New(store, userService, overallTable, timer)
 		require.NoError(t, err)
 
-		repository.EXPECT().GetLeaguesByUserId(id1).MaxTimes(1).Return(leagues, nil)
-		userService.EXPECT().GetUserCount().MaxTimes(1).Return(count, nil)
-		userService.EXPECT().GetOverallRank(id1).MaxTimes(1).Return(overallRank, nil)
-		userService.EXPECT().GetLeagueRank(id1, users1).Return(int64(0), e)
-		userService.EXPECT().GetLeagueRank(id1, users2).MaxTimes(1).Return(league2Rank, nil)
+		store.EXPECT().GetLeaguesByUserId(gomock.Any(), id1).Return(leagues, nil)
+		userService.EXPECT().GetUserCount(gomock.Any()).Return(count, nil)
+		overallTable.EXPECT().Rank(id1).MaxTimes(1).Return(123, true)
 
-		result, err := service.GetUsersLeagueList(id1)
+		u1 := model.LeagueUser{
+			Score: 10,
+		}
+		u2 := model.LeagueUser{
+			Score: 30,
+		}
+		u3 := model.LeagueUser{
+			Id:    id1,
+			Score: 20,
+		}
+
+		userService.EXPECT().GetLeagueUsers(gomock.Any(), users1).Return(nil, testErr)
+		userService.EXPECT().GetLeagueUsers(gomock.Any(), users2).MaxTimes(1).Return([]model.LeagueUser{u1, u2, u3}, nil)
+
+		result, err := service.GetUsersLeagueList(ctx, id1)
 		require.Error(t, err)
 
 		assert.Empty(t, result)
 	})
 
 	t.Run("returns standings overview from the user", func(t *testing.T) {
-		ctrl := gomock.NewController(t)
+		ctrl, ctx := gomock.WithContext(context.Background(), t)
 		defer ctrl.Finish()
 
-		repository := leaguemocks.NewMockRepository(ctrl)
-		userService := usermocks.NewMockUserService(ctrl)
-		timer := timermocks.NewMockTime(ctrl)
+		store := store_mock.NewMockStore(ctrl)
+		userService := user_mock.NewMockUserService(ctrl)
+		overallTable := table_mock.NewMockLeagueTable(ctrl)
+		timer := time_mock.NewMockTimer(ctrl)
 
-		service, err := NewService(repository, userService, timer)
+		service, err := league.New(store, userService, overallTable, timer)
 		require.NoError(t, err)
 
-		repository.EXPECT().GetLeaguesByUserId(id1).Return(leagues, nil)
-		userService.EXPECT().GetUserCount().Return(count, nil)
-		userService.EXPECT().GetOverallRank(id1).Return(overallRank, nil)
-		userService.EXPECT().GetLeagueRank(id1, users1).Return(league1Rank, nil)
-		userService.EXPECT().GetLeagueRank(id1, users2).Return(league2Rank, nil)
+		store.EXPECT().GetLeaguesByUserId(gomock.Any(), id1).Return(leagues, nil)
+		userService.EXPECT().GetUserCount(gomock.Any()).Return(count, nil)
+		overallTable.EXPECT().Rank(id1).MaxTimes(1).Return(123, true)
+
+		u1 := model.LeagueUser{
+			Score: 10,
+		}
+		u2 := model.LeagueUser{
+			Score: 30,
+		}
+		u3 := model.LeagueUser{
+			Id:    id1,
+			Score: 20,
+		}
+
+		userService.EXPECT().GetLeagueUsers(gomock.Any(), users1).Return([]model.LeagueUser{u2, u3}, nil)
+		userService.EXPECT().GetLeagueUsers(gomock.Any(), users2).MaxTimes(1).Return([]model.LeagueUser{u1, u3}, nil)
 
 		expectedResult := &model.StandingsOverview{
 			OverallLeagueOverview: model.OverallLeagueOverview{
@@ -165,19 +195,19 @@ func TestService_GetUsersLeagueList(t *testing.T) {
 			},
 			UserLeagues: []model.LeagueOverview{
 				{
-					Rank:       league1Rank,
+					Rank:       2,
 					LeagueName: name1,
 					Pin:        pin1,
 				},
 				{
-					Rank:       league2Rank,
+					Rank:       1,
 					LeagueName: name2,
 					Pin:        pin2,
 				},
 			},
 		}
 
-		result, err := service.GetUsersLeagueList(id1)
+		result, err := service.GetUsersLeagueList(ctx, id1)
 		require.NoError(t, err)
 
 		assert.Equal(t, expectedResult.OverallLeagueOverview, result.OverallLeagueOverview)
@@ -193,14 +223,15 @@ func TestService_GetUsersLeagueList(t *testing.T) {
 }
 
 func TestService_JoinUserLeague(t *testing.T) {
-	ctrl := gomock.NewController(t)
+	ctrl, ctx := gomock.WithContext(context.Background(), t)
 	defer ctrl.Finish()
 
-	repository := leaguemocks.NewMockRepository(ctrl)
-	userService := usermocks.NewMockUserService(ctrl)
-	timer := timermocks.NewMockTime(ctrl)
+	store := store_mock.NewMockStore(ctrl)
+	userService := user_mock.NewMockUserService(ctrl)
+	overallTable := table_mock.NewMockLeagueTable(ctrl)
+	timer := time_mock.NewMockTimer(ctrl)
 
-	service, err := NewService(repository, userService, timer)
+	service, err := league.New(store, userService, overallTable, timer)
 	require.NoError(t, err)
 
 	league := &model.League{
@@ -212,50 +243,58 @@ func TestService_JoinUserLeague(t *testing.T) {
 	users := []string{id2, id3, id1}
 
 	t.Run("Returns error if it cannot get league info", func(t *testing.T) {
-		repository.EXPECT().GetLeagueByPin(pin1).Return(nil, e)
+		store.EXPECT().GetLeagueByPin(ctx, pin1).Return(nil, testErr)
 
-		result, err := service.JoinUserLeague(id1, pin1)
+		result, err := service.JoinUserLeague(ctx, id1, pin1)
 		require.Error(t, err)
 
-		assert.Equal(t, e, err)
+		assert.True(t, errors.Is(err, testErr))
 		assert.Empty(t, result)
 	})
 
 	t.Run("Returns error if it cannot get league rank", func(t *testing.T) {
-		repository.EXPECT().GetLeagueByPin(pin1).Return(league, nil)
-		userService.EXPECT().GetLeagueRank(id1, users).Return(int64(0), e)
+		store.EXPECT().GetLeagueByPin(ctx, pin1).Return(league, nil)
+		userService.EXPECT().GetLeagueUsers(ctx, users).Return(nil, testErr)
 
-		result, err := service.JoinUserLeague(id1, pin1)
+		result, err := service.JoinUserLeague(ctx, id1, pin1)
 		require.Error(t, err)
 
-		assert.Equal(t, e, err)
+		assert.True(t, errors.Is(err, testErr))
 		assert.Empty(t, result)
 	})
 
 	t.Run("Returns error if user cannot join league", func(t *testing.T) {
-		repository.EXPECT().GetLeagueByPin(pin1).Return(league, nil)
-		userService.EXPECT().GetLeagueRank(id1, users).Return(league1Rank, nil)
-		repository.EXPECT().JoinLeague(pin1, id1).Return(e)
+		u := model.LeagueUser{
+			Id: id1,
+		}
 
-		result, err := service.JoinUserLeague(id1, pin1)
+		store.EXPECT().GetLeagueByPin(ctx, pin1).Return(league, nil)
+		userService.EXPECT().GetLeagueUsers(ctx, users).Return([]model.LeagueUser{u}, nil)
+		store.EXPECT().JoinLeague(ctx, pin1, id1).Return(testErr)
+
+		result, err := service.JoinUserLeague(ctx, id1, pin1)
 		require.Error(t, err)
 
-		assert.Equal(t, e, err)
+		assert.True(t, errors.Is(err, testErr))
 		assert.Empty(t, result)
 	})
 
 	t.Run("Gets league info and joins", func(t *testing.T) {
 		leagueOverview := &model.LeagueOverview{
-			Rank:       league1Rank,
+			Rank:       1,
 			LeagueName: name1,
 			Pin:        pin1,
 		}
 
-		repository.EXPECT().GetLeagueByPin(pin1).Return(league, nil)
-		userService.EXPECT().GetLeagueRank(id1, users).Return(league1Rank, nil)
-		repository.EXPECT().JoinLeague(pin1, id1).Return(nil)
+		u := model.LeagueUser{
+			Id: id1,
+		}
 
-		result, err := service.JoinUserLeague(id1, pin1)
+		store.EXPECT().GetLeagueByPin(ctx, pin1).Return(league, nil)
+		userService.EXPECT().GetLeagueUsers(ctx, users).Return([]model.LeagueUser{u}, nil)
+		store.EXPECT().JoinLeague(ctx, pin1, id1).Return(nil)
+
+		result, err := service.JoinUserLeague(ctx, id1, pin1)
 		require.NoError(t, err)
 
 		assert.Equal(t, leagueOverview, result)
@@ -263,14 +302,15 @@ func TestService_JoinUserLeague(t *testing.T) {
 }
 
 func TestService_AddUserLeague(t *testing.T) {
-	ctrl := gomock.NewController(t)
+	ctrl, ctx := gomock.WithContext(context.Background(), t)
 	defer ctrl.Finish()
 
-	repository := leaguemocks.NewMockRepository(ctrl)
-	userService := usermocks.NewMockUserService(ctrl)
-	timer := timermocks.NewMockTime(ctrl)
+	store := store_mock.NewMockStore(ctrl)
+	userService := user_mock.NewMockUserService(ctrl)
+	overallTable := table_mock.NewMockLeagueTable(ctrl)
+	timer := time_mock.NewMockTimer(ctrl)
 
-	service, err := NewService(repository, userService, timer)
+	service, err := league.New(store, userService, overallTable, timer)
 	require.NoError(t, err)
 
 	const currentTime = 1512345678912
@@ -284,19 +324,19 @@ func TestService_AddUserLeague(t *testing.T) {
 	}
 
 	t.Run("returns error if league cannot be added", func(t *testing.T) {
-		repository.EXPECT().AddLeague(league).Return(e)
+		store.EXPECT().AddLeague(ctx, league).Return(testErr)
 
-		result, err := service.AddUserLeague(id1, name1)
+		result, err := service.AddUserLeague(ctx, id1, name1)
 		require.Error(t, err)
 
-		assert.Equal(t, e, err)
+		assert.True(t, errors.Is(err, testErr))
 		assert.Empty(t, result)
 	})
 
 	t.Run("returns league once added", func(t *testing.T) {
-		repository.EXPECT().AddLeague(league).Return(nil)
+		store.EXPECT().AddLeague(ctx, league).Return(nil)
 
-		result, err := service.AddUserLeague(id1, name1)
+		result, err := service.AddUserLeague(ctx, id1, name1)
 		require.NoError(t, err)
 
 		assert.Equal(t, &league, result)
@@ -304,70 +344,73 @@ func TestService_AddUserLeague(t *testing.T) {
 }
 
 func TestService_LeaveUserLeague(t *testing.T) {
-	ctrl := gomock.NewController(t)
+	ctrl, ctx := gomock.WithContext(context.Background(), t)
 	defer ctrl.Finish()
 
-	repository := leaguemocks.NewMockRepository(ctrl)
-	userService := usermocks.NewMockUserService(ctrl)
-	timer := timermocks.NewMockTime(ctrl)
+	store := store_mock.NewMockStore(ctrl)
+	userService := user_mock.NewMockUserService(ctrl)
+	overallTable := table_mock.NewMockLeagueTable(ctrl)
+	timer := time_mock.NewMockTimer(ctrl)
 
-	service, err := NewService(repository, userService, timer)
+	service, err := league.New(store, userService, overallTable, timer)
 	require.NoError(t, err)
 
 	t.Run("Returns error if there is a problem", func(t *testing.T) {
-		repository.EXPECT().LeaveLeague(pin1, id1).Return(e)
+		store.EXPECT().LeaveLeague(ctx, pin1, id1).Return(testErr)
 
-		err := service.LeaveUserLeague(id1, pin1)
+		err := service.LeaveUserLeague(ctx, id1, pin1)
 		require.Error(t, err)
 
-		assert.Equal(t, e, err)
+		assert.True(t, errors.Is(err, testErr))
 	})
 
 	t.Run("Adds user to league", func(t *testing.T) {
-		repository.EXPECT().LeaveLeague(pin1, id1).Return(nil)
+		store.EXPECT().LeaveLeague(ctx, pin1, id1).Return(nil)
 
-		err := service.LeaveUserLeague(id1, pin1)
+		err := service.LeaveUserLeague(ctx, id1, pin1)
 		require.NoError(t, err)
 	})
 }
 
 func TestService_RenameUserLeague(t *testing.T) {
-	ctrl := gomock.NewController(t)
+	ctrl, ctx := gomock.WithContext(context.Background(), t)
 	defer ctrl.Finish()
 
-	repository := leaguemocks.NewMockRepository(ctrl)
-	userService := usermocks.NewMockUserService(ctrl)
-	timer := timermocks.NewMockTime(ctrl)
+	store := store_mock.NewMockStore(ctrl)
+	userService := user_mock.NewMockUserService(ctrl)
+	overallTable := table_mock.NewMockLeagueTable(ctrl)
+	timer := time_mock.NewMockTimer(ctrl)
 
-	service, err := NewService(repository, userService, timer)
+	service, err := league.New(store, userService, overallTable, timer)
 	require.NoError(t, err)
 
 	t.Run("Returns error if there is a problem", func(t *testing.T) {
-		repository.EXPECT().RenameLeague(pin1, name2).Return(e)
+		store.EXPECT().RenameLeague(ctx, pin1, name2).Return(testErr)
 
-		err := service.RenameUserLeague(pin1, name2)
+		err := service.RenameUserLeague(ctx, pin1, name2)
 		require.Error(t, err)
 
-		assert.Equal(t, e, err)
+		assert.True(t, errors.Is(err, testErr))
 	})
 
 	t.Run("Renames league", func(t *testing.T) {
-		repository.EXPECT().RenameLeague(pin1, name2).Return(nil)
+		store.EXPECT().RenameLeague(ctx, pin1, name2).Return(nil)
 
-		err := service.RenameUserLeague(pin1, name2)
+		err := service.RenameUserLeague(ctx, pin1, name2)
 		require.NoError(t, err)
 	})
 }
 
 func TestService_GetLeagueTable(t *testing.T) {
-	ctrl := gomock.NewController(t)
+	ctrl, ctx := gomock.WithContext(context.Background(), t)
 	defer ctrl.Finish()
 
-	repository := leaguemocks.NewMockRepository(ctrl)
-	userService := usermocks.NewMockUserService(ctrl)
-	timer := timermocks.NewMockTime(ctrl)
+	store := store_mock.NewMockStore(ctrl)
+	userService := user_mock.NewMockUserService(ctrl)
+	overallTable := table_mock.NewMockLeagueTable(ctrl)
+	timer := time_mock.NewMockTimer(ctrl)
 
-	service, err := NewService(repository, userService, timer)
+	service, err := league.New(store, userService, overallTable, timer)
 	require.NoError(t, err)
 
 	league := &model.League{
@@ -376,88 +419,79 @@ func TestService_GetLeagueTable(t *testing.T) {
 	}
 
 	t.Run("Returns error if there is a problem getting league", func(t *testing.T) {
-		repository.EXPECT().GetLeagueByPin(pin1).Return(nil, e)
+		store.EXPECT().GetLeagueByPin(ctx, pin1).Return(nil, testErr)
 
-		result, err := service.GetLeagueTable(pin1)
+		result, err := service.GetLeagueTable(ctx, pin1)
 		require.Error(t, err)
 
-		assert.Equal(t, e, err)
+		assert.True(t, errors.Is(err, testErr))
 		assert.Empty(t, result)
 	})
 
 	t.Run("Returns error if there is a problem getting users", func(t *testing.T) {
-		repository.EXPECT().GetLeagueByPin(pin1).Return(league, nil)
-		userService.EXPECT().GetLeagueUsers(users1).Return(nil, e)
+		store.EXPECT().GetLeagueByPin(ctx, pin1).Return(league, nil)
+		userService.EXPECT().GetLeagueUsers(ctx, users1).Return(nil, testErr)
 
-		result, err := service.GetLeagueTable(pin1)
+		result, err := service.GetLeagueTable(ctx, pin1)
 		require.Error(t, err)
 
-		assert.Equal(t, e, err)
+		assert.True(t, errors.Is(err, testErr))
 		assert.Empty(t, result)
 	})
 
 	t.Run("Gets users and returns them sorted by points", func(t *testing.T) {
-		u1 := &model.LeagueUser{
+		u1 := model.LeagueUser{
 			Score: 10,
 		}
-		u2 := &model.LeagueUser{
+		u2 := model.LeagueUser{
 			Score: 30,
 		}
-		u3 := &model.LeagueUser{
+		u3 := model.LeagueUser{
 			Score: 20,
 		}
 
-		repository.EXPECT().GetLeagueByPin(pin1).Return(league, nil)
-		userService.EXPECT().GetLeagueUsers(users1).Return([]*model.LeagueUser{u1, u2, u3}, nil)
+		store.EXPECT().GetLeagueByPin(ctx, pin1).Return(league, nil)
+		userService.EXPECT().GetLeagueUsers(ctx, users1).Return([]model.LeagueUser{u1, u2, u3}, nil)
 
-		result, err := service.GetLeagueTable(pin1)
+		result, err := service.GetLeagueTable(ctx, pin1)
 		require.NoError(t, err)
 
-		expectedResult := []*model.LeagueUser{u2, u3, u1}
+		expectedResult := []model.LeagueUser{u2, u3, u1}
 
 		assert.Equal(t, expectedResult, result)
 	})
 }
 
 func TestService_GetOverallLeagueTable(t *testing.T) {
-	ctrl := gomock.NewController(t)
+	ctrl, ctx := gomock.WithContext(context.Background(), t)
 	defer ctrl.Finish()
 
-	repository := leaguemocks.NewMockRepository(ctrl)
-	userService := usermocks.NewMockUserService(ctrl)
-	timer := timermocks.NewMockTime(ctrl)
+	store := store_mock.NewMockStore(ctrl)
+	userService := user_mock.NewMockUserService(ctrl)
+	overallTable := table_mock.NewMockLeagueTable(ctrl)
+	timer := time_mock.NewMockTimer(ctrl)
 
-	service, err := NewService(repository, userService, timer)
+	service, err := league.New(store, userService, overallTable, timer)
 	require.NoError(t, err)
 
-	t.Run("Returns error if there is a problem getting users", func(t *testing.T) {
-		userService.EXPECT().GetAllUsers().Return(nil, e)
-
-		result, err := service.GetOverallLeagueTable()
-		require.Error(t, err)
-
-		assert.Equal(t, e, err)
-		assert.Empty(t, result)
-	})
-
 	t.Run("Gets users and returns them sorted by points", func(t *testing.T) {
-		u1 := &model.LeagueUser{
+		u1 := model.LeagueUser{
 			Score: 10,
 		}
-		u2 := &model.LeagueUser{
+		u2 := model.LeagueUser{
 			Score: 30,
 		}
-		u3 := &model.LeagueUser{
+		u3 := model.LeagueUser{
 			Score: 20,
 		}
 
-		userService.EXPECT().GetAllUsers().Return([]*model.LeagueUser{u1, u2, u3}, nil)
+		leagueTable := []model.LeagueUser{u2, u3, u1}
 
-		result, err := service.GetOverallLeagueTable()
+		overallTable.EXPECT().LeagueTable().Return(leagueTable)
+
+		result, err := service.GetOverallLeagueTable(ctx)
 		require.NoError(t, err)
 
-		expectedResult := []*model.LeagueUser{u2, u3, u1}
-
-		assert.Equal(t, expectedResult, result)
+		assert.Equal(t, leagueTable, result)
 	})
 }

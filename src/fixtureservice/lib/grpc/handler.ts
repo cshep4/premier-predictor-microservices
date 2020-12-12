@@ -4,7 +4,7 @@ import {Forms} from "../model/form";
 import {logger} from "../utils/utils";
 
 export class Handler {
-    constructor(private service: Service, private tracer: any) {
+    constructor(private service: Service) {
     }
 
     public getMatches(call, callback) {

@@ -3,7 +3,10 @@ package app
 import (
 	"context"
 	"fmt"
+
 	"golang.org/x/sync/errgroup"
+
+	"github.com/cshep4/premier-predictor-microservices/src/common/run"
 )
 
 type Runner interface {
@@ -30,6 +33,16 @@ func New(opts ...Option) App {
 }
 
 func (a *App) Run(ctx context.Context) error {
+	ctx, cancel := context.WithCancel(ctx)
+	g, ctx := errgroup.WithContext(ctx)
+
+	g.Go(func() error { return a.run(ctx) })
+	g.Go(run.HandleShutdown(g, ctx, cancel, a.shutdown))
+
+	return g.Wait()
+}
+
+func (a *App) run(ctx context.Context) error {
 	g, ctx := errgroup.WithContext(ctx)
 
 	for _, s := range a.startups {
@@ -51,7 +64,7 @@ func (a *App) Run(ctx context.Context) error {
 	return g.Wait()
 }
 
-func (a *App) Shutdown(ctx context.Context) error {
+func (a *App) shutdown(ctx context.Context) error {
 	for _, s := range a.shutdowns {
 		if err := s(ctx); err != nil {
 			return fmt.Errorf("shutdown_func: %w", err)

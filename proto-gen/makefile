@@ -2,22 +2,20 @@ PROJECT_NAME = premier-predictor-microservices
 
 _gendart:
 	@mkdir -p model/gen/ship/dart
-	@protoc -I=model/protodefs --plugin=/Users/chrisshepherd/.pub-cache/bin/protoc-gen-dart --dart_out=grpc:model/gen/ship/dart model/protodefs/*.proto
+	@protoc -I=model/proto --plugin=/Users/chrisshepherd/.pub-cache/bin/protoc-gen-dart --dart_out=grpc:model/gen/ship/dart model/proto/*.proto
 
 _gengo:
 	@mkdir -p model/gen
-	@protoc -I=model/protodefs --go_out=plugins=grpc:model/gen model/protodefs/*.proto
+	@protoc -I=model/proto --go_out=plugins=grpc:model/gen model/proto/*.proto
 
 _copyjava:
-	@cp -R model/protodefs/auth.proto model/protodefs/notification.proto model/protodefs/request.proto ../src/notificationservice/protodefs
-
-_copyjs:
-	@cp -R model/protodefs/auth.proto model/protodefs/request.proto ../src/authservice/protodefs
+	@cp -R model/proto/auth.proto model/proto/notification.proto model/proto/request.proto ../src/notificationservice/proto
+	@cp -R model/proto/auth.proto model/proto/user.proto  ../src/kauthservice/src/main/proto
 
 _copyts:
-	@cp -R model/protodefs/auth.proto model/protodefs/request.proto model/protodefs/fixture.proto ../src/fixtureservice/protodefs
+	@cp -R model/proto/auth.proto model/proto/request.proto model/proto/fixture.proto ../src/fixtureservice/proto
 
-gen: _gengo _copyjava _copyjs _copyts
+gen: _gengo _copyjava _copyts
 
 build: get gen
 	@env CGO_ENABLED=0 GOOS=linux GOARCH=386 go build -ldflags '-w -extldflags "-static"' -o build/${PROJECT_NAME}_linux_amd64 .

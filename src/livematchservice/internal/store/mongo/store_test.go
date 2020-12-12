@@ -73,7 +73,7 @@ func Test_Store(t *testing.T) {
 				createMatch(m)
 			}
 
-			matches, err := store.GetUpcomingMatches()
+			matches, err := store.GetUpcomingMatches(ctx)
 			require.NoError(t, err)
 
 			assert.Equal(t, limit, len(matches))
@@ -93,7 +93,7 @@ func Test_Store(t *testing.T) {
 			}
 			createMatch(m)
 
-			matches, err := store.GetUpcomingMatches()
+			matches, err := store.GetUpcomingMatches(ctx)
 			require.NoError(t, err)
 
 			assert.Equal(t, toMatchFacts(m), &matches[0])
@@ -112,7 +112,7 @@ func Test_Store(t *testing.T) {
 				createMatch(m)
 			}
 
-			matches, err := store.GetUpcomingMatches()
+			matches, err := store.GetUpcomingMatches(ctx)
 			require.NoError(t, err)
 
 			assert.Equal(t, 0, len(matches))
@@ -130,7 +130,7 @@ func Test_Store(t *testing.T) {
 			createMatch(m)
 			defer cleanupDb()
 
-			match, err := store.GetMatchFacts(matchId)
+			match, err := store.GetMatchFacts(ctx, matchId)
 			require.NoError(t, err)
 
 			expectedResult := toMatchFacts(m)
@@ -139,7 +139,7 @@ func Test_Store(t *testing.T) {
 		})
 
 		t.Run("Returns error if not found", func(t *testing.T) {
-			match, err := store.GetMatchFacts(matchId)
+			match, err := store.GetMatchFacts(ctx, matchId)
 			require.Error(t, err)
 
 			assert.Nil(t, match)
