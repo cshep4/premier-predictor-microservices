@@ -20,7 +20,10 @@ type (
 	}
 	Store interface {
 		GetUpcomingMatches(ctx context.Context) ([]common.MatchFacts, error)
+		GetTodaysMatches(ctx context.Context) ([]common.MatchFacts, error)
 		GetMatchFacts(ctx context.Context, id string) (*common.MatchFacts, error)
+		SubscribeToMatch(ctx context.Context, id string, observer model.MatchObserver) error
+		SubscribeToMatches(ctx context.Context, ids []string, observer model.MatchObserver) error
 	}
 
 	service struct {
@@ -113,7 +116,7 @@ func (s *service) GetUpcomingMatches(ctx context.Context) (map[time.Time][]commo
 	upcomingMatches := make(map[time.Time][]common.MatchFacts)
 
 	underscore.Chain(matches).
-		Group(s.groupByMatchDate).
+		Group(func(m common.MatchFacts, _ int) time.Time { return m.MatchDate }).
 		Value(&upcomingMatches)
 
 	if err := recover(); err != nil {
@@ -123,6 +126,45 @@ func (s *service) GetUpcomingMatches(ctx context.Context) (map[time.Time][]commo
 	return upcomingMatches, nil
 }
 
-func (s *service) groupByMatchDate(m common.MatchFacts, _ int) time.Time {
-	return m.MatchDate
+func (s *service) GetTodaysMatches(ctx context.Context) ([]common.MatchFacts, error) {
+	matches, err := s.store.GetTodaysMatches(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("get todays matches: %w", err)
+	}
+
+	return matches, nil
+}
+
+func (s *service) SubscribeToMatch(ctx context.Context, id string, observer model.MatchObserver) error {
+	err := s.store.SubscribeToMatch(ctx, id, observer)
+	if err != nil {
+		return fmt.Errorf("subscribe_to_match_%s: %w", id, err)
+	}
+
+	return nil
+}
+
+func (s *service) SubscribeToTodaysMatches(ctx context.Context, observer model.MatchObserver) error {
+	matches, err := s.store.GetTodaysMatches(ctx)
+	if err != nil {
+		return fmt.Errorf("get_todays_matches: %w", err)
+	}
+
+	observable := model.MatchObservable{}
+	observable.AddObserver(observer)
+
+	var ids []string
+	for _, m := range matches {
+		if err := observable.Notify(&m); err != nil {
+			return fmt.Errorf("observable_notify_for_match_%s: %w", m.Id, err)
+		}
+		ids = append(ids, m.Id)
+	}
+
+	err = s.store.SubscribeToMatches(ctx, ids, observer)
+	if err != nil {
+		return fmt.Errorf("subscribe_to_matches_%v: %w", ids, err)
+	}
+
+	return nil
 }

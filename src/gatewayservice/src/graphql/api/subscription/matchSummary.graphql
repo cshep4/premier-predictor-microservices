@@ -1,6 +1,6 @@
-subscription matchSummary($request: MatchSummaryInput!) {
-    matchSummary(request: $request) {
-        match {
+subscription liveMatchSummary($request: MatchSummaryInput!) {
+    liveMatchSummary(request: $request) {
+        liveMatch {
             id
             compId
             formattedDate
@@ -9,6 +9,9 @@ subscription matchSummary($request: MatchSummaryInput!) {
             venue
             venueId
             venueCity
+            venueLatitude
+            venueLongitude
+            venueCountry
             status
             timer
             time
@@ -170,7 +173,7 @@ subscription matchSummary($request: MatchSummaryInput!) {
             }
             matchDate
         }
-        matchPredictionSummary {
+        predictionSummary {
             homeWin
             draw
             awayWin

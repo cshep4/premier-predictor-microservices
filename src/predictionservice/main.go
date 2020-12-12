@@ -11,10 +11,8 @@ import (
 	"github.com/cshep4/premier-predictor-microservices/src/common/app"
 	"github.com/cshep4/premier-predictor-microservices/src/common/auth"
 	"github.com/cshep4/premier-predictor-microservices/src/common/gcp"
-	"github.com/cshep4/premier-predictor-microservices/src/common/gcp/tracer"
 	grpcconn "github.com/cshep4/premier-predictor-microservices/src/common/grpc"
 	"github.com/cshep4/premier-predictor-microservices/src/common/log"
-	"github.com/cshep4/premier-predictor-microservices/src/common/run"
 	"github.com/cshep4/premier-predictor-microservices/src/common/runner/grpc"
 	"github.com/cshep4/premier-predictor-microservices/src/common/runner/http"
 	"github.com/cshep4/premier-predictor-microservices/src/common/store/mongo"
@@ -23,7 +21,6 @@ import (
 	httphandler "github.com/cshep4/premier-predictor-microservices/src/predictionservice/internal/handler/http"
 	svc "github.com/cshep4/premier-predictor-microservices/src/predictionservice/internal/service"
 	mongostore "github.com/cshep4/premier-predictor-microservices/src/predictionservice/internal/store/mongo"
-	"golang.org/x/sync/errgroup"
 )
 
 const (
@@ -111,7 +108,7 @@ func start(ctx context.Context) error {
 		return fmt.Errorf("create grpc handler: %w", err)
 	}
 
-	tracer := tracer.New()
+	//tracer := tracer.New()
 
 	app := app.New(
 		app.WithStartupFunc(gcp.Profile(serviceName, version)),
@@ -123,8 +120,8 @@ func start(ctx context.Context) error {
 			grpc.New(
 				grpc.WithPort(grpcPort),
 				grpc.WithLogger(serviceName, logLevel),
-				grpc.WithUnaryInterceptor(tracer.GrpcUnary),
-				grpc.WithStreamInterceptor(tracer.GrpcStream),
+				//grpc.WithUnaryInterceptor(tracer.GrpcUnary),
+				//grpc.WithStreamInterceptor(tracer.GrpcStream),
 				grpc.WithUnaryInterceptor(authenticator.GrpcUnary),
 				grpc.WithStreamInterceptor(authenticator.GrpcStream),
 				grpc.WithRegisterer(rpc),
@@ -134,7 +131,7 @@ func start(ctx context.Context) error {
 			http.New(
 				http.WithPort(httpPort),
 				http.WithLogger(serviceName, logLevel),
-				http.WithHandler(tracer),
+				//http.WithHandler(tracer),
 				http.WithMiddleware(authenticator.Http),
 				http.WithRouter(h),
 				http.WithRegisterer(http.Health()),
@@ -142,13 +139,7 @@ func start(ctx context.Context) error {
 		),
 	)
 
-	ctx, cancel := context.WithCancel(ctx)
-	g, ctx := errgroup.WithContext(ctx)
-
-	g.Go(func() error { return app.Run(ctx) })
-	g.Go(run.HandleShutdown(g, ctx, cancel, app.Shutdown))
-
-	return g.Wait()
+	return app.Run(ctx)
 }
 
 func main() {

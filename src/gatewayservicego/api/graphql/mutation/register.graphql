@@ -1,3 +1,0 @@
-mutation register($request: RegisterInput!) {
-    register(request: $request)
-}

@@ -1,0 +1,35 @@
+query homeFeed($request: HomeFeedInput!) {
+    homeFeed(request: $request) {
+        rank
+        score
+        messages
+        todaysMatches {
+            ...matchFacts
+        }
+        upcomingFixtures {
+            ...fixturePrediction
+        }
+        leagues {
+            ...leagueOverview
+        }
+    }
+}
+
+fragment fixturePrediction on FixturePrediction {
+    id
+    hTeam
+    aTeam
+    hGoals
+    aGoals
+    hPrediction
+    aPrediction
+    played
+    dateTime
+    matchday
+}
+
+fragment leagueOverview on LeagueOverview {
+    leagueName
+    pin
+    rank
+}

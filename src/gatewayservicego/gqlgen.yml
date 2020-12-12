@@ -1,9 +1,0 @@
-schema:
-  - "api/graphql/schema/*.graphql"
-exec:
-  filename: internal/schema/schema.gen.go
-  package: schema
-model:
-  filename: internal/model/model.gen.go
-  package: model
-models:

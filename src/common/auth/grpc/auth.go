@@ -4,16 +4,18 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen"
-	auth "github.com/cshep4/premier-predictor-microservices/src/common/auth/internal/context"
-	grpccfg "github.com/cshep4/premier-predictor-microservices/src/common/grpc"
+
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
+
+	"github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen"
+	auth "github.com/cshep4/premier-predictor-microservices/src/common/auth/internal/context"
+	grpccfg "github.com/cshep4/premier-predictor-microservices/src/common/grpc"
 )
 
-const authUserAgent = "grpc-java-netty/1.29.0"
+const authUserAgent = "kauthservice/1.0.0"
 
 type (
 	authenticator struct {
@@ -51,7 +53,7 @@ func (a *authenticator) GrpcUnary(ctx context.Context, req interface{}, _ *grpc.
 		return nil, status.Error(codes.Unauthenticated, err.Error())
 	}
 
-	ctx, err = a.doAuth(ctx, token, a.serviceName, model.Role_ROLE_SERVICE)
+	ctx, err = a.doAuth(ctx, token)
 	if err != nil {
 		return nil, status.Error(codes.Unauthenticated, err.Error())
 	}
@@ -65,7 +67,7 @@ func (a *authenticator) GrpcStream(srv interface{}, stream grpc.ServerStream, _ 
 		return status.Error(codes.Unauthenticated, err.Error())
 	}
 
-	ctx, err := a.doAuth(stream.Context(), token, a.serviceName, model.Role_ROLE_SERVICE)
+	ctx, err := a.doAuth(stream.Context(), token)
 	if err != nil {
 		return status.Error(codes.Unauthenticated, err.Error())
 	}
@@ -76,9 +78,16 @@ func (a *authenticator) GrpcStream(srv interface{}, stream grpc.ServerStream, _ 
 	})
 }
 
-func (a *authenticator) doAuth(ctx context.Context, token, audience string, role model.Role) (context.Context, error) {
+func (a *authenticator) doAuth(ctx context.Context, token string) (context.Context, error) {
 	if getUserAgentFromGrpcMetadata(ctx) == authUserAgent {
 		return auth.SetTokenCtx(ctx, token), nil
+	}
+
+	role := model.Role_ROLE_USER
+	audience, ok := getAudienceFromGrpcMetadata(ctx)
+	if !ok {
+		role = model.Role_ROLE_SERVICE
+		audience = a.serviceName
 	}
 
 	_, err := a.authClient.Validate(ctx, &model.ValidateRequest{
@@ -117,4 +126,17 @@ func getUserAgentFromGrpcMetadata(ctx context.Context) string {
 	}
 
 	return meta["user-agent"][0]
+}
+
+func getAudienceFromGrpcMetadata(ctx context.Context) (string, bool) {
+	meta, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return "", false
+	}
+
+	if len(meta["audience"]) != 1 {
+		return "", false
+	}
+
+	return meta["audience"][0], true
 }

@@ -1,5 +1,0 @@
-input SendMessageInput {
-    message: String!,
-    userId: String!,
-    chatId: String!
-}

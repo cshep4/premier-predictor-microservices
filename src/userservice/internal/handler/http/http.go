@@ -1,9 +1,12 @@
 package http
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 
 	"github.com/cshep4/premier-predictor-microservices/src/userservice/internal/handler"
@@ -73,7 +76,7 @@ func (h *router) getUser(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-	case err == model.ErrUserNotFound:
+	case errors.Is(err, model.ErrUserNotFound):
 		h.errorResponse(r.Context(), http.StatusNotFound, "user not found", w)
 	case isInvalidParameterErr(err):
 		h.errorResponse(r.Context(), http.StatusBadRequest, err.Error(), w)
@@ -94,7 +97,7 @@ func (h *router) updateUserInfo(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case err == nil:
 		// 200 OK
-	case err == model.ErrUserNotFound:
+	case errors.Is(err, model.ErrUserNotFound):
 		h.errorResponse(r.Context(), http.StatusNotFound, "user not found", w)
 	case isInvalidParameterErr(err):
 		h.errorResponse(r.Context(), http.StatusBadRequest, err.Error(), w)
@@ -115,7 +118,7 @@ func (h *router) updatePassword(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case err == nil:
 		// 200 OK
-	case err == model.ErrUserNotFound:
+	case errors.Is(err, model.ErrUserNotFound):
 		h.errorResponse(r.Context(), http.StatusNotFound, "user not found", w)
 	case isInvalidParameterErr(err):
 		h.errorResponse(r.Context(), http.StatusBadRequest, err.Error(), w)
@@ -142,7 +145,7 @@ func (h *router) getUserScore(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-	case err == model.ErrUserNotFound:
+	case errors.Is(err, model.ErrUserNotFound):
 		h.errorResponse(r.Context(), http.StatusNotFound, "user not found", w)
 	case isInvalidParameterErr(err):
 		h.errorResponse(r.Context(), http.StatusBadRequest, err.Error(), w)
@@ -163,7 +166,7 @@ func (h *router) storeLegacyUser(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case err == nil:
 		// 200 OK
-	case err == model.ErrUserNotFound:
+	case errors.Is(err, model.ErrUserNotFound):
 		h.errorResponse(r.Context(), http.StatusNotFound, "user not found", w)
 	case isInvalidParameterErr(err):
 		h.errorResponse(r.Context(), http.StatusBadRequest, err.Error(), w)
@@ -207,6 +210,17 @@ func (h *router) GetRequestAudience(r *http.Request) string {
 		var req struct {
 			Id string `json:"id"`
 		}
+
+		bodyBytes, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			return ""
+		}
+
+		defer func() {
+			r.Body.Close()
+			r.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
+		}()
+
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			return ""
 		}

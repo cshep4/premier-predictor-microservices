@@ -48,7 +48,7 @@ func New(ctx context.Context, client *mongo.Client) (*store, error) {
 		client: client,
 	}
 
-	if err := s.Ping(ctx); err != nil {
+	if err := s.ping(ctx); err != nil {
 		return nil, fmt.Errorf("ping: %w", err)
 	}
 
@@ -477,7 +477,7 @@ func toObjectIds(ids []string) (objectIds []primitive.ObjectID, err error) {
 	return
 }
 
-func (s *store) Ping(ctx context.Context) error {
+func (s *store) ping(ctx context.Context) error {
 	ctx, _ = context.WithTimeout(ctx, 2*time.Second)
 	return s.client.Ping(ctx, nil)
 }

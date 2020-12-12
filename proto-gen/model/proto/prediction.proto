@@ -9,7 +9,16 @@ package model;
 
 service PredictionService {
     rpc GetPrediction (PredictionRequest) returns (Prediction) {}
+    rpc GetUserPredictions (GetUserPredictionsRequest) returns (GetUserPredictionsResponse) {}
     rpc GetPredictionSummary (IdRequest) returns (MatchPredictionSummary) {}
+}
+
+message GetUserPredictionsRequest {
+    string userId = 1;
+}
+
+message GetUserPredictionsResponse {
+    repeated Prediction predictions = 1;
 }
 
 message Prediction {

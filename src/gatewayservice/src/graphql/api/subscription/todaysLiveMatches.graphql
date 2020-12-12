@@ -1,0 +1,177 @@
+subscription todaysLiveMatches {
+    todaysLiveMatches {
+        match {
+            id
+            compId
+            formattedDate
+            season
+            week
+            venue
+            venueId
+            venueCity
+            venueLatitude
+            venueLongitude
+            venueCountry
+            status
+            timer
+            time
+            localTeamId
+            localTeamName
+            localTeamScore
+            visitorTeamId
+            visitorTeamName
+            visitorTeamScore
+            htScore
+            ftScore
+            etScore
+            penaltyLocal
+            penaltyVisitor
+            events {
+                id
+                type
+                result
+                minute
+                extraMin
+                team
+                player
+                playerId
+                assist
+                assistId
+            }
+            commentary {
+                matchId
+                matchInfo {
+                    stadium
+                    attendance
+                    referee
+                }
+                lineup {
+                    localTeam {
+                        id
+                        number
+                        name
+                        pos
+                    }
+                    visitorTeam {
+                        id
+                        number
+                        name
+                        pos
+                    }
+                }
+                subs {
+                    localTeam {
+                        id
+                        number
+                        name
+                        pos
+                    }
+                    visitorTeam {
+                        id
+                        number
+                        name
+                        pos
+                    }
+                }
+                substitutions {
+                    localTeam {
+                        offName
+                        onName
+                        offId
+                        onId
+                        minute
+                        tableId
+                    }
+                    visitorTeam {
+                        offName
+                        onName
+                        offId
+                        onId
+                        minute
+                        tableId
+                    }
+                }
+                comments {
+                    id
+                    important
+                    goal
+                    minute
+                    comment
+                }
+                matchStats {
+                    localTeam {
+                        shotsTotal
+                        shotsOnGoal
+                        fouls
+                        corners
+                        offsides
+                        possessionTime
+                        yellowCards
+                        redCards
+                        saves
+                        tableId
+                    }
+                    visitorTeam {
+                        shotsTotal
+                        shotsOnGoal
+                        fouls
+                        corners
+                        offsides
+                        possessionTime
+                        yellowCards
+                        redCards
+                        saves
+                        tableId
+                    }
+                }
+                playerStats {
+                    localTeam {
+                        player {
+                            id
+                            num
+                            name
+                            pos
+                            posX
+                            posY
+                            shotsTotal
+                            shotsOnGoal
+                            goals
+                            assists
+                            offsides
+                            foulsDrawn
+                            foulsCommitted
+                            saves
+                            yellowCards
+                            redCards
+                            penScore
+                            penMiss
+                        }
+                    }
+                    visitorTeam {
+                        player {
+                            id
+                            num
+                            name
+                            pos
+                            posX
+                            posY
+                            shotsTotal
+                            shotsOnGoal
+                            goals
+                            assists
+                            offsides
+                            foulsDrawn
+                            foulsCommitted
+                            saves
+                            yellowCards
+                            redCards
+                            penScore
+                            penMiss
+                        }
+                    }
+                }
+            }
+            matchDate
+        }
+    }
+}

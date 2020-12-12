@@ -5,10 +5,6 @@ import (
 	"errors"
 	"testing"
 
-	auth "github.com/cshep4/premier-predictor-microservices/src/common/auth/internal/context"
-	grpccfg "github.com/cshep4/premier-predictor-microservices/src/common/grpc"
-	"github.com/cshep4/premier-predictor-microservices/src/common/internal/mocks/auth"
-
 	gen "github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
@@ -17,11 +13,15 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
+
+	auth "github.com/cshep4/premier-predictor-microservices/src/common/auth/internal/context"
+	grpccfg "github.com/cshep4/premier-predictor-microservices/src/common/grpc"
+	"github.com/cshep4/premier-predictor-microservices/src/common/internal/mocks/auth"
 )
 
 const (
-	token    = "token"
-	response = "test response"
+	token       = "token"
+	response    = "test response"
 	serviceName = "service name"
 )
 
@@ -50,9 +50,9 @@ func TestAuthenticator_GrpcUnary(t *testing.T) {
 		testErr := errors.New("error")
 
 		req := &gen.ValidateRequest{
-			Token: token,
+			Token:    token,
 			Audience: serviceName,
-			Role: gen.Role_ROLE_SERVICE,
+			Role:     gen.Role_ROLE_SERVICE,
 		}
 		authClient.EXPECT().Validate(ctx, req).Return(nil, testErr)
 
@@ -67,9 +67,9 @@ func TestAuthenticator_GrpcUnary(t *testing.T) {
 
 	t.Run("authenticates and calls handler", func(t *testing.T) {
 		req := &gen.ValidateRequest{
-			Token: token,
+			Token:    token,
 			Audience: serviceName,
-			Role: gen.Role_ROLE_SERVICE,
+			Role:     gen.Role_ROLE_SERVICE,
 		}
 		authClient.EXPECT().Validate(ctx, req).Return(nil, nil)
 
@@ -114,9 +114,9 @@ func TestAuthenticator_GrpcStreamInterceptor(t *testing.T) {
 		testErr := errors.New("error")
 
 		req := &gen.ValidateRequest{
-			Token: token,
+			Token:    token,
 			Audience: serviceName,
-			Role: gen.Role_ROLE_SERVICE,
+			Role:     gen.Role_ROLE_SERVICE,
 		}
 		authClient.EXPECT().Validate(ctx, req).Return(nil, testErr)
 
@@ -131,9 +131,9 @@ func TestAuthenticator_GrpcStreamInterceptor(t *testing.T) {
 
 	t.Run("authenticates and calls handler", func(t *testing.T) {
 		req := &gen.ValidateRequest{
-			Token: token,
+			Token:    token,
 			Audience: serviceName,
-			Role: gen.Role_ROLE_SERVICE,
+			Role:     gen.Role_ROLE_SERVICE,
 		}
 		authClient.EXPECT().Validate(ctx, req).Return(nil, nil)
 
@@ -172,7 +172,7 @@ func TestAuthenticator_doAuth(t *testing.T) {
 
 		authClient.EXPECT().Validate(ctx, &gen.ValidateRequest{Token: token}).Return(nil, testErr)
 
-		ctx, err := authenticator.doAuth(ctx, token, "", gen.Role_ROLE_INVALID)
+		ctx, err := authenticator.doAuth(ctx, token)
 		require.Error(t, err)
 
 		assert.Equal(t, testErr, err)
@@ -182,7 +182,7 @@ func TestAuthenticator_doAuth(t *testing.T) {
 	t.Run("returns nil and adds token to ctx if no error from auth service", func(t *testing.T) {
 		authClient.EXPECT().Validate(ctx, &gen.ValidateRequest{Token: token}).Return(nil, nil)
 
-		ctx, err := authenticator.doAuth(ctx, token, "", gen.Role_ROLE_INVALID)
+		ctx, err := authenticator.doAuth(ctx, token)
 		require.NoError(t, err)
 
 		authToken, ok := auth.GetTokenFromContext(ctx)

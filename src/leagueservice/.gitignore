@@ -4,3 +4,7 @@
 /vendor/**
 
 certs/
+
+internal/mocks
+
+*.gen.go

@@ -2,9 +2,10 @@ package model
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen"
 	"github.com/golang/protobuf/ptypes"
-	"time"
 )
 
 type MatchFacts struct {
@@ -16,6 +17,9 @@ type MatchFacts struct {
 	Venue            string      `json:"venue,omitempty"`
 	VenueId          string      `json:"venue_id,omitempty"`
 	VenueCity        string      `json:"venue_city,omitempty"`
+	VenueLatitude    string      `json:"venue_latitude,omitempty"`
+	VenueLongitude   string      `json:"venue_longitude,omitempty"`
+	VenueCountry     string      `json:"venue_country,omitempty"`
 	Status           string      `json:"status,omitempty"`
 	Timer            string      `json:"timer,omitempty"`
 	Time             string      `json:"time,omitempty"`
@@ -64,6 +68,9 @@ func MatchFactsFromGrpc(matchFacts *model.MatchFacts) *MatchFacts {
 		Venue:            matchFacts.Venue,
 		VenueId:          matchFacts.VenueId,
 		VenueCity:        matchFacts.VenueCity,
+		VenueLatitude:    matchFacts.VenueLatitude,
+		VenueLongitude:   matchFacts.VenueLongitude,
+		VenueCountry:     matchFacts.VenueCountry,
 		Status:           matchFacts.Status,
 		Timer:            matchFacts.Timer,
 		Time:             matchFacts.Time,
@@ -101,6 +108,9 @@ func MatchFactsToGrpc(matchFacts *MatchFacts) *model.MatchFacts {
 		Venue:            matchFacts.Venue,
 		VenueId:          matchFacts.VenueId,
 		VenueCity:        matchFacts.VenueCity,
+		VenueLatitude:    matchFacts.VenueLatitude,
+		VenueLongitude:   matchFacts.VenueLongitude,
+		VenueCountry:     matchFacts.VenueCountry,
 		Status:           matchFacts.Status,
 		Timer:            matchFacts.Timer,
 		Time:             matchFacts.Time,
@@ -174,7 +184,7 @@ func EventsToGrpc(event *Event) *model.Event {
 
 type Commentary struct {
 	MatchId       string         `json:"match_id,omitempty"`
-	MatchInfo     []*MatchInfo   `json:"match_info,omitempty"`
+	MatchInfo     *MatchInfo     `json:"match_info,omitempty"`
 	Lineup        *Lineup        `json:"lineup,omitempty"`
 	Subs          *Lineup        `json:"subs,omitempty"`
 	Substitutions *Substitutions `json:"substitutions,omitempty"`
@@ -188,11 +198,6 @@ func CommentaryFromGrpc(commentary *model.Commentary) *Commentary {
 		return nil
 	}
 
-	var matchInfo []*MatchInfo
-	for _, m := range commentary.MatchInfo {
-		matchInfo = append(matchInfo, MatchInfoFromGrpc(m))
-	}
-
 	var comments []*Comment
 	for _, c := range commentary.Comments {
 		comments = append(comments, CommentFromGrpc(c))
@@ -200,7 +205,7 @@ func CommentaryFromGrpc(commentary *model.Commentary) *Commentary {
 
 	return &Commentary{
 		MatchId:       commentary.MatchId,
-		MatchInfo:     matchInfo,
+		MatchInfo:     MatchInfoFromGrpc(commentary.MatchInfo),
 		Lineup:        LineupFromGrpc(commentary.Lineup),
 		Subs:          LineupFromGrpc(commentary.Subs),
 		Substitutions: SubstitutionsFromGrpc(commentary.Substitutions),
@@ -215,11 +220,6 @@ func CommentaryToGrpc(commentary *Commentary) *model.Commentary {
 		return nil
 	}
 
-	var matchInfo []*model.MatchInfo
-	for _, m := range commentary.MatchInfo {
-		matchInfo = append(matchInfo, MatchInfoToGrpc(m))
-	}
-
 	var comments []*model.Comment
 	for _, c := range commentary.Comments {
 		comments = append(comments, CommentToGrpc(c))
@@ -227,7 +227,7 @@ func CommentaryToGrpc(commentary *Commentary) *model.Commentary {
 
 	return &model.Commentary{
 		MatchId:       commentary.MatchId,
-		MatchInfo:     matchInfo,
+		MatchInfo:     MatchInfoToGrpc(commentary.MatchInfo),
 		Lineup:        LineupToGrpc(commentary.Lineup),
 		Subs:          LineupToGrpc(commentary.Subs),
 		Substitutions: SubstitutionsToGrpc(commentary.Substitutions),
@@ -244,14 +244,10 @@ type MatchInfo struct {
 }
 
 func MatchInfoFromGrpc(matchInfo *model.MatchInfo) *MatchInfo {
-	if matchInfo == nil {
-		return nil
-	}
-
 	return &MatchInfo{
-		Stadium:    matchInfo.Stadium,
-		Attendance: matchInfo.Attendance,
-		Referee:    matchInfo.Referee,
+		Stadium:    matchInfo.GetStadium(),
+		Attendance: matchInfo.GetAttendance(),
+		Referee:    matchInfo.GetReferee(),
 	}
 }
 

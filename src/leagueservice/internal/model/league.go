@@ -1,8 +1,7 @@
 package model
 
 import (
-	gen "github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen"
-	_ "github.com/golang/protobuf/proto"
+	pb "github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen"
 )
 
 type LeagueUser struct {
@@ -13,8 +12,8 @@ type LeagueUser struct {
 	Score           int    `json:"score"`
 }
 
-func LeagueUserFromGrpc(user *gen.User) *LeagueUser {
-	return &LeagueUser{
+func LeagueUserFromGrpc(user *pb.User) LeagueUser {
+	return LeagueUser{
 		Id:              user.Id,
 		FirstName:       user.FirstName,
 		Surname:         user.Surname,
@@ -23,7 +22,7 @@ func LeagueUserFromGrpc(user *gen.User) *LeagueUser {
 	}
 }
 
-type LeagueUserSlice []*LeagueUser
+type LeagueUserSlice []LeagueUser
 
 func (l LeagueUserSlice) Len() int {
 	return len(l)
@@ -37,7 +36,6 @@ func (l LeagueUserSlice) Swap(i, j int) {
 	l[i], l[j] = l[j], l[i]
 }
 
-
 type League struct {
 	Pin   int64    `json:"pin"`
 	Name  string   `json:"name"`
@@ -46,7 +44,7 @@ type League struct {
 
 type LeagueOverview struct {
 	LeagueName string `json:"leagueName"`
-	Pin        int64 `json:"pin"`
+	Pin        int64  `json:"pin"`
 	Rank       int64  `json:"rank"`
 }
 

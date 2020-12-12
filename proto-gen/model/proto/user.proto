@@ -14,6 +14,7 @@ service UserService {
     rpc UpdatePassword (UpdatePasswordRequest) returns (UpdatePasswordResponse);
     rpc UpdateSignature (UpdateSignatureRequest) returns (UpdateSignatureResponse);
     rpc Create (CreateRequest) returns (CreateResponse);
+    rpc GetUser (GetUserRequest) returns (GetUserResponse);
 }
 
 message GetAllUsersRequest {
@@ -106,4 +107,12 @@ message CreateRequest {
 
 message CreateResponse {
     string id = 1;
+}
+
+message GetUserRequest {
+    string id = 1;
+}
+
+message GetUserResponse {
+    User user = 1;
 }

@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/cshep4/premier-predictor-microservices/src/common/auth/internal/context"
-
 	"github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen"
 	"github.com/gorilla/mux"
+
+	"github.com/cshep4/premier-predictor-microservices/src/common/auth/internal/context"
 )
 
 var unauthenticatedEndpoints = map[string]struct{}{

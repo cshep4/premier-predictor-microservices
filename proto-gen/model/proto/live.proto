@@ -11,8 +11,33 @@ import "prediction.proto";
 package model;
 
 service LiveMatchService {
-    rpc GetUpcomingMatches (google.protobuf.Empty) returns (stream UpcomingMatchesResponse) {}
-    rpc GetMatchSummary (PredictionRequest) returns (stream MatchSummary) {}
+    rpc GetUpcomingMatches (google.protobuf.Empty) returns (stream UpcomingMatchesResponse);
+    rpc GetMatchSummary (PredictionRequest) returns (stream MatchSummary);
+    rpc GetLiveMatch (GetLiveMatchRequest) returns (GetLiveMatchResponse);
+    rpc ListTodaysMatches (ListTodaysMatchesRequest) returns (ListTodaysMatchesResponse);
+    rpc GetTodaysLiveMatches (GetTodaysLiveMatchesRequest) returns (stream GetTodaysLiveMatchesResponse);
+}
+
+message GetLiveMatchRequest {
+    string id = 1;
+}
+
+message GetLiveMatchResponse {
+    MatchFacts match = 1;
+}
+
+message ListTodaysMatchesRequest {
+}
+
+message ListTodaysMatchesResponse {
+    repeated MatchFacts matches = 1;
+}
+
+message GetTodaysLiveMatchesRequest {
+}
+
+message GetTodaysLiveMatchesResponse {
+    MatchFacts match = 1;
 }
 
 message UpcomingMatchesResponse {
@@ -38,23 +63,26 @@ message MatchFacts {
     string venue = 6;
     string venueId = 7;
     string venueCity = 8;
-    string status = 9;
-    string timer = 10;
-    string time = 11;
-    string localTeamId = 12;
-    string localTeamName = 13;
-    string localTeamScore = 14;
-    string visitorTeamId = 15;
-    string visitorTeamName = 16;
-    string visitorTeamScore = 17;
-    string htScore = 18;
-    string ftScore = 19;
-    string etScore = 20;
-    string penaltyLocal = 21;
-    string penaltyVisitor = 22;
-    repeated Event events = 23;
-    Commentary commentary = 24;
-    google.protobuf.Timestamp matchDate = 25;
+    string venueLatitude = 9;
+    string venueLongitude = 10;
+    string venueCountry = 11;
+    string status = 12;
+    string timer = 13;
+    string time = 14;
+    string localTeamId = 15;
+    string localTeamName = 16;
+    string localTeamScore = 17;
+    string visitorTeamId = 18;
+    string visitorTeamName = 19;
+    string visitorTeamScore = 20;
+    string htScore = 21;
+    string ftScore = 22;
+    string etScore = 23;
+    string penaltyLocal = 24;
+    string penaltyVisitor = 25;
+    repeated Event events = 26;
+    Commentary commentary = 27;
+    google.protobuf.Timestamp matchDate = 28;
 }
 
 message Event {
@@ -72,7 +100,7 @@ message Event {
 
 message Commentary {
     string matchId = 1;
-    repeated MatchInfo matchInfo = 2;
+    MatchInfo matchInfo = 2;
     Lineup lineup = 3;
     Lineup subs = 4;
     Substitutions substitutions = 5;

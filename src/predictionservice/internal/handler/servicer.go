@@ -10,6 +10,7 @@ type Servicer interface {
 	GetFixturesWithPredictions(ctx context.Context, id string) ([]model.FixturePrediction, error)
 	GetPredictorData(ctx context.Context, id string) (*model.PredictorData, error)
 	GetUsersPastPredictions(ctx context.Context, id string) (*model.PredictionSummary, error)
+	GetUsersPredictions(ctx context.Context, id string) ([]common.Prediction, error)
 	UpdatePredictions(ctx context.Context, predictions []common.Prediction) error
 	GetPrediction(ctx context.Context, userId, matchId string) (*common.Prediction, error)
 	GetMatchPredictionSummary(ctx context.Context, id string) (*common.MatchPredictionSummary, error)

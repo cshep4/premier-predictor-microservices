@@ -37,7 +37,7 @@ class UserService {
     lateinit var tokenizer: Tokenizer
 
     fun getByEmail(email: String): User {
-        return try {
+        return try
             val req = GetUserByEmailRequest.newBuilder()
                     .setEmail(email)
                     .build()

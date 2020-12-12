@@ -7,6 +7,10 @@ type UpcomingMatchday {
     matches: [MatchFacts!]!
 }
 
+type LiveMatchResponse {
+    match: MatchFacts!
+}
+
 type MatchFacts {
     id: String
     compId: String
@@ -16,6 +20,9 @@ type MatchFacts {
     venue: String
     venueId: String
     venueCity: String
+    venueLatitude: String
+    venueLongitude: String
+    venueCountry: String
     status: String
     timer: String
     time: String
@@ -50,7 +57,7 @@ type Event {
 
 type Commentary {
     matchId: String
-    matchInfo: [MatchInfo!]
+    matchInfo: MatchInfo
     lineup: Lineup
     subs: Lineup
     substitutions: Substitutions

@@ -9,6 +9,9 @@ type MatchPredictionSummary struct {
 }
 
 func MatchPredictionSummaryFromGrpc(predictionSummary *model.MatchPredictionSummary) *MatchPredictionSummary {
+	if predictionSummary == nil {
+		return &MatchPredictionSummary{}
+	}
 	return &MatchPredictionSummary{
 		HomeWin: int(predictionSummary.HomeWin),
 		Draw:    int(predictionSummary.Draw),
@@ -17,6 +20,9 @@ func MatchPredictionSummaryFromGrpc(predictionSummary *model.MatchPredictionSumm
 }
 
 func MatchPredictionSummaryToGrpc(predictionSummary *MatchPredictionSummary) *model.MatchPredictionSummary {
+	if predictionSummary == nil {
+		return &model.MatchPredictionSummary{}
+	}
 	return &model.MatchPredictionSummary{
 		HomeWin: int32(predictionSummary.HomeWin),
 		Draw:    int32(predictionSummary.Draw),

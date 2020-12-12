@@ -11,6 +11,9 @@ subscription upcomingMatches {
                 venue
                 venueId
                 venueCity
+                venueLatitude
+                venueLongitude
+                venueCountry
                 status
                 timer
                 time

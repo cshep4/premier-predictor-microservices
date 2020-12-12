@@ -42,7 +42,7 @@ func (h *router) Route(router *mux.Router) {
 }
 
 func (h *router) getUpcomingMatches(w http.ResponseWriter, r *http.Request) {
-	upcomingMatches, err := h.service.GetUpcomingMatches()
+	upcomingMatches, err := h.service.GetUpcomingMatches(r.Context())
 
 	h.sendResponse(r.Context(), upcomingMatches, err, w)
 }

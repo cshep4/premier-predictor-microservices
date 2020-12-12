@@ -9,7 +9,7 @@ var (
 	ErrUserNotFound = errors.New("user not found")
 )
 
-// InvalidParameterError is returned when a required parameter passed to New is invalid.
+// InvalidParameterError is returned when a parameter is invalid.
 type InvalidParameterError struct {
 	Parameter string
 }

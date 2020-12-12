@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	gen "github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen"
-	"github.com/cshep4/premier-predictor-microservices/src/common/auth"
 	common "github.com/cshep4/premier-predictor-microservices/src/common/model"
 	"github.com/cshep4/premier-predictor-microservices/src/livematchservice/internal/model"
 	"google.golang.org/grpc/codes"
@@ -26,12 +25,12 @@ func New(client gen.PredictionServiceClient) (*predictor, error) {
 }
 
 func (p *predictor) GetPrediction(ctx context.Context, req model.PredictionRequest) (*common.Prediction, error) {
-	metadata, err := auth.MetadataFromContext(ctx)
-	if err != nil {
-		return nil, err
-	}
+	//metadata, err := auth.MetadataFromContext(ctx)
+	//if err != nil {
+	//	return nil, err
+	//}
 
-	prediction, err := p.client.GetPrediction(metadata, &gen.PredictionRequest{
+	prediction, err := p.client.GetPrediction(ctx, &gen.PredictionRequest{
 		UserId:  req.UserId,
 		MatchId: req.MatchId,
 	})
@@ -52,12 +51,12 @@ func (p *predictor) GetPrediction(ctx context.Context, req model.PredictionReque
 }
 
 func (p *predictor) GetPredictionSummary(ctx context.Context, matchId string) (*common.MatchPredictionSummary, error) {
-	metadata, err := auth.MetadataFromContext(ctx)
-	if err != nil {
-		return nil, err
-	}
+	//metadata, err := auth.MetadataFromContext(ctx)
+	//if err != nil {
+	//	return nil, err
+	//}
 
-	predictionSummary, err := p.client.GetPredictionSummary(metadata, &gen.IdRequest{
+	predictionSummary, err := p.client.GetPredictionSummary(ctx, &gen.IdRequest{
 		Id: matchId,
 	})
 	if err != nil {

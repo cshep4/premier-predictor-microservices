@@ -1,0 +1,33 @@
+type PredictorData {
+    fixtures: [Fixture!]!
+    predictions: [Prediction!]!
+    forms: [TeamForm!]!
+}
+
+type Fixture {
+    id: String!
+    userId: String!
+    hTeam: String!
+    aTeam: String!
+    hGoals: Int
+    aGoals: Int
+    played: Int!
+    dateTime: String!
+    matchday: Int!
+}
+
+type TeamMatchResult {
+    result: String!
+    score: String!
+    opponent: String!
+    location: String!
+}
+
+type TeamForm {
+    team: String!
+    forms: [TeamMatchResult!]!
+}
+
+input PredictorDataInput {
+    userId: String!
+}

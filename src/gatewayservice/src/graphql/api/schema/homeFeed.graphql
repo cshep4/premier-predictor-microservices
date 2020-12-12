@@ -1,0 +1,32 @@
+type HomeFeed {
+    rank: Float!
+    score: Int!
+    messages: [String!]
+    todaysMatches: [MatchFacts!]!
+    upcomingFixtures: [FixturePrediction!]!
+    leagues: [LeagueOverview!]!
+}
+
+type FixturePrediction {
+    id: String!
+    userId: String!
+    hTeam: String!
+    aTeam: String!
+    hGoals: Int
+    aGoals: Int
+    hPrediction: Int
+    aPrediction: Int
+    played: Int!
+    dateTime: String!
+    matchday: Int!
+}
+
+type LeagueOverview {
+    leagueName: String!
+    pin: Float!
+    rank: Float!
+}
+
+input HomeFeedInput {
+    userId: String!
+}

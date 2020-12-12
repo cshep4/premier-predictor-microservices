@@ -160,3 +160,18 @@ func (s *server) Create(ctx context.Context, req *gen.CreateRequest) (*gen.Creat
 		Id: id,
 	}, nil
 }
+
+func (s *server) GetUser(ctx context.Context, req *gen.GetUserRequest) (*gen.GetUserResponse, error) {
+	user, err := s.service.GetUserById(ctx, req.GetId())
+	if err != nil {
+		if errors.Is(err, model.ErrUserNotFound) {
+			return nil, status.Error(codes.NotFound, "user not found")
+		}
+		log.Error(ctx, "error_getting_user_by_id", log.ErrorParam(err))
+		return nil, status.Error(codes.Internal, "could not get user")
+	}
+
+	return &gen.GetUserResponse{
+		User: model.UserToGrpc(user),
+	}, nil
+}
