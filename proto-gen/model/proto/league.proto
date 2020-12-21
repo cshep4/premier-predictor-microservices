@@ -1,0 +1,35 @@
+syntax = "proto3";
+option java_multiple_files = true;
+option java_package = "com.cshep4.premierpredictor.league";
+//option go_package = "league";
+
+package model;
+
+service LeagueService {
+    rpc ListLeagues (ListLeaguesRequest) returns (ListLeaguesResponse);
+    rpc GetOverview (GetOverviewRequest) returns (GetOverviewResponse);
+}
+
+message ListLeaguesRequest {
+    string id = 1;
+}
+
+message ListLeaguesResponse {
+    repeated LeagueSummary leagues = 1;
+}
+
+message GetOverviewRequest {
+    string id = 1;
+}
+
+message GetOverviewResponse {
+    int64 rank = 1;
+    int64 userCount = 2;
+    repeated LeagueSummary leagues = 3;
+}
+
+message LeagueSummary {
+    string leagueName = 1;
+    int64 pin = 2;
+    int64 rank = 3;
+}
