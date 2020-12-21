@@ -6,12 +6,9 @@ WORKDIR /usr/src/app
 
 COPY package*.json ./
 
-RUN npm install --only=production
+RUN npm install
 
 FROM base
-
-RUN npm install -g ts-node
-RUN npm install -g typescript
 
 COPY --from=builder /usr/src/app/node_modules ./node_modules
 
