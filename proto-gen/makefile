@@ -15,7 +15,7 @@ _copyjava:
 _copyts:
 	@cp -R model/proto/auth.proto model/proto/request.proto model/proto/fixture.proto ../src/fixtureservice/proto
 
-gen: _gengo _copyjava _copyts
+gen: _gengo
 
 build: get gen
 	@env CGO_ENABLED=0 GOOS=linux GOARCH=386 go build -ldflags '-w -extldflags "-static"' -o build/${PROJECT_NAME}_linux_amd64 .

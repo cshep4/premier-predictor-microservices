@@ -1,8 +1,9 @@
 package gcp
 
 import (
-	"cloud.google.com/go/profiler"
 	"log"
+
+	"cloud.google.com/go/profiler"
 )
 
 func Profile(service, version string) func() error {
