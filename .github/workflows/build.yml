@@ -12,16 +12,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Clean protos
-        run: |
-          cp -R proto-gen/model/proto src/gatewayservice/proto
-          cp -R proto-gen/model/proto src/fixtureservice/proto
-
       - name: Docker Login
         run: |
           docker login docker.pkg.github.com -u cshep4 -p ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build gatewayservice
         run: |
+          cp -R proto-gen/model/proto src/gatewayservice/proto
+          ls src/gatewayservice/proto
           docker build -t docker.pkg.github.com/cshep4/premier-predictor-microservices/gatewayservice:latest src/gatewayservice
           docker push docker.pkg.github.com/cshep4/premier-predictor-microservices/gatewayservice:latest
