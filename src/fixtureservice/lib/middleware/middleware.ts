@@ -29,8 +29,6 @@ export class Middleware {
     }
 
     public validateHttp(req: Request, res: Response, next: NextFunction) {
-        // const span = this.tracer.startChildSpan({ name: req.url });
-
         const token = req.header("Authorization");
 
         const validateReq = {

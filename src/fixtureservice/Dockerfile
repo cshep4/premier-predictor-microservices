@@ -23,8 +23,6 @@ COPY --from=builder /usr/src/app/node_modules ./node_modules
 
 COPY . .
 
-RUN ls
-
 RUN npm run build
 
 ENV PROTO_PATH=/../proto/
@@ -32,4 +30,3 @@ ENV PROTO_PATH=/../proto/
 EXPOSE 3006 8086
 
 ENTRYPOINT [ "node", "dist/server.js" ]
-#ENTRYPOINT [ "/usr/local/bin/npm", "run", "start" ]

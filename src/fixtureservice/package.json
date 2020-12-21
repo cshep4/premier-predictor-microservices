@@ -12,11 +12,7 @@
   },
   "author": "Chris Shepherd <chris_shepherd2@hotmail.com> (http://chrisshepherd.io)",
   "dependencies": {
-    "@google-cloud/profiler": "^3.0.1",
-    "@google-cloud/trace-agent": "^4.2.5",
     "@grpc/proto-loader": "^0.3.0",
-    "@opencensus/exporter-stackdriver": "0.0.19",
-    "@opencensus/nodejs": "0.0.19",
     "@types/express": "^4.16.1",
     "@types/underscore": "^1.8.14",
     "body-parser": "^1.18.3",
