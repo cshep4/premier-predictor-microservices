@@ -9,10 +9,8 @@ import {
     UpcomingMatchesResult
 } from "./client";
 import {logger} from "../../log/logger";
-import {secondsToDateString} from "../../util/DateUtils";
+import {secondsToDateString} from "../../util/dateUtils";
 import {PubSub} from "graphql-subscriptions";
-import WebSocket from "ws";
-import {ClientReadableStream} from "grpc";
 import {handleSubscription, withCancel} from "../../util/subsciptionUtils";
 
 

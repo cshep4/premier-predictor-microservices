@@ -20,7 +20,9 @@ const opts = {
 };
 
 function getProto(fileName: string): any {
-    const packageDefinition: any = protoLoader.loadSync(__dirname + '../../../../../../proto-gen/model/proto/' + fileName + '.proto');
+    const protoPath = process.env.PROTO_PATH ? process.env.PROTO_PATH : '../../../../../../proto-gen/model/proto/';
+
+    const packageDefinition: any = protoLoader.loadSync(__dirname + protoPath + fileName + '.proto');
     return grpc.loadPackageDefinition(packageDefinition).model;
 }
 
