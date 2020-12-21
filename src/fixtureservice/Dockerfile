@@ -15,16 +15,21 @@ COPY package*.json ./
 
 RUN npm install --only=production
 
-RUN tsc
-
 FROM base
+
+WORKDIR /usr/src/app
 
 COPY --from=builder /usr/src/app/node_modules ./node_modules
 
 COPY . .
 
-ENV PROTO_PATH=../proto/
+RUN ls
+
+RUN npm run build
+
+ENV PROTO_PATH=/../proto/
 
 EXPOSE 3006 8086
 
 ENTRYPOINT [ "node", "dist/server.js" ]
+#ENTRYPOINT [ "/usr/local/bin/npm", "run", "start" ]

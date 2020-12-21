@@ -10,3 +10,4 @@
 *.heapsnapshot
 .cache
 test/.globalConfig.json
+proto/

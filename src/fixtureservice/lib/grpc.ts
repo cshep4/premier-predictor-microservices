@@ -8,10 +8,11 @@ export class Grpc {
     }
 
     public start(grpc: any) {
-        const PROTO_PATH = process.env.PROTO_PATH ? __dirname + process.env.PROTO_PATH : __dirname + '/../../../proto-gen/model/proto/fixture.proto';
+        const protoPath = process.env.PROTO_PATH ? __dirname + process.env.PROTO_PATH : __dirname + '/../../../proto-gen/model/proto/';
+        const protoFile = protoPath + 'fixture.proto';
         const protoLoader = require('@grpc/proto-loader');
         const packageDefinition = protoLoader.loadSync(
-            PROTO_PATH,
+            protoFile,
             {
                 keepCase: true,
                 longs: String,
