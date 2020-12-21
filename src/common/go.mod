@@ -5,7 +5,7 @@ go 1.15
 require (
 	cloud.google.com/go v0.53.0
 	contrib.go.opencensus.io/exporter/stackdriver v0.13.0
-	github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen v0.0.0-20201221163957-1e9ff7ac1913
+	github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen v0.0.0-20201221171233-6c3be3bc747e
 	github.com/golang/mock v1.4.4
 	github.com/golang/protobuf v1.4.1
 	github.com/gorilla/handlers v1.4.2

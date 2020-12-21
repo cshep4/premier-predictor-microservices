@@ -37,8 +37,8 @@ github.com/chzyer/logex v1.1.10/go.mod h1:+Ywpsq7O8HXn0nuIou7OrIPyXbp3wmkHB+jjWR
 github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e/go.mod h1:nSuG5e5PlCu98SY8svDHJxuZscDgtXS6KTTbou5AhLI=
 github.com/chzyer/test v0.0.0-20180213035817-a1ea475d72b1/go.mod h1:Q3SI9o4m/ZMnBNeIyt5eFwwo7qiLfzFZmjNmxjkiQlU=
 github.com/client9/misspell v0.3.4/go.mod h1:qj6jICC3Q7zFZvVWo7KLAzC3yx5G7kyvSDkc90ppPyw=
-github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen v0.0.0-20201221163957-1e9ff7ac1913 h1:IXkQuo5RIR1uJc9Hg6YneDk7ak40BXFMnZU0djJwLGs=
-github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen v0.0.0-20201221163957-1e9ff7ac1913/go.mod h1:qqi2MEBtojtjunlmy/cIL2epsGORzkYY83FbOKea27Q=
+github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen v0.0.0-20201221171233-6c3be3bc747e h1:MHgp6uwGCAMvD1UtrkdhFtU+li6oO5jlHRQ4xYjZ4T4=
+github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen v0.0.0-20201221171233-6c3be3bc747e/go.mod h1:FEci58OZqoaeRpYxDe08E0Fg0W8GD/zO2w8gr1monzM=
 github.com/davecgh/go-spew v1.1.0 h1:ZDRjVQ15GmhC3fiQ8ni8+OwkZQO4DARzQgrnXU1Liz8=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
