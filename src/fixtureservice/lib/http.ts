@@ -1,7 +1,6 @@
 import * as express from "express";
 import * as bodyParser from "body-parser";
 import {Router} from "./http/router";
-import * as fs from "fs";
 import {logger} from "./utils/utils";
 import * as expressPinoLogger from "express-pino-logger";
 
@@ -16,11 +15,6 @@ export class Http {
     public start() {
         this.configure();
         this.router.route(this.app);
-
-        // const httpsOptions = {
-        //     key: fs.readFileSync('./certs/tls.key'),
-        //     cert: fs.readFileSync('./certs/tls.crt')
-        // };
 
         this.app.listen(PORT, () => {
             logger.info('Express server listening on port ' + PORT);

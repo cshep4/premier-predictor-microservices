@@ -19,6 +19,14 @@ jobs:
       - name: Build gatewayservice
         run: |
           cp -R proto-gen/model/proto src/gatewayservice/proto
-          ls src/gatewayservice/proto
           docker build -t docker.pkg.github.com/cshep4/premier-predictor-microservices/gatewayservice:latest src/gatewayservice
           docker push docker.pkg.github.com/cshep4/premier-predictor-microservices/gatewayservice:latest
+          docker tag docker.pkg.github.com/cshep4/premier-predictor-microservices/gatewayservice:latest docker.pkg.github.com/cshep4/premier-predictor-microservices/gatewayservice:$(echo ${GITHUB_SHA} | cut -c1-8)
+          docker push docker.pkg.github.com/cshep4/premier-predictor-microservices/gatewayservice:$(echo ${GITHUB_SHA} | cut -c1-8)
+      - name: Build fixtureservice
+        run: |
+          cp -R proto-gen/model/proto src/fixtureservice/proto
+          docker build -t docker.pkg.github.com/cshep4/premier-predictor-microservices/fixtureservice:latest src/fixtureservice
+          docker push docker.pkg.github.com/cshep4/premier-predictor-microservices/fixtureservice:latest
+          docker tag docker.pkg.github.com/cshep4/premier-predictor-microservices/fixtureservice:latest docker.pkg.github.com/cshep4/premier-predictor-microservices/fixtureservice:$(echo ${GITHUB_SHA} | cut -c1-8)
+          docker push docker.pkg.github.com/cshep4/premier-predictor-microservices/fixtureservice:$(echo ${GITHUB_SHA} | cut -c1-8)

@@ -1,10 +1,10 @@
-import {NextFunction, Request, response, Response} from "express";
+import {NextFunction, Request, Response} from "express";
 
 export class Middleware {
     private client;
 
     constructor(grpc: any) {
-        const PROTO_PATH = __dirname + '/../../../../proto-gen/model/proto/auth.proto';
+        const PROTO_PATH = process.env.PROTO_PATH ? __dirname + '/../' + process.env.PROTO_PATH : __dirname + '/../../../../proto-gen/model/proto/auth.proto';
         const protoLoader = require('@grpc/proto-loader');
         const packageDefinition = protoLoader.loadSync(
             PROTO_PATH,
@@ -22,7 +22,7 @@ export class Middleware {
         const opts = {
             "grpc.keepalive_time_ms": 60000,
             "grpc.keepalive_timeout_ms": 20000,
-            "grpc.keepalive_permit_without_calls" : 1
+            "grpc.keepalive_permit_without_calls": 1
         };
         this.client = new authProto.AuthService(authAddr, grpc.credentials.createInsecure(), opts);
     }
