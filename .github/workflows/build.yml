@@ -21,7 +21,10 @@ jobs:
 
       - name: Build kauthservice
         run: |
-          docker build --build-arg GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} -f src/kauthservice/src/main/docker/Dockerfile.multistage -t ${{ env.DOCKER_RGISTRY }}/kauthservice:latest -t ${{ env.DOCKER_RGISTRY }}/kauthservice:$(echo ${GITHUB_SHA} | cut -c1-8) src/kauthservice
+          cd src/kauthservice/
+          ./mvnw package -Pnative -Dquarkus.native.container-build=true
+          cd ..
+          docker build -f src/kauthservice/src/main/docker/Dockerfile.multistage -t ${{ env.DOCKER_RGISTRY }}/kauthservice:latest -t ${{ env.DOCKER_RGISTRY }}/kauthservice:$(echo ${GITHUB_SHA} | cut -c1-8) src/kauthservice
           docker push ${{ env.DOCKER_RGISTRY }}/kauthservice
 
       - name: Build gatewayservice
