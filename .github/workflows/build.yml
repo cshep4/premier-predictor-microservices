@@ -21,10 +21,8 @@ jobs:
 
       - name: Build kauthservice
         run: |
-          cd src/kauthservice
-          docker build -f src/main/docker/Dockerfile.multistage -t ${{ env.DOCKER_RGISTRY }}/kauthservice:latest -t ${{ env.DOCKER_RGISTRY }}/kauthservice:$(echo ${GITHUB_SHA} | cut -c1-8) .
+          docker build -f src/kauthservice/src/main/docker/Dockerfile.multistage -t ${{ env.DOCKER_RGISTRY }}/kauthservice:latest -t ${{ env.DOCKER_RGISTRY }}/kauthservice:$(echo ${GITHUB_SHA} | cut -c1-8) src/kauthservice
           docker push ${{ env.DOCKER_RGISTRY }}/kauthservice
-          cd ../..
 
       - name: Build gatewayservice
         run: |
