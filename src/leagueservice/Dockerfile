@@ -7,7 +7,7 @@ WORKDIR /build
 
 COPY . .
 
-RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -mod vendor -gcflags='-N -l' -ldflags "-s -w" -o /leagueservice ./cmd/league
+RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -gcflags='-N -l' -ldflags "-s -w" -o /leagueservice ./cmd/league
 
 FROM alpine as release
 
