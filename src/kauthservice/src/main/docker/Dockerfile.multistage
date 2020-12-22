@@ -22,6 +22,7 @@ COPY src /usr/src/app/src
 USER root
 RUN chown -R quarkus /usr/src/app
 USER quarkus
+#RUN mvn -f /usr/src/app/pom.xml compile
 RUN mvn -f /usr/src/app/pom.xml -DskipTests -Pnative clean package
 
 ## Stage 2 : create the docker final image
