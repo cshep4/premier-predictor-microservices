@@ -1,10 +1,9 @@
 FROM golang:1.15 as build
 
+RUN git config --global url."https://${GITHUB_TOKEN}@github.com:".insteadOf "https://github.com/"
+
 ENV GONOSUMDB "github.com/cshep4"
 ENV GOPRIVATE "github.com/cshep4"
-
-ARG GO_GIT_URL="git@github.com:"
-RUN git config --system url.${GO_GIT_URL}.insteadOf "https://github.com/"
 
 WORKDIR /build
 

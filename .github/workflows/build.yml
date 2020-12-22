@@ -18,7 +18,7 @@ jobs:
 
       - name: Build leagueservice
         run: |
-          docker build -t docker.pkg.github.com/cshep4/premier-predictor-microservices/leagueservice:latest src/leagueservice
+          docker build --build-arg GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} -t docker.pkg.github.com/cshep4/premier-predictor-microservices/leagueservice:latest src/leagueservice
           docker push docker.pkg.github.com/cshep4/premier-predictor-microservices/leagueservice:latest
           docker tag docker.pkg.github.com/cshep4/premier-predictor-microservices/leagueservice:latest docker.pkg.github.com/cshep4/premier-predictor-microservices/leagueservice:$(echo ${GITHUB_SHA} | cut -c1-8)
           docker push docker.pkg.github.com/cshep4/premier-predictor-microservices/leagueservice:$(echo ${GITHUB_SHA} | cut -c1-8)
