@@ -28,10 +28,11 @@ jobs:
       - name: Build leagueservice
         run: |
           cd src/leagueservice
-          ls
           GO111MODULE=on go get github.com/golang/mock/mockgen@v1.4.4
+          go mod tidy
           go generate ./...
           go mod vendor
+          cd ..
           docker build --build-arg GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} -t ${{ env.DOCKER_RGISTRY }}/leagueservice:latest -t ${{ env.DOCKER_RGISTRY }}/leagueservice:$(echo ${GITHUB_SHA} | cut -c1-8) src/leagueservice
           docker push ${{ env.DOCKER_RGISTRY }}/leagueservice
 
