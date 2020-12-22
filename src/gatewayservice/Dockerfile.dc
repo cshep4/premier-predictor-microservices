@@ -1,0 +1,31 @@
+FROM sandrokeil/typescript:latest as base
+
+ENV PROJECT github.com/cshep4/premier-predictor-microservices/src/gatewayservice
+
+COPY proto-gen/model/proto github.com/cshep4/premier-predictor-microservices/src/gatewayservice/proto
+
+COPY src/gatewayservice $PROJECT
+
+WORKDIR $PROJECT
+
+FROM base as builder
+
+WORKDIR /usr/src/app
+
+#COPY package*.json ./
+
+RUN npm install --only=production
+
+FROM base
+
+RUN ls
+
+#COPY --from=builder /usr/src/app/node_modules ./node_modules
+
+COPY . .
+
+ENV PROTO_PATH=../../../../proto/
+
+EXPOSE 4000
+
+ENTRYPOINT [ "/usr/local/bin/npm", "run", "start" ]

@@ -1,4 +1,4 @@
-FROM golang:1.14-alpine as build
+FROM golang:1.15-alpine as build
 
 ENV PROJECT github.com/cshep4/premier-predictor-microservices/src/userservice
 

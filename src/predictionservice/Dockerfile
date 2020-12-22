@@ -18,5 +18,7 @@ RUN apk add --no-cache ca-certificates && \
 FROM alpine as release
 
 COPY --from=builder /predictionservice /predictionservice
+
 EXPOSE 3007 8087
+
 ENTRYPOINT ["/predictionservice"]

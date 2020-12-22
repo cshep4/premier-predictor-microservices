@@ -21,7 +21,7 @@ type handler struct {
 
 func New(service Service) (*handler, error) {
 	if service == nil {
-		return nil, InvalidParameterError{Parameter: "service"}
+		return nil, model.InvalidParameterError{Parameter: "service"}
 	}
 
 	return &handler{
@@ -44,9 +44,6 @@ func (h *handler) Route(router *mux.Router) {
 		Methods(http.MethodGet)
 	router.HandleFunc("/{id}", h.getUsersLeagueList).
 		Methods(http.MethodGet)
-
-	router.HandleFunc("/rebuild", h.rebuild).
-		Methods(http.MethodPost)
 }
 
 func (h *handler) getUsersLeagueList(w http.ResponseWriter, r *http.Request) {
@@ -220,13 +217,6 @@ func (h *handler) getOverallTable(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *handler) rebuild(w http.ResponseWriter, r *http.Request) {
-	if err := h.service.RebuildOverallLeagueTable(r.Context()); err != nil {
-		log.Error(r.Context(), "error_rebuilding_overall_table", log.ErrorParam(err))
-		h.errorResponse(r.Context(), http.StatusInternalServerError, "could not rebuild overall league table", w)
-	}
-}
-
 func (h *handler) errorResponse(ctx context.Context, status int, message string, w http.ResponseWriter) {
 	w.WriteHeader(status)
 	if err := json.NewEncoder(w).Encode(serverError{Message: message}); err != nil {
@@ -251,8 +241,6 @@ func (h *handler) GetRequestAudience(r *http.Request) string {
 	}
 
 	switch p {
-	case "/rebuild":
-		return "user-updater"
 	case "/{id}":
 		return mux.Vars(r)["id"]
 	case "/leave":

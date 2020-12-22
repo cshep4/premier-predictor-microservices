@@ -25,8 +25,6 @@ spec:
               value: "8089"
             - name: AUTH_ADDR
               value: "authservice:3001"
-            - name: USER_ADDR
-              value: "userservice:3005"
             - name: MONGO_SCHEME
               valueFrom:
                 secretKeyRef:

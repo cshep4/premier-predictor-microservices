@@ -16,6 +16,13 @@ jobs:
         run: |
           docker login docker.pkg.github.com -u cshep4 -p ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Build leagueservice
+        run: |
+          docker build -t docker.pkg.github.com/cshep4/premier-predictor-microservices/leagueservice:latest src/leagueservice
+          docker push docker.pkg.github.com/cshep4/premier-predictor-microservices/leagueservice:latest
+          docker tag docker.pkg.github.com/cshep4/premier-predictor-microservices/leagueservice:latest docker.pkg.github.com/cshep4/premier-predictor-microservices/leagueservice:$(echo ${GITHUB_SHA} | cut -c1-8)
+          docker push docker.pkg.github.com/cshep4/premier-predictor-microservices/leagueservice:$(echo ${GITHUB_SHA} | cut -c1-8)
+
       - name: Build gatewayservice
         run: |
           cp -R proto-gen/model/proto src/gatewayservice/proto
@@ -23,7 +30,7 @@ jobs:
           docker push docker.pkg.github.com/cshep4/premier-predictor-microservices/gatewayservice:latest
           docker tag docker.pkg.github.com/cshep4/premier-predictor-microservices/gatewayservice:latest docker.pkg.github.com/cshep4/premier-predictor-microservices/gatewayservice:$(echo ${GITHUB_SHA} | cut -c1-8)
           docker push docker.pkg.github.com/cshep4/premier-predictor-microservices/gatewayservice:$(echo ${GITHUB_SHA} | cut -c1-8)
-          
+
       - name: Build fixtureservice
         run: |
           cp -R proto-gen/model/proto src/fixtureservice/proto

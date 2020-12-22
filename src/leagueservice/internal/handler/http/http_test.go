@@ -3,19 +3,19 @@ package http
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
 	"testing"
 
-	"github.com/cshep4/premier-predictor-microservices/src/leagueservice/internal/mocks/service"
-	"github.com/cshep4/premier-predictor-microservices/src/leagueservice/internal/model"
-
 	"github.com/golang/mock/gomock"
 	"github.com/gorilla/mux"
-	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/cshep4/premier-predictor-microservices/src/leagueservice/internal/mock/service/http"
+	"github.com/cshep4/premier-predictor-microservices/src/leagueservice/internal/model"
 )
 
 const (
@@ -745,7 +745,7 @@ func TestHttpHandler_getLeagueTable(t *testing.T) {
 
 		leagueTable := []model.LeagueUser{
 			{
-				Id:    userId,
+				ID:    userId,
 				Score: 1,
 			},
 		}
@@ -802,7 +802,7 @@ func TestHttpHandler_getOverallTable(t *testing.T) {
 
 		leagueTable := []model.LeagueUser{
 			{
-				Id:    userId,
+				ID:    userId,
 				Score: 1,
 			},
 		}

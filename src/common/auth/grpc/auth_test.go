@@ -16,7 +16,7 @@ import (
 
 	auth "github.com/cshep4/premier-predictor-microservices/src/common/auth/internal/context"
 	grpccfg "github.com/cshep4/premier-predictor-microservices/src/common/grpc"
-	"github.com/cshep4/premier-predictor-microservices/src/common/internal/mocks/auth"
+	auth_mocks "github.com/cshep4/premier-predictor-microservices/src/common/internal/mocks/auth"
 )
 
 const (

@@ -6,7 +6,8 @@ import (
 )
 
 var (
-	ErrLeagueNotFound = errors.New("league not found")
+	ErrLeagueNotFound     = errors.New("league not found")
+	ErrLeagueUserNotFound = errors.New("league user not found")
 )
 
 // InvalidParameterError is returned when a parameter is invalid.

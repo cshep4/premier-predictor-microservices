@@ -2,7 +2,6 @@ package league
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/cshep4/premier-predictor-microservices/src/leagueservice/internal/model"
@@ -20,15 +19,14 @@ type (
 		LeagueTable() []model.LeagueUser
 	}
 
-	UserService interface {
-		GetAllUsers(ctx context.Context) ([]model.LeagueUser, error)
-		GetLeagueUsers(ctx context.Context, ids []string) ([]model.LeagueUser, error)
-		GetOverallRank(ctx context.Context, id string) (int64, error)
-		GetLeagueRank(ctx context.Context, id string, ids []string) (int64, error)
-		GetUserCount(ctx context.Context) (int64, error)
+	UserStore interface {
+		Get(ctx context.Context, id string) (model.LeagueUser, error)
+		Count(ctx context.Context) (int64, error)
+		List(ctx context.Context, ids []string) ([]model.LeagueUser, error)
+		ListAll(ctx context.Context) ([]model.LeagueUser, error)
 	}
 
-	Store interface {
+	LeagueStore interface {
 		GetLeagueByPin(ctx context.Context, pin int64) (*model.League, error)
 		GetLeaguesByUserId(ctx context.Context, id string) ([]*model.League, error)
 		AddLeague(ctx context.Context, league model.League) error
@@ -40,13 +38,4 @@ type (
 	Timer interface {
 		Now() time.Time
 	}
-
-	// InvalidParameterError is returned when a required parameter passed to New is invalid.
-	InvalidParameterError struct {
-		Parameter string
-	}
 )
-
-func (i InvalidParameterError) Error() string {
-	return fmt.Sprintf("invalid parameter %s", i.Parameter)
-}

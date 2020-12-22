@@ -2,15 +2,14 @@ package grpc
 
 import (
 	"context"
-	"fmt"
-
-	"github.com/cshep4/premier-predictor-microservices/src/leagueservice/internal/model"
 
 	pb "github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen"
 	"github.com/cshep4/premier-predictor-microservices/src/common/log"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+
+	"github.com/cshep4/premier-predictor-microservices/src/leagueservice/internal/model"
 )
 
 type (
@@ -21,20 +20,11 @@ type (
 	server struct {
 		service Service
 	}
-
-	// InvalidParameterError is returned when a required parameter passed to New is invalid.
-	InvalidParameterError struct {
-		Parameter string
-	}
 )
-
-func (i InvalidParameterError) Error() string {
-	return fmt.Sprintf("invalid parameter %s", i.Parameter)
-}
 
 func New(service Service) (*server, error) {
 	if service == nil {
-		return nil, InvalidParameterError{Parameter: "service"}
+		return nil, model.InvalidParameterError{Parameter: "service"}
 	}
 
 	return &server{

@@ -7,12 +7,12 @@ import (
 	"os"
 	"testing"
 
-	"github.com/cshep4/premier-predictor-microservices/src/leagueservice/internal/model"
-
 	"github.com/cshep4/premier-predictor-microservices/src/common/store/mongo"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.mongodb.org/mongo-driver/bson"
+
+	"github.com/cshep4/premier-predictor-microservices/src/leagueservice/internal/model"
 )
 
 const (

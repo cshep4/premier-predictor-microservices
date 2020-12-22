@@ -1,25 +1,15 @@
 package model
 
 import (
-	pb "github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen"
+	"sort"
 )
 
 type LeagueUser struct {
-	Id              string `json:"id"`
-	FirstName       string `json:"firstName"`
-	Surname         string `json:"surname"`
+	ID              string `json:"id"`
+	Name            string `json:"name"`
 	PredictedWinner string `json:"predictedWinner"`
+	Rank            int64  `json:"rank"`
 	Score           int    `json:"score"`
-}
-
-func LeagueUserFromGrpc(user *pb.User) LeagueUser {
-	return LeagueUser{
-		Id:              user.Id,
-		FirstName:       user.FirstName,
-		Surname:         user.Surname,
-		PredictedWinner: user.PredictedWinner,
-		Score:           int(user.Score),
-	}
 }
 
 type LeagueUserSlice []LeagueUser
@@ -34,6 +24,30 @@ func (l LeagueUserSlice) Less(i, j int) bool {
 
 func (l LeagueUserSlice) Swap(i, j int) {
 	l[i], l[j] = l[j], l[i]
+}
+
+func (l LeagueUserSlice) Rank(id string) (int64, bool) {
+	sort.Sort(l)
+
+	rank := int64(0)
+	previousScore := -1
+	usersOnScore := int64(1)
+
+	for _, u := range l {
+		if previousScore != u.Score {
+			rank += usersOnScore
+			usersOnScore = 1
+		} else {
+			usersOnScore++
+		}
+		previousScore = u.Score
+
+		if id == u.ID {
+			return rank, true
+		}
+	}
+
+	return 0, false
 }
 
 type League struct {

@@ -5,6 +5,6 @@
 
 certs/
 
-internal/mocks
+internal/mock
 
 *.gen.go

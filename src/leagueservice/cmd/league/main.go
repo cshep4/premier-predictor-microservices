@@ -8,23 +8,20 @@ import (
 	"strconv"
 	"time"
 
-	grpcHandler "github.com/cshep4/premier-predictor-microservices/src/leagueservice/internal/handler/grpc"
-	httpHandler "github.com/cshep4/premier-predictor-microservices/src/leagueservice/internal/handler/http"
-	svc "github.com/cshep4/premier-predictor-microservices/src/leagueservice/internal/service"
-	mongoStore "github.com/cshep4/premier-predictor-microservices/src/leagueservice/internal/store/mongo"
-	"github.com/cshep4/premier-predictor-microservices/src/leagueservice/internal/table"
-	"github.com/cshep4/premier-predictor-microservices/src/leagueservice/internal/token"
-	"github.com/cshep4/premier-predictor-microservices/src/leagueservice/internal/user"
-
 	pb "github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen"
 	"github.com/cshep4/premier-predictor-microservices/src/common/app"
 	"github.com/cshep4/premier-predictor-microservices/src/common/auth"
-	"github.com/cshep4/premier-predictor-microservices/src/common/gcp"
 	grpcconn "github.com/cshep4/premier-predictor-microservices/src/common/grpc"
 	"github.com/cshep4/premier-predictor-microservices/src/common/log"
 	"github.com/cshep4/premier-predictor-microservices/src/common/runner/grpc"
 	"github.com/cshep4/premier-predictor-microservices/src/common/runner/http"
 	"github.com/cshep4/premier-predictor-microservices/src/common/store/mongo"
+
+	grpcHandler "github.com/cshep4/premier-predictor-microservices/src/leagueservice/internal/handler/grpc"
+	httpHandler "github.com/cshep4/premier-predictor-microservices/src/leagueservice/internal/handler/http"
+	svc "github.com/cshep4/premier-predictor-microservices/src/leagueservice/internal/service"
+	leaguestore "github.com/cshep4/premier-predictor-microservices/src/leagueservice/internal/store/league/mongo"
+	overallstore "github.com/cshep4/premier-predictor-microservices/src/leagueservice/internal/store/overall/mongo"
 )
 
 const (
@@ -69,40 +66,24 @@ func start(ctx context.Context) error {
 	defer authConn.Close()
 	authClient := pb.NewAuthServiceClient(authConn)
 
-	userConn, err := grpcconn.Dial(ctx, userAddr)
-	if err != nil {
-		return fmt.Errorf("create user connection: %w", err)
-	}
-	defer userConn.Close()
-	userClient := pb.NewUserServiceClient(userConn)
-
 	client, err := mongo.New(ctx)
 	if err != nil {
 		return fmt.Errorf("create mongo client: %w", err)
 	}
 
-	store, err := mongoStore.New(ctx, client)
+	leagueStore, err := leaguestore.New(ctx, client)
 	if err != nil {
 		return fmt.Errorf("failed to create store: %w", err)
 	}
-	defer store.Close(ctx)
+	defer leagueStore.Close(ctx)
 
-	tokenGenerator, err := token.New(authClient)
+	userStore, err := overallstore.New(ctx, client)
 	if err != nil {
-		return fmt.Errorf("failed to create token generator: %w", err)
+		return fmt.Errorf("failed to create store: %w", err)
 	}
+	defer leagueStore.Close(ctx)
 
-	userService, err := user.New(tokenGenerator, userClient)
-	if err != nil {
-		return fmt.Errorf("failed to create userService: %w", err)
-	}
-
-	overallTable, err := table.NewOverallTable(ctx, userService)
-	if err != nil {
-		return fmt.Errorf("failed to create overallTable: %w", err)
-	}
-
-	service, err := svc.New(store, userService, overallTable, timer{})
+	service, err := svc.New(leagueStore, userStore, timer{})
 	if err != nil {
 		return fmt.Errorf("failed to create service: %w", err)
 	}
@@ -125,11 +106,11 @@ func start(ctx context.Context) error {
 	//tracer := tracer.New()
 
 	app := app.New(
-		app.WithStartupFunc(gcp.Profile(serviceName, version)),
-		app.WithStartupFunc(gcp.Trace),
+		//app.WithStartupFunc(gcp.Profile(serviceName, version)),
+		//app.WithStartupFunc(gcp.Trace),
 		app.WithShutdownFunc(authConn.Close),
-		app.WithShutdownFunc(userConn.Close),
-		app.WithShutdownFuncContext(store.Close),
+		app.WithShutdownFuncContext(leagueStore.Close),
+		app.WithShutdownFuncContext(userStore.Close),
 		app.WithRunner(
 			grpc.New(
 				grpc.WithPort(grpcPort),

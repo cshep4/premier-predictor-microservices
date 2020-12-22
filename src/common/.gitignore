@@ -2,7 +2,3 @@
 /obj/*
 .vs/*.*
 /vendor/**
-
-certs/
-
-*.gen.go

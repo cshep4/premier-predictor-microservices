@@ -4,9 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/cshep4/premier-predictor-microservices/src/leagueservice/internal/rank"
-	"github.com/cshep4/premier-predictor-microservices/src/leagueservice/internal/table"
-	"sort"
 	"sync"
 	"time"
 
@@ -16,40 +13,30 @@ import (
 )
 
 type service struct {
-	store        Store
-	userService  UserService
-	overallTable LeagueTable
-	time         Timer
+	leagueStore LeagueStore
+	userStore   UserStore
+	time        Timer
 }
 
-func New(store Store, userService UserService, overallTable LeagueTable, time Timer) (*service, error) {
+func New(
+	leagueStore LeagueStore,
+	userStore UserStore,
+	time Timer,
+) (*service, error) {
 	switch {
-	case store == nil:
-		return nil, InvalidParameterError{Parameter: "store"}
-	case userService == nil:
-		return nil, InvalidParameterError{Parameter: "userService"}
-	case overallTable == nil:
-		return nil, InvalidParameterError{Parameter: "overallTable"}
+	case leagueStore == nil:
+		return nil, model.InvalidParameterError{Parameter: "leagueStore"}
+	case userStore == nil:
+		return nil, model.InvalidParameterError{Parameter: "userStore"}
+	case time == nil:
+		return nil, model.InvalidParameterError{Parameter: "time"}
 	}
 
 	return &service{
-		store:        store,
-		userService:  userService,
-		overallTable: overallTable,
-		time:         time,
+		leagueStore: leagueStore,
+		userStore:   userStore,
+		time:        time,
 	}, nil
-}
-
-func (s *service) RebuildOverallLeagueTable(ctx context.Context) error {
-	overallTable, err := table.NewOverallTable(ctx, s.userService)
-	if err != nil {
-		// if there is an error building the league table,
-		// restart service to trigger the rebuild again
-		panic(err)
-	}
-	s.overallTable = overallTable
-
-	return nil
 }
 
 func (s *service) GetUsersLeagueList(ctx context.Context, id string) (*model.StandingsOverview, error) {
@@ -63,27 +50,27 @@ func (s *service) GetUsersLeagueList(ctx context.Context, id string) (*model.Sta
 	g, gCtx := errgroup.WithContext(ctx)
 
 	g.Go(func() error {
-		l, err := s.store.GetLeaguesByUserId(gCtx, id)
+		l, err := s.leagueStore.GetLeaguesByUserId(gCtx, id)
 		if err != nil {
-			return fmt.Errorf("get_leagues_by_user_id: %w", err)
+			return fmt.Errorf("could not get user leagues: %w", err)
 		}
 		userLeagues = l
 		return nil
 	})
 
 	g.Go(func() error {
-		r, ok := s.overallTable.Rank(id)
-		if !ok {
-			return errors.New("user not in league table")
+		lu, err := s.userStore.Get(gCtx, id)
+		if err != nil {
+			return fmt.Errorf("could not get user: %w", err)
 		}
-		overallRank = int64(r)
+		overallRank = lu.Rank
 		return nil
 	})
 
 	g.Go(func() error {
-		c, err := s.userService.GetUserCount(gCtx)
+		c, err := s.userStore.Count(gCtx)
 		if err != nil {
-			return fmt.Errorf("get_user_count: %w", err)
+			return fmt.Errorf("could not get overall count: %w", err)
 		}
 		userCount = c
 		return nil
@@ -93,34 +80,9 @@ func (s *service) GetUsersLeagueList(ctx context.Context, id string) (*model.Sta
 		return nil, err
 	}
 
-	g, ctx = errgroup.WithContext(ctx)
-
-	leagueOverviews := make([]model.LeagueOverview, 0, len(userLeagues))
-	var mu sync.Mutex
-
-	for _, l := range userLeagues {
-		league := l
-		g.Go(func() error {
-			rank, err := s.getLeagueRank(ctx, id, league.Users)
-			if err != nil {
-				return fmt.Errorf("get_league_rank: %w", err)
-			}
-
-			mu.Lock()
-			defer mu.Unlock()
-
-			leagueOverviews = append(leagueOverviews, model.LeagueOverview{
-				Pin:        league.Pin,
-				LeagueName: league.Name,
-				Rank:       int64(rank),
-			})
-
-			return nil
-		})
-	}
-
-	if err := g.Wait(); err != nil {
-		return nil, err
+	leagueOverviews, err := s.buildLeagueOverview(ctx, id, userLeagues)
+	if err != nil {
+		return nil, fmt.Errorf("cannot build league overview: %w", err)
 	}
 
 	return &model.StandingsOverview{
@@ -132,6 +94,54 @@ func (s *service) GetUsersLeagueList(ctx context.Context, id string) (*model.Sta
 	}, nil
 }
 
+func (s *service) buildLeagueOverview(ctx context.Context, id string, userLeagues []*model.League) ([]model.LeagueOverview, error) {
+	g, ctx := errgroup.WithContext(ctx)
+
+	leagueOverviews := make([]model.LeagueOverview, 0, len(userLeagues))
+	var mu sync.Mutex
+
+	for _, l := range userLeagues {
+		league := l
+		g.Go(func() error {
+			rank, err := s.leagueRank(ctx, id, league.Users)
+			if err != nil {
+				return fmt.Errorf("cannot get league rank: %w", err)
+			}
+
+			mu.Lock()
+			defer mu.Unlock()
+
+			leagueOverviews = append(leagueOverviews, model.LeagueOverview{
+				Pin:        league.Pin,
+				LeagueName: league.Name,
+				Rank:       rank,
+			})
+
+			return nil
+		})
+	}
+
+	if err := g.Wait(); err != nil {
+		return nil, err
+	}
+
+	return leagueOverviews, nil
+}
+
+func (s *service) leagueRank(ctx context.Context, id string, users []string) (int64, error) {
+	lu, err := s.userStore.List(ctx, users)
+	if err != nil {
+		return 0, fmt.Errorf("could not get league users: %w", err)
+	}
+
+	rank, ok := model.LeagueUserSlice(lu).Rank(id)
+	if !ok {
+		return 0, errors.New("user not in league")
+	}
+
+	return rank, nil
+}
+
 func (s *service) JoinUserLeague(ctx context.Context, id string, pin int64) (*model.LeagueOverview, error) {
 	switch {
 	case id == "":
@@ -140,47 +150,28 @@ func (s *service) JoinUserLeague(ctx context.Context, id string, pin int64) (*mo
 		return nil, model.InvalidParameterError{Parameter: "pin"}
 	}
 
-	league, err := s.store.GetLeagueByPin(ctx, pin)
+	league, err := s.leagueStore.GetLeagueByPin(ctx, pin)
 	if err != nil {
-		return nil, fmt.Errorf("get_league_by_pin: %w", err)
+		return nil, fmt.Errorf("cannot get league by pin: %w", err)
 	}
 
 	ids := append(league.Users, id)
 
-	rank, err := s.getLeagueRank(ctx, id, ids)
+	rank, err := s.leagueRank(ctx, id, ids)
 	if err != nil {
-		return nil, fmt.Errorf("get_league_rank: %w", err)
+		return nil, fmt.Errorf("cannot get league rank: %w", err)
 	}
 
-	err = s.store.JoinLeague(ctx, pin, id)
+	err = s.leagueStore.JoinLeague(ctx, pin, id)
 	if err != nil {
-		return nil, fmt.Errorf("join_league: %w", err)
+		return nil, fmt.Errorf("cannot join league: %w", err)
 	}
 
 	return &model.LeagueOverview{
 		LeagueName: league.Name,
 		Pin:        league.Pin,
-		Rank:       int64(rank),
+		Rank:       rank,
 	}, nil
-}
-
-func (s *service) getLeagueRank(ctx context.Context, id string, ids []string) (int, error) {
-	users, err := s.userService.GetLeagueUsers(ctx, ids)
-	if err != nil {
-		return 0, fmt.Errorf("get_league_users: %w", err)
-	}
-
-	leagueTable, err := table.NewLeagueTable(users, &rank.Ranker{})
-	if err != nil {
-		return 0, fmt.Errorf("new_league_table: %w", err)
-	}
-
-	rank, ok := leagueTable.Rank(id)
-	if !ok {
-		return 0, errors.New("user not in league table")
-	}
-
-	return rank, nil
 }
 
 func (s *service) AddUserLeague(ctx context.Context, id, name string) (*model.League, error) {
@@ -197,9 +188,9 @@ func (s *service) AddUserLeague(ctx context.Context, id, name string) (*model.Le
 		Users: []string{id},
 	}
 
-	err := s.store.AddLeague(ctx, league)
+	err := s.leagueStore.AddLeague(ctx, league)
 	if err != nil {
-		return nil, fmt.Errorf("add_league: %w", err)
+		return nil, fmt.Errorf("cannot add league: %w", err)
 	}
 
 	return &league, nil
@@ -213,9 +204,9 @@ func (s *service) LeaveUserLeague(ctx context.Context, id string, pin int64) err
 		return model.InvalidParameterError{Parameter: "pin"}
 	}
 
-	err := s.store.LeaveLeague(ctx, pin, id)
+	err := s.leagueStore.LeaveLeague(ctx, pin, id)
 	if err != nil {
-		return fmt.Errorf("leave_league: %w", err)
+		return fmt.Errorf("cannot leave league: %w", err)
 	}
 
 	return nil
@@ -229,9 +220,9 @@ func (s *service) RenameUserLeague(ctx context.Context, pin int64, name string) 
 		return model.InvalidParameterError{Parameter: "pin"}
 	}
 
-	err := s.store.RenameLeague(ctx, pin, name)
+	err := s.leagueStore.RenameLeague(ctx, pin, name)
 	if err != nil {
-		return fmt.Errorf("rename_league: %w", err)
+		return fmt.Errorf("cannot rename league: %w", err)
 	}
 
 	return nil
@@ -242,22 +233,24 @@ func (s *service) GetLeagueTable(ctx context.Context, pin int64) ([]model.League
 		return nil, model.InvalidParameterError{Parameter: "pin"}
 	}
 
-	league, err := s.store.GetLeagueByPin(ctx, pin)
+	league, err := s.leagueStore.GetLeagueByPin(ctx, pin)
 	if err != nil {
-		return nil, fmt.Errorf("get_league_by_pin: %w", err)
+		return nil, fmt.Errorf("cannot get league by pin: %w", err)
 	}
 
-	users, err := s.userService.GetLeagueUsers(ctx, league.Users)
+	users, err := s.userStore.List(ctx, league.Users)
 	if err != nil {
-		return nil, fmt.Errorf("get_league_users: %w", err)
+		return nil, fmt.Errorf("cannot get league users: %w", err)
 	}
 
-	leagueUsers := model.LeagueUserSlice(users)
-	sort.Sort(leagueUsers)
-
-	return leagueUsers, nil
+	return users, nil
 }
 
-func (s *service) GetOverallLeagueTable(context.Context) ([]model.LeagueUser, error) {
-	return s.overallTable.LeagueTable(), nil
+func (s *service) GetOverallLeagueTable(ctx context.Context) ([]model.LeagueUser, error) {
+	users, err := s.userStore.ListAll(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("cannot get all league users: %w", err)
+	}
+
+	return users, nil
 }
