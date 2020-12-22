@@ -1,0 +1,35 @@
+name: Build-Package-LaegueService
+
+on: push
+
+env:
+  DOCKER_RGISTRY: docker.pkg.github.com/cshep4/premier-predictor-microservices
+  GONOSUMDB: github.com/cshep4
+  GOPRIVATE: github.com/cshep4
+
+jobs:
+  build-and-publish-latest:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master' # Running this job only for master branch
+
+    steps:
+      # Checks out a copy of your repository on the ubuntu-latest machine
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Docker Login
+        run: |
+          docker login docker.pkg.github.com -u cshep4 -p ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Granting private modules access
+        run: |
+          git config --global url."https://${{ secrets.GO_MODULES_TOKEN }}:x-oauth-basic@github.com/cshep4".insteadOf "https://github.com/cshep4"
+
+      - name: Build leagueservice
+        run: |
+          cd src/leagueservice
+          go get github.com/golang/mock/mockgen@v1.4.4
+          go generate ./...
+          go mod vendor
+          docker build --build-arg GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} -t ${{ env.DOCKER_RGISTRY }}/leagueservice:latest -t ${{ env.DOCKER_RGISTRY }}/leagueservice:$(echo ${GITHUB_SHA} | cut -c1-8) .
+          docker push ${{ env.DOCKER_RGISTRY }}/leagueservice
