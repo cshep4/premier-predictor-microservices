@@ -1,24 +1,17 @@
-FROM golang:1.13-alpine as builder
+FROM golang:1.15 as build
 
-ENV PROJECT github.com/cshep4/premier-predictor-microservices/src/predictionservice
+ENV GONOSUMDB "github.com/cshep4"
+ENV GOPRIVATE "github.com/cshep4"
 
 WORKDIR /build
 
-COPY proto-gen/model/gen github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen
+COPY . .
 
-COPY src/common github.com/cshep4/premier-predictor-microservices/src/common
-
-COPY src/predictionservice $PROJECT
-
-WORKDIR $PROJECT
-
-RUN apk add --no-cache ca-certificates && \
-    GOOS=linux GOARCH=amd64 CGO_ENABLED=0 GO111MODULE=on go build -mod vendor -gcflags='-N -l' -o /predictionservice .
+RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -gcflags='-N -l' -ldflags "-s -w" -o /predictionservice .
 
 FROM alpine as release
 
-COPY --from=builder /predictionservice /predictionservice
+COPY --from=build /predictionservice /predictionservice
 
 EXPOSE 3007 8087
-
 ENTRYPOINT ["/predictionservice"]

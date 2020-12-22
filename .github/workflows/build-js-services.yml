@@ -1,4 +1,4 @@
-name: Build-Package
+name: Build-Package-JavaScript
 
 on: push
 
@@ -18,11 +18,6 @@ jobs:
       - name: Docker Login
         run: |
           docker login docker.pkg.github.com -u cshep4 -p ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build kauthservice
-        run: |
-          docker build -f src/kauthservice/src/main/docker/Dockerfile.multistage -t ${{ env.DOCKER_RGISTRY }}/kauthservice:latest -t ${{ env.DOCKER_RGISTRY }}/kauthservice:$(echo ${GITHUB_SHA} | cut -c1-8) src/kauthservice
-          docker push ${{ env.DOCKER_RGISTRY }}/kauthservice
 
       - name: Build gatewayservice
         run: |

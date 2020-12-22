@@ -1,4 +1,4 @@
-name: Build-Package-LeagueService
+name: Build-Package-Go
 
 on: push
 
@@ -10,10 +10,9 @@ env:
 jobs:
   build-and-publish-latest:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master' # Running this job only for master branch
+    if: github.ref == 'refs/heads/master'
 
     steps:
-      # Checks out a copy of your repository on the ubuntu-latest machine
       - name: Checkout code
         uses: actions/checkout@v2
 
@@ -42,3 +41,27 @@ jobs:
           go mod vendor
           docker build --build-arg GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} -t ${{ env.DOCKER_RGISTRY }}/leagueservice:latest -t ${{ env.DOCKER_RGISTRY }}/leagueservice:$(echo ${GITHUB_SHA} | cut -c1-8) .
           docker push ${{ env.DOCKER_RGISTRY }}/leagueservice
+
+      - name: Build livematchservice
+        run: |
+          cd src/livematchservice
+          go generate ./...
+          go mod vendor
+          docker build -t ${{ env.DOCKER_RGISTRY }}/livematchservice:latest -t ${{ env.DOCKER_RGISTRY }}/livematchservice:$(echo ${GITHUB_SHA} | cut -c1-8) .
+          docker push ${{ env.DOCKER_RGISTRY }}/livematchservice
+
+      - name: Build predictionservice
+        run: |
+          cd src/predictionservice
+          go generate ./...
+          go mod vendor
+          docker build -t ${{ env.DOCKER_RGISTRY }}/predictionservice:latest -t ${{ env.DOCKER_RGISTRY }}/predictionservice:$(echo ${GITHUB_SHA} | cut -c1-8) .
+          docker push ${{ env.DOCKER_RGISTRY }}/predictionservice
+
+      - name: Build userservice
+        run: |
+          cd src/userservice
+          go generate ./...
+          go mod vendor
+          docker build -t ${{ env.DOCKER_RGISTRY }}/userservice:latest -t ${{ env.DOCKER_RGISTRY }}/userservice:$(echo ${GITHUB_SHA} | cut -c1-8) .
+          docker push ${{ env.DOCKER_RGISTRY }}/userservice

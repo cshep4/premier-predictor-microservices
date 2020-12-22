@@ -1,0 +1,25 @@
+name: Build-Package-Java
+
+on: push
+
+env:
+  DOCKER_RGISTRY: docker.pkg.github.com/cshep4/premier-predictor-microservices
+
+jobs:
+  build-and-publish-latest:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master' # Running this job only for master branch
+
+    steps:
+      # Checks out a copy of your repository on the ubuntu-latest machine
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Docker Login
+        run: |
+          docker login docker.pkg.github.com -u cshep4 -p ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build kauthservice
+        run: |
+          docker build -f src/kauthservice/src/main/docker/Dockerfile.multistage -t ${{ env.DOCKER_RGISTRY }}/kauthservice:latest -t ${{ env.DOCKER_RGISTRY }}/kauthservice:$(echo ${GITHUB_SHA} | cut -c1-8) src/kauthservice
+          docker push ${{ env.DOCKER_RGISTRY }}/kauthservice
