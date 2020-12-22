@@ -1,7 +1,5 @@
 FROM golang:1.15 as build
 
-RUN git config --global url."https://${GITHUB_TOKEN}@github.com:".insteadOf "https://github.com/"
-
 ENV GONOSUMDB "github.com/cshep4"
 ENV GOPRIVATE "github.com/cshep4"
 
@@ -9,7 +7,7 @@ WORKDIR /build
 
 COPY . .
 
-RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -mod mod -gcflags='-N -l' -ldflags "-s -w" -o /leagueservice ./cmd/league
+RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -mod vendor -gcflags='-N -l' -ldflags "-s -w" -o /leagueservice ./cmd/league
 
 FROM alpine as release
 

@@ -2,6 +2,9 @@ name: Build-Package
 
 on: push
 
+env:
+  DOCKER_RGISTRY: docker.pkg.github.com/cshep4/premier-predictor-microservices
+
 jobs:
   build-and-publish-latest:
     runs-on: ubuntu-latest
@@ -16,32 +19,30 @@ jobs:
         run: |
           docker login docker.pkg.github.com -u cshep4 -p ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Granting private modules access
+        run: |
+          git config --global url."https://${{ secrets.GITHUB_TOKEN }}:x-oauth-basic@github.com/cshep4".insteadOf "https://github.com/cshep4"
+
       - name: Build leagueservice
         run: |
-          docker build --build-arg GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} -t docker.pkg.github.com/cshep4/premier-predictor-microservices/leagueservice:latest src/leagueservice
-          docker push docker.pkg.github.com/cshep4/premier-predictor-microservices/leagueservice:latest
-          docker tag docker.pkg.github.com/cshep4/premier-predictor-microservices/leagueservice:latest docker.pkg.github.com/cshep4/premier-predictor-microservices/leagueservice:$(echo ${GITHUB_SHA} | cut -c1-8)
-          docker push docker.pkg.github.com/cshep4/premier-predictor-microservices/leagueservice:$(echo ${GITHUB_SHA} | cut -c1-8)
+          cd src/leagueservice
+          go mod vendor
+          docker build --build-arg GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} -t ${{ env.DOCKER_RGISTRY }}/leagueservice:latest -t ${{ env.DOCKER_RGISTRY }}/leagueservice:$(echo ${GITHUB_SHA} | cut -c1-8) src/leagueservice
+          docker push ${{ env.DOCKER_RGISTRY }}/leagueservice
 
       - name: Build kauthservice
         run: |
-          docker build -f src/kauthservice/src/main/docker/Dockerfile.multistage -t docker.pkg.github.com/cshep4/premier-predictor-microservices/kauthservice:latest src/kauthservice
-          docker push docker.pkg.github.com/cshep4/premier-predictor-microservices/kauthservice:latest
-          docker tag docker.pkg.github.com/cshep4/premier-predictor-microservices/kauthservice:latest docker.pkg.github.com/cshep4/premier-predictor-microservices/kauthservice:$(echo ${GITHUB_SHA} | cut -c1-8)
-          docker push docker.pkg.github.com/cshep4/premier-predictor-microservices/kauthservice:$(echo ${GITHUB_SHA} | cut -c1-8)
+          docker build --build-arg GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} -f src/kauthservice/src/main/docker/Dockerfile.multistage -t ${{ env.DOCKER_RGISTRY }}/kauthservice:latest -t ${{ env.DOCKER_RGISTRY }}/kauthservice:$(echo ${GITHUB_SHA} | cut -c1-8) src/kauthservice
+          docker push ${{ env.DOCKER_RGISTRY }}/kauthservice
 
       - name: Build gatewayservice
         run: |
           cp -R proto-gen/model/proto src/gatewayservice/proto
-          docker build -t docker.pkg.github.com/cshep4/premier-predictor-microservices/gatewayservice:latest src/gatewayservice
-          docker push docker.pkg.github.com/cshep4/premier-predictor-microservices/gatewayservice:latest
-          docker tag docker.pkg.github.com/cshep4/premier-predictor-microservices/gatewayservice:latest docker.pkg.github.com/cshep4/premier-predictor-microservices/gatewayservice:$(echo ${GITHUB_SHA} | cut -c1-8)
-          docker push docker.pkg.github.com/cshep4/premier-predictor-microservices/gatewayservice:$(echo ${GITHUB_SHA} | cut -c1-8)
+          docker build --build-arg GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} -t ${{ env.DOCKER_RGISTRY }}/gatewayservice:latest -t ${{ env.DOCKER_RGISTRY }}/gatewayservice:$(echo ${GITHUB_SHA} | cut -c1-8) src/gatewayservice
+          docker push ${{ env.DOCKER_RGISTRY }}/gatewayservice
 
       - name: Build fixtureservice
         run: |
           cp -R proto-gen/model/proto src/fixtureservice/proto
-          docker build -t docker.pkg.github.com/cshep4/premier-predictor-microservices/fixtureservice:latest src/fixtureservice
-          docker push docker.pkg.github.com/cshep4/premier-predictor-microservices/fixtureservice:latest
-          docker tag docker.pkg.github.com/cshep4/premier-predictor-microservices/fixtureservice:latest docker.pkg.github.com/cshep4/premier-predictor-microservices/fixtureservice:$(echo ${GITHUB_SHA} | cut -c1-8)
-          docker push docker.pkg.github.com/cshep4/premier-predictor-microservices/fixtureservice:$(echo ${GITHUB_SHA} | cut -c1-8)
+          docker build --build-arg GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} -t ${{ env.DOCKER_RGISTRY }}/fixtureservice:latest -t ${{ env.DOCKER_RGISTRY }}/fixtureservice:$(echo ${GITHUB_SHA} | cut -c1-8) src/fixtureservice
+          docker push ${{ env.DOCKER_RGISTRY }}/fixtureservice
