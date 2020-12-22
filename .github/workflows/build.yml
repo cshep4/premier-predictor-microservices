@@ -4,6 +4,8 @@ on: push
 
 env:
   DOCKER_RGISTRY: docker.pkg.github.com/cshep4/premier-predictor-microservices
+  GONOSUMDB: github.com/cshep4
+  GOPRIVATE: github.com/cshep4
 
 jobs:
   build-and-publish-latest:
