@@ -23,6 +23,13 @@ jobs:
           docker tag docker.pkg.github.com/cshep4/premier-predictor-microservices/leagueservice:latest docker.pkg.github.com/cshep4/premier-predictor-microservices/leagueservice:$(echo ${GITHUB_SHA} | cut -c1-8)
           docker push docker.pkg.github.com/cshep4/premier-predictor-microservices/leagueservice:$(echo ${GITHUB_SHA} | cut -c1-8)
 
+      - name: Build kauthservice
+        run: |
+          docker build -f src/kauthservice/src/main/docker/Dockerfile.multistage -t docker.pkg.github.com/cshep4/premier-predictor-microservices/kauthservice:latest src/kauthservice
+          docker push docker.pkg.github.com/cshep4/premier-predictor-microservices/kauthservice:latest
+          docker tag docker.pkg.github.com/cshep4/premier-predictor-microservices/kauthservice:latest docker.pkg.github.com/cshep4/premier-predictor-microservices/kauthservice:$(echo ${GITHUB_SHA} | cut -c1-8)
+          docker push docker.pkg.github.com/cshep4/premier-predictor-microservices/kauthservice:$(echo ${GITHUB_SHA} | cut -c1-8)
+
       - name: Build gatewayservice
         run: |
           cp -R proto-gen/model/proto src/gatewayservice/proto

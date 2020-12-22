@@ -34,12 +34,11 @@ func (m *MockAuthorizer) EXPECT() *MockAuthorizerMockRecorder {
 }
 
 // GetRequestAudience mocks base method
-func (m *MockAuthorizer) GetRequestAudience(arg0 *http.Request) (string, error) {
+func (m *MockAuthorizer) GetRequestAudience(arg0 *http.Request) string {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetRequestAudience", arg0)
 	ret0, _ := ret[0].(string)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	return ret0
 }
 
 // GetRequestAudience indicates an expected call of GetRequestAudience

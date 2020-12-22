@@ -6,7 +6,7 @@ package auth_mocks
 
 import (
 	context "context"
-	gen "github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen"
+	model "github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen"
 	gomock "github.com/golang/mock/gomock"
 	grpc "google.golang.org/grpc"
 	reflect "reflect"
@@ -36,14 +36,14 @@ func (m *MockAuthServiceClient) EXPECT() *MockAuthServiceClientMockRecorder {
 }
 
 // InitiatePasswordReset mocks base method
-func (m *MockAuthServiceClient) InitiatePasswordReset(arg0 context.Context, arg1 *gen.InitiatePasswordResetRequest, arg2 ...grpc.CallOption) (*gen.InitiatePasswordResetResponse, error) {
+func (m *MockAuthServiceClient) InitiatePasswordReset(arg0 context.Context, arg1 *model.InitiatePasswordResetRequest, arg2 ...grpc.CallOption) (*model.InitiatePasswordResetResponse, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "InitiatePasswordReset", varargs...)
-	ret0, _ := ret[0].(*gen.InitiatePasswordResetResponse)
+	ret0, _ := ret[0].(*model.InitiatePasswordResetResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -56,14 +56,14 @@ func (mr *MockAuthServiceClientMockRecorder) InitiatePasswordReset(arg0, arg1 in
 }
 
 // IssueServiceToken mocks base method
-func (m *MockAuthServiceClient) IssueServiceToken(arg0 context.Context, arg1 *gen.IssueServiceTokenRequest, arg2 ...grpc.CallOption) (*gen.IssueServiceTokenResponse, error) {
+func (m *MockAuthServiceClient) IssueServiceToken(arg0 context.Context, arg1 *model.IssueServiceTokenRequest, arg2 ...grpc.CallOption) (*model.IssueServiceTokenResponse, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "IssueServiceToken", varargs...)
-	ret0, _ := ret[0].(*gen.IssueServiceTokenResponse)
+	ret0, _ := ret[0].(*model.IssueServiceTokenResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -76,14 +76,14 @@ func (mr *MockAuthServiceClientMockRecorder) IssueServiceToken(arg0, arg1 interf
 }
 
 // Login mocks base method
-func (m *MockAuthServiceClient) Login(arg0 context.Context, arg1 *gen.LoginRequest, arg2 ...grpc.CallOption) (*gen.LoginResponse, error) {
+func (m *MockAuthServiceClient) Login(arg0 context.Context, arg1 *model.LoginRequest, arg2 ...grpc.CallOption) (*model.LoginResponse, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "Login", varargs...)
-	ret0, _ := ret[0].(*gen.LoginResponse)
+	ret0, _ := ret[0].(*model.LoginResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -96,14 +96,14 @@ func (mr *MockAuthServiceClientMockRecorder) Login(arg0, arg1 interface{}, arg2 
 }
 
 // Register mocks base method
-func (m *MockAuthServiceClient) Register(arg0 context.Context, arg1 *gen.RegisterRequest, arg2 ...grpc.CallOption) (*gen.RegisterResponse, error) {
+func (m *MockAuthServiceClient) Register(arg0 context.Context, arg1 *model.RegisterRequest, arg2 ...grpc.CallOption) (*model.RegisterResponse, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "Register", varargs...)
-	ret0, _ := ret[0].(*gen.RegisterResponse)
+	ret0, _ := ret[0].(*model.RegisterResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -116,14 +116,14 @@ func (mr *MockAuthServiceClientMockRecorder) Register(arg0, arg1 interface{}, ar
 }
 
 // ResetPassword mocks base method
-func (m *MockAuthServiceClient) ResetPassword(arg0 context.Context, arg1 *gen.ResetPasswordRequest, arg2 ...grpc.CallOption) (*gen.ResetPasswordResponse, error) {
+func (m *MockAuthServiceClient) ResetPassword(arg0 context.Context, arg1 *model.ResetPasswordRequest, arg2 ...grpc.CallOption) (*model.ResetPasswordResponse, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "ResetPassword", varargs...)
-	ret0, _ := ret[0].(*gen.ResetPasswordResponse)
+	ret0, _ := ret[0].(*model.ResetPasswordResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -136,14 +136,14 @@ func (mr *MockAuthServiceClientMockRecorder) ResetPassword(arg0, arg1 interface{
 }
 
 // Validate mocks base method
-func (m *MockAuthServiceClient) Validate(arg0 context.Context, arg1 *gen.ValidateRequest, arg2 ...grpc.CallOption) (*gen.ValidateResponse, error) {
+func (m *MockAuthServiceClient) Validate(arg0 context.Context, arg1 *model.ValidateRequest, arg2 ...grpc.CallOption) (*model.ValidateResponse, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "Validate", varargs...)
-	ret0, _ := ret[0].(*gen.ValidateResponse)
+	ret0, _ := ret[0].(*model.ValidateResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

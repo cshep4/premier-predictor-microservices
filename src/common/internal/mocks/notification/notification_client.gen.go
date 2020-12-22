@@ -6,10 +6,10 @@ package notification_mocks
 
 import (
 	context "context"
-	gen "github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen"
+	model "github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen"
 	gomock "github.com/golang/mock/gomock"
-	empty "github.com/golang/protobuf/ptypes/empty"
 	grpc "google.golang.org/grpc"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	reflect "reflect"
 )
 
@@ -37,14 +37,14 @@ func (m *MockNotificationServiceClient) EXPECT() *MockNotificationServiceClientM
 }
 
 // GetNotifications mocks base method
-func (m *MockNotificationServiceClient) GetNotifications(arg0 context.Context, arg1 *gen.IdRequest, arg2 ...grpc.CallOption) (gen.NotificationService_GetNotificationsClient, error) {
+func (m *MockNotificationServiceClient) GetNotifications(arg0 context.Context, arg1 *model.IdRequest, arg2 ...grpc.CallOption) (model.NotificationService_GetNotificationsClient, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "GetNotifications", varargs...)
-	ret0, _ := ret[0].(gen.NotificationService_GetNotificationsClient)
+	ret0, _ := ret[0].(model.NotificationService_GetNotificationsClient)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -57,14 +57,14 @@ func (mr *MockNotificationServiceClientMockRecorder) GetNotifications(arg0, arg1
 }
 
 // SaveUser mocks base method
-func (m *MockNotificationServiceClient) SaveUser(arg0 context.Context, arg1 *gen.SaveRequest, arg2 ...grpc.CallOption) (*empty.Empty, error) {
+func (m *MockNotificationServiceClient) SaveUser(arg0 context.Context, arg1 *model.SaveRequest, arg2 ...grpc.CallOption) (*emptypb.Empty, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "SaveUser", varargs...)
-	ret0, _ := ret[0].(*empty.Empty)
+	ret0, _ := ret[0].(*emptypb.Empty)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -77,14 +77,14 @@ func (mr *MockNotificationServiceClientMockRecorder) SaveUser(arg0, arg1 interfa
 }
 
 // Send mocks base method
-func (m *MockNotificationServiceClient) Send(arg0 context.Context, arg1 *gen.SingleRequest, arg2 ...grpc.CallOption) (*empty.Empty, error) {
+func (m *MockNotificationServiceClient) Send(arg0 context.Context, arg1 *model.SingleRequest, arg2 ...grpc.CallOption) (*emptypb.Empty, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "Send", varargs...)
-	ret0, _ := ret[0].(*empty.Empty)
+	ret0, _ := ret[0].(*emptypb.Empty)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -97,14 +97,14 @@ func (mr *MockNotificationServiceClientMockRecorder) Send(arg0, arg1 interface{}
 }
 
 // SendToAll mocks base method
-func (m *MockNotificationServiceClient) SendToAll(arg0 context.Context, arg1 *gen.Notification, arg2 ...grpc.CallOption) (*empty.Empty, error) {
+func (m *MockNotificationServiceClient) SendToAll(arg0 context.Context, arg1 *model.Notification, arg2 ...grpc.CallOption) (*emptypb.Empty, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "SendToAll", varargs...)
-	ret0, _ := ret[0].(*empty.Empty)
+	ret0, _ := ret[0].(*emptypb.Empty)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -117,14 +117,14 @@ func (mr *MockNotificationServiceClientMockRecorder) SendToAll(arg0, arg1 interf
 }
 
 // SendToGroup mocks base method
-func (m *MockNotificationServiceClient) SendToGroup(arg0 context.Context, arg1 *gen.GroupRequest, arg2 ...grpc.CallOption) (*empty.Empty, error) {
+func (m *MockNotificationServiceClient) SendToGroup(arg0 context.Context, arg1 *model.GroupRequest, arg2 ...grpc.CallOption) (*emptypb.Empty, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "SendToGroup", varargs...)
-	ret0, _ := ret[0].(*empty.Empty)
+	ret0, _ := ret[0].(*emptypb.Empty)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -137,14 +137,14 @@ func (mr *MockNotificationServiceClientMockRecorder) SendToGroup(arg0, arg1 inte
 }
 
 // UpdateReadNotification mocks base method
-func (m *MockNotificationServiceClient) UpdateReadNotification(arg0 context.Context, arg1 *gen.UpdateReadRequest, arg2 ...grpc.CallOption) (*empty.Empty, error) {
+func (m *MockNotificationServiceClient) UpdateReadNotification(arg0 context.Context, arg1 *model.UpdateReadRequest, arg2 ...grpc.CallOption) (*emptypb.Empty, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "UpdateReadNotification", varargs...)
-	ret0, _ := ret[0].(*empty.Empty)
+	ret0, _ := ret[0].(*emptypb.Empty)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
