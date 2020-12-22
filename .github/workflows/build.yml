@@ -21,11 +21,10 @@ jobs:
 
       - name: Build kauthservice
         run: |
-          cd src/kauthservice/
-          ./mvnw package -Pnative -Dquarkus.native.container-build=true
-          cd ..
-          docker build -f src/kauthservice/src/main/docker/Dockerfile.multistage -t ${{ env.DOCKER_RGISTRY }}/kauthservice:latest -t ${{ env.DOCKER_RGISTRY }}/kauthservice:$(echo ${GITHUB_SHA} | cut -c1-8) src/kauthservice
+          cd src/kauthservice
+          docker build -f src/kauthservice/src/main/docker/Dockerfile.multistage -t ${{ env.DOCKER_RGISTRY }}/kauthservice:latest -t ${{ env.DOCKER_RGISTRY }}/kauthservice:$(echo ${GITHUB_SHA} | cut -c1-8) .
           docker push ${{ env.DOCKER_RGISTRY }}/kauthservice
+          cd ../..
 
       - name: Build gatewayservice
         run: |
