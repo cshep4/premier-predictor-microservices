@@ -19,55 +19,62 @@ jobs:
       - name: Tag FixtureService
         if: contains(github.ref, 'fixtureservice/')
         run: |
+          docker pull ${{ env.DOCKER_RGISTRY }}/fixtureservice:latest
           docker tag \
-            ${{ env.DOCKER_RGISTRY }}/fixtureservice \
+            ${{ env.DOCKER_RGISTRY }}/fixtureservice:latest \
             ${{ env.DOCKER_RGISTRY }}/fixtureservice:${GITHUB_REF##*/}
           docker push ${{ env.DOCKER_RGISTRY }}/fixtureservice:${GITHUB_REF##*/}
 
       - name: Tag GatewayService
         if: contains(github.ref, 'gatewayservice/')
         run: |
+          docker pull ${{ env.DOCKER_RGISTRY }}/gatewayservice:latest
           docker tag \
-            ${{ env.DOCKER_RGISTRY }}/gatewayservice \
+            ${{ env.DOCKER_RGISTRY }}/gatewayservice:latest \
             ${{ env.DOCKER_RGISTRY }}/gatewayservice:${GITHUB_REF##*/}
           docker push ${{ env.DOCKER_RGISTRY }}/gatewayservice:${GITHUB_REF##*/}
 
       - name: Tag KauthService
         if: contains(github.ref, 'kauthservice/')
         run: |
+          docker pull ${{ env.DOCKER_RGISTRY }}/kauthservice:latest
           docker tag \
-            ${{ env.DOCKER_RGISTRY }}/kauthservice \
+            ${{ env.DOCKER_RGISTRY }}/kauthservice:latest \
             ${{ env.DOCKER_RGISTRY }}/kauthservice:${GITHUB_REF##*/}
           docker push ${{ env.DOCKER_RGISTRY }}/kauthservice:${GITHUB_REF##*/}
 
       - name: Tag LeagueService
         if: contains(github.ref, 'leagueservice/')
         run: |
+          docker pull ${{ env.DOCKER_RGISTRY }}/leagueservice:latest
           docker tag \
-            ${{ env.DOCKER_RGISTRY }}/leagueservice \
+            ${{ env.DOCKER_RGISTRY }}/leagueservice:latest \
             ${{ env.DOCKER_RGISTRY }}/leagueservice:${GITHUB_REF##*/}
           docker push ${{ env.DOCKER_RGISTRY }}/leagueservice:${GITHUB_REF##*/}
 
       - name: Tag LiveMatchService
         if: contains(github.ref, 'livematchservice/')
         run: |
+          docker pull ${{ env.DOCKER_RGISTRY }}/livematchservice:latest
           docker tag \
-            ${{ env.DOCKER_RGISTRY }}/livematchservice \
+            ${{ env.DOCKER_RGISTRY }}/livematchservice:latest \
             ${{ env.DOCKER_RGISTRY }}/livematchservice:${GITHUB_REF##*/}
           docker push ${{ env.DOCKER_RGISTRY }}/livematchservice:${GITHUB_REF##*/}
 
       - name: Tag PredictionService
         if: contains(github.ref, 'predictionservice/')
         run: |
+          docker pull ${{ env.DOCKER_RGISTRY }}/predictionservice:latest
           docker tag \
-            ${{ env.DOCKER_RGISTRY }}/predictionservice \
+            ${{ env.DOCKER_RGISTRY }}/predictionservice:latest \
             ${{ env.DOCKER_RGISTRY }}/predictionservice:${GITHUB_REF##*/}
           docker push ${{ env.DOCKER_RGISTRY }}/predictionservice:${GITHUB_REF##*/}
 
       - name: Tag UserService
         if: contains(github.ref, 'userservice/')
         run: |
+          docker pull ${{ env.DOCKER_RGISTRY }}/userservice:latest
           docker tag \
-            ${{ env.DOCKER_RGISTRY }}/userservice \
+            ${{ env.DOCKER_RGISTRY }}/userservice:latest \
             ${{ env.DOCKER_RGISTRY }}/userservice:${GITHUB_REF##*/}
           docker push ${{ env.DOCKER_RGISTRY }}/userservice:${GITHUB_REF##*/}

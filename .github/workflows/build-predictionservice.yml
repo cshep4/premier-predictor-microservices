@@ -32,7 +32,6 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          go version
           GO111MODULE=on go get github.com/golang/mock/mockgen@v1.4.4
 
       - name: Granting Private Modules Access
