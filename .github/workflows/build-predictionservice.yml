@@ -5,8 +5,8 @@ on:
     paths:
       - 'src/predictionservice/**'
       - '.github/workflows/build-predictionservice.yml'
-    tags-ignore:
-      - 'v*.*.*'
+    tags:
+      - '!*'
 
 env:
   DOCKER_RGISTRY: docker.pkg.github.com/cshep4/premier-predictor-microservices

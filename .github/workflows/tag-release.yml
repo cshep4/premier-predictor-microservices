@@ -2,8 +2,10 @@ name: Tag-Release
 
 on:
   push:
+    branches:
+      - "!*"
     tags:
-      - 'v*.*.*'
+      - '*'
 
 env:
   DOCKER_RGISTRY: docker.pkg.github.com/cshep4/premier-predictor-microservices

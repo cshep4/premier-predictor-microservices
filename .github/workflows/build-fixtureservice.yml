@@ -5,8 +5,8 @@ on:
     paths:
       - 'src/fixtureservice/**'
       - '.github/workflows/build-fixtureservice.yml'
-    tags-ignore:
-      - 'v*.*.*'
+    tags:
+      - '!*'
 
 env:
   DOCKER_RGISTRY: docker.pkg.github.com/cshep4/premier-predictor-microservices
