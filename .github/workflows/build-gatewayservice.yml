@@ -1,6 +1,10 @@
-name: Build-Package-JavaScript
+name: Build-Package-GatewayService
 
-on: push
+on:
+  push:
+    paths:
+      - 'src/gatewayservice/**'
+      - '.github/workflows/build-gatewayservice.yml'
 
 env:
   DOCKER_RGISTRY: docker.pkg.github.com/cshep4/premier-predictor-microservices
@@ -8,10 +12,9 @@ env:
 jobs:
   build-and-publish-latest:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master' # Running this job only for master branch
+    if: github.ref == 'refs/heads/master'
 
     steps:
-      # Checks out a copy of your repository on the ubuntu-latest machine
       - name: Checkout code
         uses: actions/checkout@v2
 
@@ -24,9 +27,3 @@ jobs:
           cp -R proto-gen/model/proto src/gatewayservice/proto
           docker build --build-arg GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} -t ${{ env.DOCKER_RGISTRY }}/gatewayservice:latest -t ${{ env.DOCKER_RGISTRY }}/gatewayservice:$(echo ${GITHUB_SHA} | cut -c1-8) src/gatewayservice
           docker push ${{ env.DOCKER_RGISTRY }}/gatewayservice
-
-      - name: Build fixtureservice
-        run: |
-          cp -R proto-gen/model/proto src/fixtureservice/proto
-          docker build --build-arg GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} -t ${{ env.DOCKER_RGISTRY }}/fixtureservice:latest -t ${{ env.DOCKER_RGISTRY }}/fixtureservice:$(echo ${GITHUB_SHA} | cut -c1-8) src/fixtureservice
-          docker push ${{ env.DOCKER_RGISTRY }}/fixtureservice

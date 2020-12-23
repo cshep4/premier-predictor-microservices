@@ -1,0 +1,47 @@
+name: Build-Package-LeagueService
+
+on:
+  push:
+    paths:
+      - 'src/leagueservice/**'
+      - '.github/workflows/build-leagueservice.yml'
+
+env:
+  DOCKER_RGISTRY: docker.pkg.github.com/cshep4/premier-predictor-microservices
+  GONOSUMDB: github.com/cshep4
+  GOPRIVATE: github.com/cshep4
+
+jobs:
+  build-and-publish-latest:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Docker Login
+        run: |
+          docker login docker.pkg.github.com -u cshep4 -p ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: '1.15.0'
+
+      - name: Install dependencies
+        run: |
+          go version
+          GO111MODULE=on go get github.com/golang/mock/mockgen@v1.4.4
+
+      - name: Granting private modules access
+        run: |
+          git config --global url."https://${{ secrets.GO_MODULES_TOKEN }}:x-oauth-basic@github.com/cshep4".insteadOf "https://github.com/cshep4"
+
+      - name: Build leagueservice
+        run: |
+          cd src/leagueservice
+          go generate ./...
+          go mod vendor
+          docker build --build-arg GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} -t ${{ env.DOCKER_RGISTRY }}/leagueservice:latest -t ${{ env.DOCKER_RGISTRY }}/leagueservice:$(echo ${GITHUB_SHA} | cut -c1-8) .
+          docker push ${{ env.DOCKER_RGISTRY }}/leagueservice

@@ -1,0 +1,29 @@
+name: Build-Package-FixtureService
+
+on:
+  push:
+    paths:
+      - 'src/fixtureservice/**'
+      - '.github/workflows/build-fixtureservice.yml'
+
+env:
+  DOCKER_RGISTRY: docker.pkg.github.com/cshep4/premier-predictor-microservices
+
+jobs:
+  build-and-publish-latest:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Docker Login
+        run: |
+          docker login docker.pkg.github.com -u cshep4 -p ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build fixtureservice
+        run: |
+          cp -R proto-gen/model/proto src/fixtureservice/proto
+          docker build --build-arg GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} -t ${{ env.DOCKER_RGISTRY }}/fixtureservice:latest -t ${{ env.DOCKER_RGISTRY }}/fixtureservice:$(echo ${GITHUB_SHA} | cut -c1-8) src/fixtureservice
+          docker push ${{ env.DOCKER_RGISTRY }}/fixtureservice

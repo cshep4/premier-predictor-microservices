@@ -1,6 +1,10 @@
-name: Build-Package-Java
+name: Build-Package-KauthService
 
-on: push
+on:
+  push:
+    paths:
+      - 'src/kauthservice/**'
+      - '.github/workflows/build-kauthservice.yml'
 
 env:
   DOCKER_RGISTRY: docker.pkg.github.com/cshep4/premier-predictor-microservices
@@ -8,10 +12,9 @@ env:
 jobs:
   build-and-publish-latest:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master' # Running this job only for master branch
+    if: github.ref == 'refs/heads/master'
 
     steps:
-      # Checks out a copy of your repository on the ubuntu-latest machine
       - name: Checkout code
         uses: actions/checkout@v2
 

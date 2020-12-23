@@ -1,6 +1,10 @@
-name: Build-Package-Go
+name: Build-Package-LiveMatchService
 
-on: push
+on:
+  push:
+    paths:
+      - 'src/livematchservice/**'
+      - '.github/workflows/build-livematchservice.yml'
 
 env:
   DOCKER_RGISTRY: docker.pkg.github.com/cshep4/premier-predictor-microservices
@@ -34,14 +38,6 @@ jobs:
         run: |
           git config --global url."https://${{ secrets.GO_MODULES_TOKEN }}:x-oauth-basic@github.com/cshep4".insteadOf "https://github.com/cshep4"
 
-      - name: Build leagueservice
-        run: |
-          cd src/leagueservice
-          go generate ./...
-          go mod vendor
-          docker build --build-arg GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} -t ${{ env.DOCKER_RGISTRY }}/leagueservice:latest -t ${{ env.DOCKER_RGISTRY }}/leagueservice:$(echo ${GITHUB_SHA} | cut -c1-8) .
-          docker push ${{ env.DOCKER_RGISTRY }}/leagueservice
-
       - name: Build livematchservice
         run: |
           cd src/livematchservice
@@ -49,19 +45,3 @@ jobs:
           go mod vendor
           docker build -t ${{ env.DOCKER_RGISTRY }}/livematchservice:latest -t ${{ env.DOCKER_RGISTRY }}/livematchservice:$(echo ${GITHUB_SHA} | cut -c1-8) .
           docker push ${{ env.DOCKER_RGISTRY }}/livematchservice
-
-      - name: Build predictionservice
-        run: |
-          cd src/predictionservice
-          go generate ./...
-          go mod vendor
-          docker build -t ${{ env.DOCKER_RGISTRY }}/predictionservice:latest -t ${{ env.DOCKER_RGISTRY }}/predictionservice:$(echo ${GITHUB_SHA} | cut -c1-8) .
-          docker push ${{ env.DOCKER_RGISTRY }}/predictionservice
-
-      - name: Build userservice
-        run: |
-          cd src/userservice
-          go generate ./...
-          go mod vendor
-          docker build -t ${{ env.DOCKER_RGISTRY }}/userservice:latest -t ${{ env.DOCKER_RGISTRY }}/userservice:$(echo ${GITHUB_SHA} | cut -c1-8) .
-          docker push ${{ env.DOCKER_RGISTRY }}/userservice
