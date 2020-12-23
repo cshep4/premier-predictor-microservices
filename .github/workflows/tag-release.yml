@@ -1,0 +1,78 @@
+name: Tag-Release
+
+on:
+  push:
+    tags:
+      - '*/v*.*.*'
+
+env:
+  DOCKER_RGISTRY: docker.pkg.github.com/cshep4/premier-predictor-microservices
+
+jobs:
+  tag-releases:
+    name: Build and Push FixtureService
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Docker Login
+        run: |
+          docker login docker.pkg.github.com -u cshep4 -p ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set Version Environment Variable
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+
+      - name: Tag FixtureService
+        if: contains(github.ref, 'fixtureservice/')
+        run: |
+          docker tag \
+            ${{ env.DOCKER_RGISTRY }}/fixtureservice:latest \
+            ${{ env.DOCKER_RGISTRY }}/fixtureservice:${{ env.RELEASE_VERSION }}
+          docker push ${{ env.DOCKER_RGISTRY }}/fixtureservice:${{ env.RELEASE_VERSION }}
+
+      - name: Tag GatewayService
+        if: contains(github.ref, 'gatewayservice/')
+        run: |
+          docker tag \
+            ${{ env.DOCKER_RGISTRY }}/gatewayservice:latest \
+            ${{ env.DOCKER_RGISTRY }}/gatewayservice:${{ env.RELEASE_VERSION }}
+          docker push ${{ env.DOCKER_RGISTRY }}/gatewayservice:${{ env.RELEASE_VERSION }}
+
+      - name: Tag KauthService
+        if: contains(github.ref, 'kauthservice/')
+        run: |
+          docker tag \
+            ${{ env.DOCKER_RGISTRY }}/kauthservice:latest \
+            ${{ env.DOCKER_RGISTRY }}/kauthservice:${{ env.RELEASE_VERSION }}
+          docker push ${{ env.DOCKER_RGISTRY }}/kauthservice:${{ env.RELEASE_VERSION }}
+
+      - name: Tag LeagueService
+        if: contains(github.ref, 'leagueservice/')
+        run: |
+          docker tag \
+            ${{ env.DOCKER_RGISTRY }}/leagueservice:latest \
+            ${{ env.DOCKER_RGISTRY }}/leagueservice:${{ env.RELEASE_VERSION }}
+          docker push ${{ env.DOCKER_RGISTRY }}/leagueservice:${{ env.RELEASE_VERSION }}
+
+      - name: Tag LiveMatchService
+        if: contains(github.ref, 'livematchservice/')
+        run: |
+          docker tag \
+            ${{ env.DOCKER_RGISTRY }}/livematchservice:latest \
+            ${{ env.DOCKER_RGISTRY }}/livematchservice:${{ env.RELEASE_VERSION }}
+          docker push ${{ env.DOCKER_RGISTRY }}/livematchservice:${{ env.RELEASE_VERSION }}
+
+      - name: Tag PredictionService
+        if: contains(github.ref, 'predictionservice/')
+        run: |
+          docker tag \
+            ${{ env.DOCKER_RGISTRY }}/predictionservice:latest \
+            ${{ env.DOCKER_RGISTRY }}/predictionservice:${{ env.RELEASE_VERSION }}
+          docker push ${{ env.DOCKER_RGISTRY }}/predictionservice:${{ env.RELEASE_VERSION }}
+
+      - name: Tag UserService
+        if: contains(github.ref, 'userservice/')
+        run: |
+          docker tag \
+            ${{ env.DOCKER_RGISTRY }}/userservice:latest \
+            ${{ env.DOCKER_RGISTRY }}/userservice:${{ env.RELEASE_VERSION }}
+          docker push ${{ env.DOCKER_RGISTRY }}/userservice:${{ env.RELEASE_VERSION }}
