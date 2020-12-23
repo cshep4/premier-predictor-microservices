@@ -22,11 +22,6 @@ jobs:
         run: |
           docker login docker.pkg.github.com -u cshep4 -p ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set up JDK 1.8
-        uses: actions/setup-java@v1
-        with:
-          java-version: 11.0.x
-
       - name: setup-graalvm-ce
         uses: rinx/setup-graalvm-ce@v0.0.5
         with:
@@ -42,6 +37,8 @@ jobs:
       - name: Build kauthservice
         run: |
           cp -R proto-gen/model/proto src/kauthservice/src/main
-          mvn package -Pnative -Dquarkus.native.container-build=true
+          cd src/kauthservice
+          mvn -DskipTests -Pnative -Dquarkus.native.native-image-xmx=10G -Dquarkus.native.native-image-xms=6G clean package
+          cd ../..
           docker build -f src/kauthservice/src/main/docker/Dockerfile.native -t ${{ env.DOCKER_RGISTRY }}/kauthservice:latest -t ${{ env.DOCKER_RGISTRY }}/kauthservice:$(echo ${GITHUB_SHA} | cut -c1-8) --memory-swap=16g --memory=9g src/kauthservice
           docker push ${{ env.DOCKER_RGISTRY }}/kauthservice
