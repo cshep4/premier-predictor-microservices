@@ -2,6 +2,8 @@ name: Build-Package-UserService
 
 on:
   push:
+    tags-ignore:
+      - '*/v*.*.*'
     paths:
       - 'src/userservice/**'
       - '.github/workflows/build-userservice.yml'

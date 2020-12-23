@@ -2,6 +2,8 @@ name: Build-Package-GatewayService
 
 on:
   push:
+    tags-ignore:
+      - '*/v*.*.*'
     paths:
       - 'src/gatewayservice/**'
       - '.github/workflows/build-gatewayservice.yml'

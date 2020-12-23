@@ -2,6 +2,8 @@ name: Build-Package-KauthService
 
 on:
   push:
+    tags-ignore:
+      - '*/v*.*.*'
     paths:
       - 'src/kauthservice/**'
       - '.github/workflows/build-kauthservice.yml'
