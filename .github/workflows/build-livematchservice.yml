@@ -3,7 +3,7 @@ name: Build-Package-LiveMatchService
 on:
   push:
     tags-ignore:
-      - '*/v*.*.*'
+      - 'v*.*.*'
     paths:
       - 'src/livematchservice/**'
       - '.github/workflows/build-livematchservice.yml'

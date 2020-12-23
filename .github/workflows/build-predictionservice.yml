@@ -3,7 +3,7 @@ name: Build-Package-PredictionService
 on:
   push:
     tags-ignore:
-      - '*/v*.*.*'
+      - 'v*.*.*'
     paths:
       - 'src/predictionservice/**'
       - '.github/workflows/build-predictionservice.yml'

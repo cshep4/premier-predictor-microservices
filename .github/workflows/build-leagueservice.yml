@@ -3,7 +3,7 @@ name: Build-Package-LeagueService
 on:
   push:
     tags-ignore:
-      - '*/v*.*.*'
+      - 'v*.*.*'
     paths:
       - 'src/leagueservice/**'
       - '.github/workflows/build-leagueservice.yml'
