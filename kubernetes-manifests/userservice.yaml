@@ -11,6 +11,9 @@ spec:
       labels:
         k8s-app: userservice-app
     spec:
+      selector:
+        matchLabels:
+          k8s-app: userservice-app
       terminationGracePeriodSeconds: 5
       containers:
         - name: userservice-app
@@ -61,18 +64,18 @@ spec:
               cpu: 100m
               memory: 128Mi
 ---
- apiVersion: v1
- kind: Service
- metadata:
-   name: userservice
-   namespace: default
- spec:
-   selector:
-     k8s-app: userservice-app
-   ports:
-     - port: 3005
-       targetPort: 3005
-       name: grpc
+apiVersion: v1
+kind: Service
+metadata:
+  name: userservice
+  namespace: default
+spec:
+  selector:
+    k8s-app: userservice-app
+  ports:
+    - port: 3005
+      targetPort: 3005
+      name: grpc
 ---
 apiVersion: v1
 kind: Service

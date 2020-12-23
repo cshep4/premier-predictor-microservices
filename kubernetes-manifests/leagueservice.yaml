@@ -11,6 +11,9 @@ spec:
       labels:
         k8s-app: leagueservice-app
     spec:
+      selector:
+        matchLabels:
+          k8s-app: leagueservice-app
       terminationGracePeriodSeconds: 5
       containers:
         - name: leagueservice-app
