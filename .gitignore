@@ -17,3 +17,5 @@ ambassador/
 bazel-*
 
 vendor
+
+docker-compose-remote.yml
