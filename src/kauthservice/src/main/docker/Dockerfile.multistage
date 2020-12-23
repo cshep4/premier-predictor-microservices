@@ -23,7 +23,7 @@ USER root
 RUN chown -R quarkus /usr/src/app
 USER quarkus
 #RUN mvn -f /usr/src/app/pom.xml compile
-RUN mvn -f /usr/src/app/pom.xml -DskipTests -Pnative -Dquarkus.native.native-image-xmx=10G -Dnative-image.xmx=10G clean package
+RUN mvn -f /usr/src/app/pom.xml -DskipTests -Pnative clean package
 
 ## Stage 2 : create the docker final image
 FROM registry.access.redhat.com/ubi8/ubi-minimal

@@ -25,5 +25,5 @@ jobs:
       - name: Build kauthservice
         run: |
           cp -R proto-gen/model/proto src/kauthservice/src/main
-          docker build -f src/kauthservice/src/main/docker/Dockerfile.multistage -t ${{ env.DOCKER_RGISTRY }}/kauthservice:latest -t ${{ env.DOCKER_RGISTRY }}/kauthservice:$(echo ${GITHUB_SHA} | cut -c1-8) -m 12g src/kauthservice
+          docker build -f src/kauthservice/src/main/docker/Dockerfile.multistage -t ${{ env.DOCKER_RGISTRY }}/kauthservice:latest -t ${{ env.DOCKER_RGISTRY }}/kauthservice:$(echo ${GITHUB_SHA} | cut -c1-8) --cpus="8.0" -m 16g src/kauthservice
           docker push ${{ env.DOCKER_RGISTRY }}/kauthservice
