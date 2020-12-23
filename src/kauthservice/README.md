@@ -30,4 +30,4 @@ You can then execute your native executable with: `./target/kauthservice-1.0.0-S
 If you want to learn more about building native executables, please consult https://quarkus.io/guides/building-native-image.
 
 
-./mvnw compile && export USER_ADDR=localhost; export USER_PORT=3005; export JWT_SECRET=some-jwt-secret; export EMAIL_URL=https://jbemuyb0o3.execute-api.us-east-1.amazonaws.com/dev/email; ./mvnw quarkus:dev
+./mvnw compile && export USER_ADDR=localhost; export USER_PORT=3005; export JWT_SECRET=some-jwt-secret; export EMAIL_URL=http://emailer; ./mvnw quarkus:dev

@@ -14,7 +14,7 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
         - name: predictionservice-app
-          image: predictionservice
+          image: docker.pkg.github.com/cshep4/premier-predictor-microservices/predictionservice:master_68563846
           ports:
             - containerPort: 3007
               name: grpc
@@ -26,7 +26,7 @@ spec:
             - name: FIXTURE_ADDR
               value: "fixtureservice:3006"
             - name: AUTH_ADDR
-              value: "authservice:3001"
+              value: "kauthservice:3001"
             - name: MONGO_SCHEME
               valueFrom:
                 secretKeyRef:
