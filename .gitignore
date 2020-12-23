@@ -12,7 +12,6 @@ certs/
 kubernetes-manifests/ppsecrets.yaml
 
 src/core/out/
-ambassador/
 
 bazel-*
 

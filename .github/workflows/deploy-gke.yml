@@ -68,7 +68,7 @@ jobs:
         with:
           namespace: 'default'
           secret-type: 'generic'
-          arguments:  --from-literal=jwtSecret=${{ secrets.JWT_SECRET }} --from-literal=dbScheme=${{ secrets.DB_SCHEME }} --from-literal=dbUser=${{ secrets.DB_USER }} --from-literal=dbPassword=${{ secrets.DB_PASSWORD }} --from-literal=dbHost=${{ secrets.DB_HOST }}
+          arguments: --from-literal=jwtSecret=${{ secrets.JWT_SECRET }} --from-literal=dbScheme=${{ secrets.DB_SCHEME }} --from-literal=dbUser=${{ secrets.DB_USER }} --from-literal=dbPassword=${{ secrets.DB_PASSWORD }} --from-literal=dbHost=${{ secrets.DB_HOST }}
           secret-name: pp-secrets
 
       - name: Deploy Services
@@ -85,7 +85,7 @@ jobs:
         run: |-
           kubectl apply -f https://github.com/jetstack/cert-manager/releases/latest/download/cert-manager.crds.yaml
           helm repo add jetstack https://charts.jetstack.io && helm repo update
-          kubectl create ns cert-manager
+          kubectl apply -f ./ambassador/ns.yaml
           helm install cert-manager --namespace cert-manager jetstack/cert-manager
           kubectl apply -f ./ambassador/https.yaml
           kubectl apply -f ./ambassador/cert.yaml
