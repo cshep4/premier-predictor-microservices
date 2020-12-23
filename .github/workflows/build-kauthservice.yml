@@ -37,6 +37,6 @@ jobs:
 
       - name: Build Docker Image
         run: |
-          ls
-          docker build -f src/kauthservice/src/main/docker/Dockerfile.native -t ${{ env.DOCKER_RGISTRY }}/kauthservice:latest -t ${{ env.DOCKER_RGISTRY }}/kauthservice:$(echo ${GITHUB_SHA} | cut -c1-8) --memory-swap=16g --memory=9g .
+          ls src/kauthservice/target
+          docker build -f src/kauthservice/src/main/docker/Dockerfile.native -t ${{ env.DOCKER_RGISTRY }}/kauthservice:latest -t ${{ env.DOCKER_RGISTRY }}/kauthservice:$(echo ${GITHUB_SHA} | cut -c1-8) .
           docker push ${{ env.DOCKER_RGISTRY }}/kauthservice
