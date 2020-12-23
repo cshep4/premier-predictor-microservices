@@ -1,11 +1,6 @@
 name: Tag-Release
 
-on:
-  push:
-    branches:
-      - "!*"
-    tags:
-      - '*'
+on: push
 
 env:
   DOCKER_RGISTRY: docker.pkg.github.com/cshep4/premier-predictor-microservices
@@ -14,6 +9,7 @@ jobs:
   tag-releases:
     name: Build and Push FixtureService
     runs-on: ubuntu-latest
+    if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
 
     steps:
       - name: Docker Login
