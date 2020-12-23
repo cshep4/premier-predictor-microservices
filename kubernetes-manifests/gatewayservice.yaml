@@ -1,0 +1,69 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: gatewayservice-app
+  namespace: default
+  labels:
+    k8s-app: gatewayservice-app
+spec:
+  template:
+    metadata:
+      labels:
+        k8s-app: gatewayservice-app
+    spec:
+      terminationGracePeriodSeconds: 5
+      containers:
+        - name: gatewayservice-app
+          image: docker.pkg.github.com/cshep4/premier-predictor-microservices/gatewayservice:v0.0.4
+          ports:
+            - name: http
+              containerPort: 4000
+          env:
+            - name: AUTH_ADDR
+              value: "kauthservice:3001"
+            - name: FIXTURE_ADDR
+              value: "fixtureservice:3006"
+            - name: PREDICTION_ADDR
+              value: "predictionservice:3007"
+            - name: LIVE_MATCH_ADDR
+              value: "livematchservice:3008"
+            - name: LEAGUE_ADDR
+              value: "leagueservice:3009"
+            - name: USER_ADDR
+              value: "userservice:3005"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 4000
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 4000
+          resources:
+            requests:
+              cpu: 25m
+              memory: 64Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gatewayservice-service
+  annotations:
+    getambassador.io/config: |
+      ---
+      apiVersion: ambassador/v1
+      kind: Mapping
+      name: gateway_mapping
+      prefix: /gateway/
+      service: gatewayservice-service:8086
+spec:
+  ports:
+    - port: 4000
+      targetPort: 4000
+      name: http
+  selector:
+    k8s-app: gatewayservice-app
+  type: ClusterIP
