@@ -6,14 +6,14 @@ metadata:
   labels:
     k8s-app: predictionservice-app
 spec:
+  selector:
+    matchLabels:
+      k8s-app: predictionservice-app
   template:
     metadata:
       labels:
         k8s-app: predictionservice-app
     spec:
-      selector:
-        matchLabels:
-          k8s-app: predictionservice-app
       terminationGracePeriodSeconds: 5
       containers:
         - name: predictionservice-app

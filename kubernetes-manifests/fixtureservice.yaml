@@ -6,14 +6,14 @@ metadata:
   labels:
     k8s-app: fixtureservice-app
 spec:
+  selector:
+    matchLabels:
+      k8s-app: fixtureservice-app
   template:
     metadata:
       labels:
         k8s-app: fixtureservice-app
     spec:
-      selector:
-        matchLabels:
-          k8s-app: fixtureservice-app
       terminationGracePeriodSeconds: 5
       containers:
         - name: fixtureservice-app

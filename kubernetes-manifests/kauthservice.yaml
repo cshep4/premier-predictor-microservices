@@ -6,14 +6,14 @@ metadata:
   labels:
     k8s-app: kauthservice-app
 spec:
+  selector:
+    matchLabels:
+      k8s-app: kauthservice-app
   template:
     metadata:
       labels:
         k8s-app: kauthservice-app
     spec:
-      selector:
-        matchLabels:
-          k8s-app: kauthservice-app
       terminationGracePeriodSeconds: 5
       containers:
         - name: kauthservice-app
