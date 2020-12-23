@@ -11,8 +11,6 @@ import (
 	gen "github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen"
 	"github.com/cshep4/premier-predictor-microservices/src/common/app"
 	"github.com/cshep4/premier-predictor-microservices/src/common/auth"
-	"github.com/cshep4/premier-predictor-microservices/src/common/gcp"
-	"github.com/cshep4/premier-predictor-microservices/src/common/gcp/tracer"
 	grpcconn "github.com/cshep4/premier-predictor-microservices/src/common/grpc"
 	"github.com/cshep4/premier-predictor-microservices/src/common/log"
 	"github.com/cshep4/premier-predictor-microservices/src/common/runner/grpc"
@@ -27,7 +25,6 @@ import (
 
 const (
 	serviceName = "livematchservice"
-	version     = "1.0.1"
 	logLevel    = "info"
 )
 
@@ -110,11 +107,11 @@ func start(ctx context.Context) error {
 		return fmt.Errorf("create_authenticator: %w", err)
 	}
 
-	tracer := tracer.New()
+	//tracer := tracer.New()
 
 	app := app.New(
-		app.WithStartupFunc(gcp.Profile(serviceName, version)),
-		app.WithStartupFunc(gcp.Trace),
+		//app.WithStartupFunc(gcp.Profile(serviceName, version)),
+		//app.WithStartupFunc(gcp.Trace),
 		app.WithShutdownFunc(authConn.Close),
 		app.WithShutdownFunc(predictionConn.Close),
 		app.WithShutdownFuncContext(store.Close),
@@ -133,7 +130,7 @@ func start(ctx context.Context) error {
 			http.New(
 				http.WithPort(httpPort),
 				http.WithLogger(serviceName, logLevel),
-				http.WithHandler(tracer),
+				//http.WithHandler(tracer),
 				http.WithMiddleware(authenticator.Http),
 				http.WithRouter(h),
 				http.WithRegisterer(http.Health()),

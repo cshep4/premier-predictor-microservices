@@ -3,7 +3,7 @@ import * as mongoose from 'mongoose';
 import {Fixture} from "../model/fixture";
 
 const DATABASE = 'fixture';
-const COLLECTION = 'fixture';
+const COLLECTION = '2020-2021';
 
 export const ERR_FIXTURES_NOT_FOUND = "fixtures not found";
 

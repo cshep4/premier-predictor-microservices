@@ -26,20 +26,17 @@ import (
 
 const (
 	serviceName = "leagueservice"
-	version     = "1.0.0"
 	logLevel    = "info"
 )
 
 func start(ctx context.Context) error {
 	var (
 		authAddr    string
-		userAddr    string
 		httpPortEnv string
 		grpcPortEnv string
 	)
 	for k, v := range map[string]*string{
 		"AUTH_ADDR": &authAddr,
-		"USER_ADDR": &userAddr,
 		"HTTP_PORT": &httpPortEnv,
 		"PORT":      &grpcPortEnv,
 	} {
@@ -140,7 +137,7 @@ func start(ctx context.Context) error {
 func main() {
 	ctx := log.WithServiceName(context.Background(), log.New(logLevel), serviceName)
 	if err := start(ctx); err != nil {
-		log.Error(ctx, "error_starting_server", log.ErrorParam(err))
+		log.Error(ctx, "startup_error", log.ErrorParam(err))
 	}
 }
 

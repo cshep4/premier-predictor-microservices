@@ -251,7 +251,7 @@ func (s *store) editLeague(ctx context.Context, pin int64, update bson.D) error 
 }
 
 func (s *store) ping(ctx context.Context) error {
-	ctx, _ = context.WithTimeout(ctx, 2*time.Second)
+	ctx, _ = context.WithTimeout(ctx, 1*time.Minute)
 	return s.client.Ping(ctx, nil)
 }
 

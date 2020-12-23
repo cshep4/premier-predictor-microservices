@@ -149,7 +149,7 @@ func (s *store) list(ctx context.Context, filter bson.D) ([]model.LeagueUser, er
 }
 
 func (s *store) ping(ctx context.Context) error {
-	ctx, _ = context.WithTimeout(ctx, 2*time.Second)
+	ctx, _ = context.WithTimeout(ctx, 1*time.Minute)
 	return s.client.Ping(ctx, nil)
 }
 

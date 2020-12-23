@@ -15,7 +15,6 @@ import (
 	gen "github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen"
 	"github.com/cshep4/premier-predictor-microservices/src/common/app"
 	"github.com/cshep4/premier-predictor-microservices/src/common/auth"
-	"github.com/cshep4/premier-predictor-microservices/src/common/gcp"
 	grpcconn "github.com/cshep4/premier-predictor-microservices/src/common/grpc"
 	"github.com/cshep4/premier-predictor-microservices/src/common/log"
 	"github.com/cshep4/premier-predictor-microservices/src/common/runner/grpc"
@@ -25,7 +24,6 @@ import (
 
 const (
 	serviceName = "userservice"
-	version     = "1.0.0"
 	logLevel    = "info"
 )
 
@@ -97,8 +95,8 @@ func start(ctx context.Context) error {
 	//tracer := tracer.New()
 
 	app := app.New(
-		app.WithStartupFunc(gcp.Profile(serviceName, version)),
-		app.WithStartupFunc(gcp.Trace),
+		//app.WithStartupFunc(gcp.Profile(serviceName, version)),
+		//app.WithStartupFunc(gcp.Trace),
 		app.WithShutdownFunc(authConn.Close),
 		app.WithShutdownFuncContext(store.Close),
 		app.WithRunner(
@@ -130,6 +128,6 @@ func start(ctx context.Context) error {
 func main() {
 	ctx := log.WithServiceName(context.Background(), log.New(logLevel), serviceName)
 	if err := start(ctx); err != nil {
-		log.Error(ctx, "error_starting_server", log.ErrorParam(err))
+		log.Error(ctx, "startup_error", log.ErrorParam(err))
 	}
 }

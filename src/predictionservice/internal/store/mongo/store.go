@@ -221,7 +221,7 @@ func (s *store) GetMatchPredictionSummary(ctx context.Context, id string) (homeW
 }
 
 func (s *store) Ping(ctx context.Context) error {
-	ctx, _ = context.WithTimeout(ctx, 2*time.Second)
+	ctx, _ = context.WithTimeout(ctx, 1*time.Minute)
 	return s.client.Ping(ctx, nil)
 }
 

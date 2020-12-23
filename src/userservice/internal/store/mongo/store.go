@@ -20,9 +20,7 @@ const (
 	collection = "user"
 )
 
-var (
-	ErrCannotCreateObjectId = errors.New("cannot create objectId")
-)
+var ErrCannotCreateObjectId = errors.New("cannot create objectId")
 
 type (
 	store struct {
@@ -478,7 +476,7 @@ func toObjectIds(ids []string) (objectIds []primitive.ObjectID, err error) {
 }
 
 func (s *store) ping(ctx context.Context) error {
-	ctx, _ = context.WithTimeout(ctx, 2*time.Second)
+	ctx, _ = context.WithTimeout(ctx, 1*time.Minute)
 	return s.client.Ping(ctx, nil)
 }
 
