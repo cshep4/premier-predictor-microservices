@@ -59,9 +59,16 @@ jobs:
           namespace: 'default'
           container-registry-url: 'docker.pkg.github.com'
           container-registry-username: cshep4
-          container-registry-password: ${{ secrets.GITHUB_TOKEN }}
+          container-registry-password: ${{ secrets.DOCKER_PKG_TOKEN }}
           secret-name: 'github-packages-secret'
         id: create-secret
+
+      - uses: azure/k8s-create-secret@v1
+        with:
+          namespace: 'default'
+          secret-type: 'generic'
+          arguments:  --from-literal=jwtSecret=${{ secrets.JWT_SECRET }} --from-literal=dbScheme=${{ secrets.DB_SCHEME }} --from-literal=dbUser=${{ secrets.DB_USER }} --from-literal=dbPassword=${{ secrets.DB_PASSWORD }} --from-literal=dbHost=${{ secrets.DB_HOST }}
+          secret-name: azure-storage
 
       - name: Deploy Services
         run: |-
