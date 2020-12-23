@@ -53,9 +53,15 @@ jobs:
         uses: Azure/setup-helm@v1
         id: install
 
-      - name: Authorise GKE for Github Packages
-        run: |-
-          kubectl create secret docker-registry regsecret --docker-server=docker.pkg.github.com --docker-username=cshep4 --docker-password=${{ secrets.GITHUB_TOKEN }} --docker-email=chris_shepherd2@hotmail.com
+      - name: Set ImagePullSecret
+        uses: azure/k8s-create-secret@v1
+        with:
+          namespace: 'default'
+          container-registry-url: 'docker.pkg.github.com'
+          container-registry-username: cshep4
+          container-registry-password: ${{ secrets.GITHUB_TOKEN }}
+          secret-name: 'github-packages-secret'
+        id: create-secret
 
       - name: Deploy Services
         run: |-
