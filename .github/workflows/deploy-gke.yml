@@ -53,6 +53,10 @@ jobs:
         uses: Azure/setup-helm@v1
         id: install
 
+      - name: Authorise GKE for Github Packages
+        run: |-
+          kubectl create secret docker-registry regsecret --docker-server=docker.pkg.github.com --docker-username=cshep4 --docker-password=${{ secrets.GITHUB_TOKEN }} --docker-email=chris_shepherd2@hotmail.com
+
       - name: Deploy Services
         run: |-
           kubectl apply -f ./kubernetes-manifests/fixtureservice.yaml
