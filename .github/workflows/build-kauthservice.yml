@@ -11,8 +11,8 @@ env:
 
 jobs:
   build-and-publish-latest:
+    name: Build and Push KauthService
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master'
 
     steps:
       - name: Checkout code
@@ -29,10 +29,19 @@ jobs:
           java-version: "java11"
           native-image: "true"
 
-      - name: Build kauthservice
+      - name: Build
         run: |
           cp -R proto-gen/model/proto src/kauthservice/src/main
           cd src/kauthservice
           mvn -DskipTests -Pnative -Dquarkus.native.native-image-xmx=10G -Dquarkus.native.native-image-xms=6G clean package
-          docker build -f src/kauthservice/src/main/docker/Dockerfile.native -t ${{ env.DOCKER_RGISTRY }}/kauthservice:latest -t ${{ env.DOCKER_RGISTRY }}/kauthservice:$(echo ${GITHUB_SHA} | cut -c1-8) --memory-swap=16g --memory=9g .
+          docker build \
+            -f src/main/docker/Dockerfile.native \
+            -t ${{ env.DOCKER_RGISTRY }}/kauthservice:latest \
+            -t ${{ env.DOCKER_RGISTRY }}/kauthservice:$(echo ${GITHUB_SHA} | cut -c1-8) \
+            -t ${{ env.DOCKER_RGISTRY }}/kauthservice:${GITHUB_REF##*/}_$(echo ${GITHUB_SHA} | cut -c1-8) \
+            --memory-swap=16g --memory=9g \
+            .
+
+      - name: Push
+        run: |
           docker push ${{ env.DOCKER_RGISTRY }}/kauthservice

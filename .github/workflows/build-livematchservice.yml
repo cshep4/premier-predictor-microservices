@@ -13,8 +13,8 @@ env:
 
 jobs:
   build-and-publish-latest:
+    name: Build and Push LiveMatchService
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master'
 
     steps:
       - name: Checkout code
@@ -29,7 +29,7 @@ jobs:
         with:
           go-version: '1.15.0'
 
-      - name: Install dependencies
+      - name: Install Dependencies
         run: |
           go version
           GO111MODULE=on go get github.com/golang/mock/mockgen@v1.4.4
@@ -38,10 +38,17 @@ jobs:
         run: |
           git config --global url."https://${{ secrets.GO_MODULES_TOKEN }}:x-oauth-basic@github.com/cshep4".insteadOf "https://github.com/cshep4"
 
-      - name: Build livematchservice
+      - name: Build
         run: |
           cd src/livematchservice
           go generate ./...
           go mod vendor
-          docker build -t ${{ env.DOCKER_RGISTRY }}/livematchservice:latest -t ${{ env.DOCKER_RGISTRY }}/livematchservice:$(echo ${GITHUB_SHA} | cut -c1-8) .
+          docker build \
+            -t ${{ env.DOCKER_RGISTRY }}/livematchservice:latest \
+            -t ${{ env.DOCKER_RGISTRY }}/livematchservice:$(echo ${GITHUB_SHA} | cut -c1-8) \
+            -t ${{ env.DOCKER_RGISTRY }}/livematchservice:${GITHUB_REF##*/}_$(echo ${GITHUB_SHA} | cut -c1-8) \
+            .
+
+      - name: Push
+        run: |
           docker push ${{ env.DOCKER_RGISTRY }}/livematchservice

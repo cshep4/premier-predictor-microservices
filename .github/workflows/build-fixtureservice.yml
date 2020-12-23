@@ -11,8 +11,8 @@ env:
 
 jobs:
   build-and-publish-latest:
+    name: Build and Push FixtureService
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master'
 
     steps:
       - name: Checkout code
@@ -22,8 +22,16 @@ jobs:
         run: |
           docker login docker.pkg.github.com -u cshep4 -p ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build fixtureservice
+      - name: Build
         run: |
           cp -R proto-gen/model/proto src/fixtureservice/proto
-          docker build --build-arg GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} -t ${{ env.DOCKER_RGISTRY }}/fixtureservice:latest -t ${{ env.DOCKER_RGISTRY }}/fixtureservice:$(echo ${GITHUB_SHA} | cut -c1-8) src/fixtureservice
+          docker build \
+            --build-arg GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} \
+            -t ${{ env.DOCKER_RGISTRY }}/fixtureservice:latest \
+            -t ${{ env.DOCKER_RGISTRY }}/fixtureservice:$(echo ${GITHUB_SHA} | cut -c1-8) \
+            -t ${{ env.DOCKER_RGISTRY }}/fixtureservice:${GITHUB_REF##*/}_$(echo ${GITHUB_SHA} | cut -c1-8) \
+            src/fixtureservice
+
+      - name: Push
+        run: |
           docker push ${{ env.DOCKER_RGISTRY }}/fixtureservice
