@@ -1,8 +1,12 @@
 # Premier Predictor 18/19
 
-![Build-Package-Java-Services](https://github.com/cshep4/premier-predictor-microservices/workflows/Build-Package-Java/badge.svg)
-![Build-Package-JavaScript-Services](https://github.com/cshep4/premier-predictor-microservices/workflows/Build-Package-JavaScript/badge.svg)
-![Build-Package-Go-Services](https://github.com/cshep4/premier-predictor-microservices/workflows/Build-Package-Go/badge.svg)
+![FixtureService](https://github.com/cshep4/premier-predictor-microservices/workflows/Build-Package-FixtureService/badge.svg)
+![GatewayService](https://github.com/cshep4/premier-predictor-microservices/workflows/Build-Package-GatewayService/badge.svg)
+![KauthService](https://github.com/cshep4/premier-predictor-microservices/workflows/Build-Package-KauthService/badge.svg)
+![LeagueService](https://github.com/cshep4/premier-predictor-microservices/workflows/Build-Package-LeagueService/badge.svg)
+![LiveMatchService](https://github.com/cshep4/premier-predictor-microservices/workflows/Build-Package-LiveMatchService/badge.svg)
+![PredictionService](https://github.com/cshep4/premier-predictor-microservices/workflows/Build-Package-PredictionService/badge.svg)
+![UserService](https://github.com/cshep4/premier-predictor-microservices/workflows/Build-Package-UserService/badge.svg)
 
 ## Table of Contents
 1. [Introduction](#introduction)
