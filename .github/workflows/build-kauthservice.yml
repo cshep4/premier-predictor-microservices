@@ -22,23 +22,21 @@ jobs:
         run: |
           docker login docker.pkg.github.com -u cshep4 -p ${{ secrets.GITHUB_TOKEN }}
 
-      - name: setup-graalvm-ce
+      - name: Setup GraalVM-CE
         uses: rinx/setup-graalvm-ce@v0.0.5
         with:
           graalvm-version: "20.2.0"
           java-version: "java11"
           native-image: "true"
 
-      - name: version
-        run: |
-          java -version
-          native-image --version
-
-      - name: Build kauthservice
+      - name: Build Native Image
         run: |
           cp -R proto-gen/model/proto src/kauthservice/src/main
           cd src/kauthservice
-          mvn -DskipTests -Pnative -Dquarkus.native.native-image-xmx=10G -Dquarkus.native.native-image-xms=6G clean package
-          cd ../..
-          docker build -f src/kauthservice/src/main/docker/Dockerfile.native -t ${{ env.DOCKER_RGISTRY }}/kauthservice:latest -t ${{ env.DOCKER_RGISTRY }}/kauthservice:$(echo ${GITHUB_SHA} | cut -c1-8) --memory-swap=16g --memory=9g src/kauthservice
+#          mvn -DskipTests -Pnative -Dquarkus.native.native-image-xmx=10G -Dquarkus.native.native-image-xms=6G clean package
+
+      - name: Build Docker Image
+        run: |
+          ls
+          docker build -f src/kauthservice/src/main/docker/Dockerfile.native -t ${{ env.DOCKER_RGISTRY }}/kauthservice:latest -t ${{ env.DOCKER_RGISTRY }}/kauthservice:$(echo ${GITHUB_SHA} | cut -c1-8) --memory-swap=16g --memory=9g .
           docker push ${{ env.DOCKER_RGISTRY }}/kauthservice

@@ -1,5 +1,9 @@
 # Premier Predictor 18/19
 
+![Build-Package-Java-Services](https://github.com/cshep4/premier-predictor-microservices/workflows/Build-Package-Java/badge.svg)
+![Build-Package-JavaScript-Services](https://github.com/cshep4/premier-predictor-microservices/workflows/Build-Package-JavaScript/badge.svg)
+![Build-Package-Go-Services](https://github.com/cshep4/premier-predictor-microservices/workflows/Build-Package-Go/badge.svg)
+
 ## Table of Contents
 1. [Introduction](#introduction)
 2. [Technical Details](#technical-details)
