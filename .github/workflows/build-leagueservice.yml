@@ -2,11 +2,11 @@ name: Build-Package-LeagueService
 
 on:
   push:
-    tags-ignore:
-      - 'v*.*.*'
     paths:
       - 'src/leagueservice/**'
       - '.github/workflows/build-leagueservice.yml'
+    tags-ignore:
+      - 'v*.*.*'
 
 env:
   DOCKER_RGISTRY: docker.pkg.github.com/cshep4/premier-predictor-microservices

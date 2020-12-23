@@ -2,11 +2,11 @@ name: Build-Package-PredictionService
 
 on:
   push:
-    tags-ignore:
-      - 'v*.*.*'
     paths:
       - 'src/predictionservice/**'
       - '.github/workflows/build-predictionservice.yml'
+    tags-ignore:
+      - 'v*.*.*'
 
 env:
   DOCKER_RGISTRY: docker.pkg.github.com/cshep4/premier-predictor-microservices

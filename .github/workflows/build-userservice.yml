@@ -2,11 +2,11 @@ name: Build-Package-UserService
 
 on:
   push:
-    tags-ignore:
-      - 'v*.*.*'
     paths:
       - 'src/userservice/**'
       - '.github/workflows/build-userservice.yml'
+    tags-ignore:
+      - 'v*.*.*'
 
 env:
   DOCKER_RGISTRY: docker.pkg.github.com/cshep4/premier-predictor-microservices

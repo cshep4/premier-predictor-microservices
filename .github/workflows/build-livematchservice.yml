@@ -2,11 +2,11 @@ name: Build-Package-LiveMatchService
 
 on:
   push:
-    tags-ignore:
-      - 'v*.*.*'
     paths:
       - 'src/livematchservice/**'
       - '.github/workflows/build-livematchservice.yml'
+    tags-ignore:
+      - 'v*.*.*'
 
 env:
   DOCKER_RGISTRY: docker.pkg.github.com/cshep4/premier-predictor-microservices
