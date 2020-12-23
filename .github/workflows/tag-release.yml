@@ -7,7 +7,7 @@ env:
 
 jobs:
   tag-releases:
-    name: Build and Push FixtureService
+    name: Tag Releases
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
 
@@ -16,14 +16,11 @@ jobs:
         run: |
           docker login docker.pkg.github.com -u cshep4 -p ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set Version Environment Variable
-        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
-
       - name: Tag FixtureService
         if: contains(github.ref, 'fixtureservice/')
         run: |
           docker tag \
-            ${{ env.DOCKER_RGISTRY }}/fixtureservice:latest \
+            ${{ env.DOCKER_RGISTRY }}/fixtureservice \
             ${{ env.DOCKER_RGISTRY }}/fixtureservice:${GITHUB_REF##*/}
           docker push ${{ env.DOCKER_RGISTRY }}/fixtureservice:${GITHUB_REF##*/}
 
@@ -31,7 +28,7 @@ jobs:
         if: contains(github.ref, 'gatewayservice/')
         run: |
           docker tag \
-            ${{ env.DOCKER_RGISTRY }}/gatewayservice:latest \
+            ${{ env.DOCKER_RGISTRY }}/gatewayservice \
             ${{ env.DOCKER_RGISTRY }}/gatewayservice:${GITHUB_REF##*/}
           docker push ${{ env.DOCKER_RGISTRY }}/gatewayservice:${GITHUB_REF##*/}
 
@@ -39,7 +36,7 @@ jobs:
         if: contains(github.ref, 'kauthservice/')
         run: |
           docker tag \
-            ${{ env.DOCKER_RGISTRY }}/kauthservice:latest \
+            ${{ env.DOCKER_RGISTRY }}/kauthservice \
             ${{ env.DOCKER_RGISTRY }}/kauthservice:${GITHUB_REF##*/}
           docker push ${{ env.DOCKER_RGISTRY }}/kauthservice:${GITHUB_REF##*/}
 
@@ -47,7 +44,7 @@ jobs:
         if: contains(github.ref, 'leagueservice/')
         run: |
           docker tag \
-            ${{ env.DOCKER_RGISTRY }}/leagueservice:latest \
+            ${{ env.DOCKER_RGISTRY }}/leagueservice \
             ${{ env.DOCKER_RGISTRY }}/leagueservice:${GITHUB_REF##*/}
           docker push ${{ env.DOCKER_RGISTRY }}/leagueservice:${GITHUB_REF##*/}
 
@@ -55,7 +52,7 @@ jobs:
         if: contains(github.ref, 'livematchservice/')
         run: |
           docker tag \
-            ${{ env.DOCKER_RGISTRY }}/livematchservice:latest \
+            ${{ env.DOCKER_RGISTRY }}/livematchservice \
             ${{ env.DOCKER_RGISTRY }}/livematchservice:${GITHUB_REF##*/}
           docker push ${{ env.DOCKER_RGISTRY }}/livematchservice:${GITHUB_REF##*/}
 
@@ -63,7 +60,7 @@ jobs:
         if: contains(github.ref, 'predictionservice/')
         run: |
           docker tag \
-            ${{ env.DOCKER_RGISTRY }}/predictionservice:latest \
+            ${{ env.DOCKER_RGISTRY }}/predictionservice \
             ${{ env.DOCKER_RGISTRY }}/predictionservice:${GITHUB_REF##*/}
           docker push ${{ env.DOCKER_RGISTRY }}/predictionservice:${GITHUB_REF##*/}
 
@@ -71,6 +68,6 @@ jobs:
         if: contains(github.ref, 'userservice/')
         run: |
           docker tag \
-            ${{ env.DOCKER_RGISTRY }}/userservice:latest \
+            ${{ env.DOCKER_RGISTRY }}/userservice \
             ${{ env.DOCKER_RGISTRY }}/userservice:${GITHUB_REF##*/}
           docker push ${{ env.DOCKER_RGISTRY }}/userservice:${GITHUB_REF##*/}
