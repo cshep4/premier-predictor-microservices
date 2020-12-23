@@ -1,4 +1,4 @@
-name: Build-Package-Go
+name: Build-Package-UserService
 
 on:
   push:
