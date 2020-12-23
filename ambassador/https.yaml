@@ -5,7 +5,7 @@ metadata:
   name: pp-prod
 spec:
   acme:
-    email: shepapps4@gmail.com
+    email: prempred75@gmail.com
     server: https://acme-v02.api.letsencrypt.org/directory
     privateKeySecretRef:
       name: pp-prod
