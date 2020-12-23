@@ -11,3 +11,4 @@
 .cache
 test/.globalConfig.json
 proto/
+dist/
