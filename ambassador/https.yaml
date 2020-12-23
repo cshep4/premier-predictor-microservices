@@ -9,8 +9,6 @@ spec:
     server: https://acme-v02.api.letsencrypt.org/directory
     privateKeySecretRef:
       name: pp-prod
-    http01:
-      serviceType: ClusterIP
     solvers:
       - http01:
           ingress:

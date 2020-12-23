@@ -63,12 +63,13 @@ jobs:
           secret-name: 'github-packages-secret'
         id: create-secret
 
-      - uses: azure/k8s-create-secret@v1
+      - name: Create Secrets
+        uses: azure/k8s-create-secret@v1
         with:
           namespace: 'default'
           secret-type: 'generic'
           arguments:  --from-literal=jwtSecret=${{ secrets.JWT_SECRET }} --from-literal=dbScheme=${{ secrets.DB_SCHEME }} --from-literal=dbUser=${{ secrets.DB_USER }} --from-literal=dbPassword=${{ secrets.DB_PASSWORD }} --from-literal=dbHost=${{ secrets.DB_HOST }}
-          secret-name: azure-storage
+          secret-name: pp-secrets
 
       - name: Deploy Services
         run: |-
