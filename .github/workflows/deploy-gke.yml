@@ -18,6 +18,7 @@ on:
   push:
     paths:
       - 'kubernetes-manifests/**'
+      - 'ambassador/**'
       - '.github/workflows/deploy-gke.yml'
 
 env:
@@ -86,7 +87,7 @@ jobs:
           kubectl apply -f https://github.com/jetstack/cert-manager/releases/latest/download/cert-manager.crds.yaml
           helm repo add jetstack https://charts.jetstack.io && helm repo update
           kubectl apply -f ./ambassador/ns.yaml
-          helm install cert-manager --namespace cert-manager jetstack/cert-manager
+          helm upgrade --install cert-manager --namespace cert-manager jetstack/cert-manager
           kubectl apply -f ./ambassador/https.yaml
           kubectl apply -f ./ambassador/cert.yaml
           kubectl apply -f ./ambassador/acme.yaml
