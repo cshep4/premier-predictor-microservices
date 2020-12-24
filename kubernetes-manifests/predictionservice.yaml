@@ -15,6 +15,8 @@ spec:
         k8s-app: predictionservice-app
     spec:
       terminationGracePeriodSeconds: 5
+      imagePullSecrets:
+        - name: github-packages-secret
       containers:
         - name: predictionservice-app
           image: docker.pkg.github.com/cshep4/premier-predictor-microservices/predictionservice:master_68563846

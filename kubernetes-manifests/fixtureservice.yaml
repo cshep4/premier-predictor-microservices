@@ -15,6 +15,8 @@ spec:
         k8s-app: fixtureservice-app
     spec:
       terminationGracePeriodSeconds: 5
+      imagePullSecrets:
+        - name: github-packages-secret
       containers:
         - name: fixtureservice-app
           image: docker.pkg.github.com/cshep4/premier-predictor-microservices/fixtureservice:master_68563846
