@@ -38,11 +38,11 @@ spec:
               value: "userservice:3005"
           readinessProbe:
             httpGet:
-              path: /health
+              path: /.well-known/apollo/server-health
               port: 4000
           livenessProbe:
             httpGet:
-              path: /health
+              path: /.well-known/apollo/server-health
               port: 4000
           resources:
             requests:
