@@ -33,6 +33,9 @@ const server = new ApolloServer({
             return {token};
         }
     },
+    playground: {
+        subscriptionEndpoint: 'wss://35.246.124.255/gateway/graphql',
+    },
 });
 
 const app = express();
