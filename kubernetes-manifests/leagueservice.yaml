@@ -19,7 +19,7 @@ spec:
         - name: github-packages-secret
       containers:
         - name: leagueservice-app
-          image: docker.pkg.github.com/cshep4/premier-predictor-microservices/leagueservice:master_68563846
+          image: docker.pkg.github.com/cshep4/premier-predictor-microservices/leagueservice:master_6a3081ce
           ports:
             - containerPort: 3009
               name: grpc
