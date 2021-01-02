@@ -2,7 +2,6 @@ import {schema as schemaPublic} from './graphql';
 import express from 'express';
 import {ApolloServer} from 'apollo-server-express'
 import * as http from "http";
-import WebSocket from "ws";
 
 const server = new ApolloServer({
     schema: schemaPublic,
@@ -34,7 +33,7 @@ const server = new ApolloServer({
         }
     },
     playground: {
-        subscriptionEndpoint: process.env.SUBSCRIPTION_ENDPOINT ? process.env.SUBSCRIPTION_ENDPOINT : 'wss://localhost:4000/graphql',
+        subscriptionEndpoint: process.env.SUBSCRIPTION_ENDPOINT ? process.env.SUBSCRIPTION_ENDPOINT : 'ws://localhost:4000/graphql',
     },
 });
 

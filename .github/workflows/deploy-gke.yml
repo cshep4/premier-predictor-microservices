@@ -22,7 +22,7 @@ on:
 
 env:
   PROJECT_ID: ${{ secrets.GKE_PROJECT }}
-  GKE_CLUSTER: premier-predictor
+  GKE_CLUSTER: prempred
   GKE_ZONE: europe-west2-a
 
 jobs:
