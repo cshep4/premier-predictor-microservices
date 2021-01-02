@@ -65,6 +65,13 @@ jobs:
 #          kubectl delete svc ambassador
 #          helm uninstall cert-manager -n cert-manager
 
+      - name: Install Ambassador Edge Stack
+        run: |-
+          kubectl apply -f https://www.getambassador.io/yaml/aes-crds.yaml && \
+          kubectl wait --for condition=established --timeout=90s crd -lproduct=aes && \
+          kubectl apply -f https://www.getambassador.io/yaml/aes.yaml && \
+          kubectl -n ambassador wait --for condition=available --timeout=90s deploy -lproduct=aes
+
       - name: Configure TLS
         run: |-
           kubectl apply -f https://github.com/jetstack/cert-manager/releases/latest/download/cert-manager.crds.yaml
