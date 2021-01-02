@@ -57,11 +57,14 @@ jobs:
         run: |-
           helm repo add jetstack https://charts.jetstack.io && helm repo update
           kubectl apply -f ./ambassador/ns.yaml
+          helm del --purge cert-manager
           helm install \
             cert-manager jetstack/cert-manager \
             --namespace cert-manager \
-            --version v0.15.1 \
+            --version v0.16.0 \
             --set installCRDs=true
+          kubectl -n cert-manager rollout status deploy/cert-manager-webhook
+          sleep 120
           kubectl apply -f ./ambassador/https.yaml
           kubectl apply -f https://www.getambassador.io/yaml/ambassador/ambassador-crds.yaml
           kubectl apply -f https://www.getambassador.io/yaml/ambassador/ambassador-rbac.yaml
