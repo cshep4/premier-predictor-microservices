@@ -1,5 +1,8 @@
 package com.cshep4.premierpredictor.auth.util
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.ANY
+import com.fasterxml.jackson.annotation.JsonProperty
 import javax.ws.rs.core.Response
 import javax.ws.rs.core.Response.Status.*
 
@@ -38,5 +41,9 @@ object ResponseUtils {
         return this.entity(Error(message))
     }
 
-    data class Error(val message: String)
+    @JsonAutoDetect(fieldVisibility = ANY)
+    data class Error(
+            @JsonProperty("message")
+            public val message: String
+    )
 }

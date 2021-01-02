@@ -1,5 +1,7 @@
 package com.cshep4.premierpredictor.auth.result
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.ANY
 import com.fasterxml.jackson.annotation.JsonProperty
 
 sealed class LoginResult {
@@ -8,7 +10,12 @@ sealed class LoginResult {
         val PASSWORD_DOES_NOT_MATCH_ERROR = Error(message = "password does not match")
     }
 
-    data class Success(@JsonProperty("id") val id: String, @JsonProperty("token") val token: String) : LoginResult()
+    @JsonAutoDetect(fieldVisibility = ANY)
+    data class Success(
+            @JsonProperty("id") val id: String,
+            @JsonProperty("token") val token: String
+    ) : LoginResult()
+
     data class Error(val message: String, val cause: Exception? = null) : LoginResult()
 }
 
