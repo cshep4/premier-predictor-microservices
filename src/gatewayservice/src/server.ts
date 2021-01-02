@@ -34,7 +34,7 @@ const server = new ApolloServer({
         }
     },
     playground: {
-        subscriptionEndpoint: 'wss://35.246.124.255/gateway/graphql',
+        subscriptionEndpoint: process.env.SUBSCRIPTION_ENDPOINT ? process.env.SUBSCRIPTION_ENDPOINT : 'wss://localhost:4000/graphql',
     },
 });
 

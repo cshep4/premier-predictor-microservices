@@ -53,17 +53,15 @@ jobs:
         uses: Azure/setup-helm@v1
         id: install
 
-#      - name: Clean up previous configuration
-#        run: |-
-#          kubectl delete -f ./ambassador/https.yaml
-#          kubectl delete -f ./ambassador/ambassador.yaml
-#          kubectl delete -f ./ambassador/ingress.yaml
-#          kubectl delete -f ./ambassador/cert.yaml
-#          kubectl delete -f ./ambassador/acme.yaml
-#          kubectl delete -f https://www.getambassador.io/yaml/ambassador/ambassador-crds.yaml
-#          kubectl delete -f https://www.getambassador.io/yaml/ambassador/ambassador-rbac.yaml
-#          kubectl delete svc ambassador
-#          helm uninstall cert-manager -n cert-manager
+      - name: Clean up previous configuration
+        run: |-
+          kubectl delete -f https://www.getambassador.io/yaml/aes-crds.yaml &&
+          kubectl delete -f https://www.getambassador.io/yaml/aes.yaml &&
+          kubectl delete -f https://github.com/jetstack/cert-manager/releases/latest/download/cert-manager.crds.yaml
+          kubectl delete -f ./ambassador/https.yaml
+          kubectl delete -f ./ambassador/cert.yaml
+          kubectl delete -f ./ambassador/acme.yaml
+          helm uninstall cert-manager -n cert-manager
 
       - name: Install Ambassador Edge Stack
         run: |-
@@ -77,11 +75,11 @@ jobs:
           kubectl apply -f https://github.com/jetstack/cert-manager/releases/latest/download/cert-manager.crds.yaml
           helm repo add jetstack https://charts.jetstack.io && helm repo update
           kubectl apply -f ./ambassador/ns.yaml
+          kubectl apply -f ./ambassador/https.yaml
+          kubectl apply -f ./ambassador/cert.yaml
           helm install \
             cert-manager jetstack/cert-manager \
             --namespace cert-manager
           kubectl -n cert-manager rollout status deploy/cert-manager-webhook
           sleep 120
-          kubectl apply -f ./ambassador/https.yaml
-          kubectl apply -f ./ambassador/cert.yaml
           kubectl apply -f ./ambassador/acme.yaml
