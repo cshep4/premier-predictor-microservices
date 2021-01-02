@@ -91,7 +91,7 @@ metadata:
       apiVersion: ambassador/v1
       kind: Mapping
       name: prediction_mapping
-      prefix: /predictions/
+      prefix: /prediction/
       service: predictionservice-service:8087
 spec:
   ports:

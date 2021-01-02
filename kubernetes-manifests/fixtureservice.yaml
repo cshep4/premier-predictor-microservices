@@ -89,7 +89,7 @@ metadata:
       apiVersion: ambassador/v1
       kind: Mapping
       name: fixture_mapping
-      prefix: /fixtures/
+      prefix: /fixture/
       service: fixtureservice-service:8086
 spec:
   ports:

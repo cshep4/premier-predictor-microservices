@@ -5,15 +5,9 @@ metadata:
   name: ambassador-certs
   namespace: default
 spec:
-  secretName: tls-cert
+  secretName: ambassador-certs
   issuerRef:
     name: pp-prod
     kind: ClusterIssuer
   dnsNames:
     - premierpredictor.uk
-  acme:
-    config:
-      - http01:
-          ingressClass: nginx
-        domains:
-          - premierpredictor.uk
