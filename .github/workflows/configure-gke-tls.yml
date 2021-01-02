@@ -65,11 +65,11 @@ jobs:
           kubectl apply -f https://github.com/jetstack/cert-manager/releases/latest/download/cert-manager.crds.yaml
           helm repo add jetstack https://charts.jetstack.io && helm repo update
           kubectl apply -f ./ambassador/ns.yaml
-          kubectl apply -f ./ambassador/https.yaml
-          kubectl apply -f ./ambassador/cert.yaml
           helm install \
             cert-manager jetstack/cert-manager \
             --namespace cert-manager
           kubectl -n cert-manager rollout status deploy/cert-manager-webhook
           sleep 120
+          kubectl apply -f ./ambassador/https.yaml
+          kubectl apply -f ./ambassador/cert.yaml
           kubectl apply -f ./ambassador/acme.yaml
