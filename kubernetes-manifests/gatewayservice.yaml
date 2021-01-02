@@ -65,7 +65,7 @@ metadata:
       kind: Mapping
       name: gateway_mapping
       prefix: /gateway/
-      service: gatewayservice-service:8086
+      service: gatewayservice-service:4000
 spec:
   ports:
     - port: 4000
