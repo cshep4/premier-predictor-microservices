@@ -3,6 +3,7 @@ package com.cshep4.premierpredictor.auth.util
 import com.fasterxml.jackson.annotation.JsonAutoDetect
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.ANY
 import com.fasterxml.jackson.annotation.JsonProperty
+import io.quarkus.runtime.annotations.RegisterForReflection
 import javax.ws.rs.core.Response
 import javax.ws.rs.core.Response.Status.*
 
@@ -42,6 +43,7 @@ object ResponseUtils {
     }
 
     @JsonAutoDetect(fieldVisibility = ANY)
+    @RegisterForReflection
     data class Error(
             @JsonProperty("message")
             var message: String

@@ -3,6 +3,7 @@ package com.cshep4.premierpredictor.auth.result
 import com.fasterxml.jackson.annotation.JsonAutoDetect
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.ANY
 import com.fasterxml.jackson.annotation.JsonProperty
+import io.quarkus.runtime.annotations.RegisterForReflection
 
 sealed class RegisterResult {
     companion object {
@@ -10,6 +11,7 @@ sealed class RegisterResult {
     }
 
     @JsonAutoDetect(fieldVisibility = ANY)
+    @RegisterForReflection
     data class Success(
             @JsonProperty("id")
             var id: String,
