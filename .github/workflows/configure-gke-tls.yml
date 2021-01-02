@@ -55,15 +55,15 @@ jobs:
 
       - name: Clean up previous configuration
         run: |-
-        kubectl delete -f ./ambassador/https.yaml
-        kubectl delete -f ./ambassador/ambassador.yaml
-        kubectl delete -f ./ambassador/ingress.yaml
-        kubectl delete -f ./ambassador/cert.yaml
-        kubectl delete -f ./ambassador/acme.yaml
-        kubectl delete -f https://www.getambassador.io/yaml/ambassador/ambassador-crds.yaml
-        kubectl delete -f https://www.getambassador.io/yaml/ambassador/ambassador-rbac.yaml
-        kubectl delete svc ambassador
-        helm uninstall cert-manager -n cert-manager
+          kubectl delete -f ./ambassador/https.yaml
+          kubectl delete -f ./ambassador/ambassador.yaml
+          kubectl delete -f ./ambassador/ingress.yaml
+          kubectl delete -f ./ambassador/cert.yaml
+          kubectl delete -f ./ambassador/acme.yaml
+          kubectl delete -f https://www.getambassador.io/yaml/ambassador/ambassador-crds.yaml
+          kubectl delete -f https://www.getambassador.io/yaml/ambassador/ambassador-rbac.yaml
+          kubectl delete svc ambassador
+          helm uninstall cert-manager -n cert-manager
 
       - name: Configure TLS
         run: |-
