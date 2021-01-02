@@ -42,7 +42,7 @@ func (h *handler) Route(router *mux.Router) {
 		Methods(http.MethodGet)
 	router.HandleFunc("/standings", h.getOverallTable).
 		Methods(http.MethodGet)
-	router.HandleFunc("/{id}", h.getUsersLeagueList).
+	router.HandleFunc("/user/{id}", h.getUsersLeagueList).
 		Methods(http.MethodGet)
 }
 
