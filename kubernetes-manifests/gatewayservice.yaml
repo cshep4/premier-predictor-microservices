@@ -57,7 +57,7 @@ spec:
 apiVersion: getambassador.io/v2
 kind: Mapping
 metadata:
-  name: gateway_mapping
+  name: gatewayservice-mapping
 spec:
   prefix: /gateway/
   service: gatewayservice-service:4000
