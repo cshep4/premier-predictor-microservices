@@ -66,6 +66,8 @@ metadata:
       name: gateway_mapping
       prefix: /gateway/
       service: gatewayservice-service:4000
+      allow_upgrade:
+        - websocket
 spec:
   ports:
     - port: 4000
