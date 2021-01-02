@@ -12,13 +12,13 @@
 #
 # GKE_SA_KEY = cat <file>.json | base64
 
-name: Deploy-GKE
+name: Configure-GKE-TLS
 
 on:
   push:
     paths:
-      - 'kubernetes-manifests/**'
-      - '.github/workflows/deploy-gke.yml'
+      - 'ambassador/**'
+      - '.github/workflows/deploy-gke-tls.yml'
 
 env:
   PROJECT_ID: ${{ secrets.GKE_PROJECT }}
@@ -49,30 +49,18 @@ jobs:
           location: ${{ env.GKE_ZONE }}
           credentials: ${{ secrets.GKE_SA_KEY }}
 
-      - name: Set ImagePullSecret
-        uses: azure/k8s-create-secret@v1
-        with:
-          namespace: 'default'
-          container-registry-url: 'docker.pkg.github.com'
-          container-registry-username: cshep4
-          container-registry-password: ${{ secrets.DOCKER_PKG_TOKEN }}
-          secret-name: 'github-packages-secret'
-        id: create-secret
+      - name: Helm tool installer
+        uses: Azure/setup-helm@v1
+        id: install
 
-      - name: Create Secrets
-        uses: azure/k8s-create-secret@v1
-        with:
-          namespace: 'default'
-          secret-type: 'generic'
-          arguments: --from-literal=jwtSecret=${{ secrets.JWT_SECRET }} --from-literal=dbScheme=${{ secrets.DB_SCHEME }} --from-literal=dbUser=${{ secrets.DB_USER }} --from-literal=dbPassword=${{ secrets.DB_PASSWORD }} --from-literal=dbHost=${{ secrets.DB_HOST }} --from-literal=emailUrl=${{ secrets.EMAIL_URL }}
-          secret-name: pp-secrets
-
-      - name: Deploy Services
+      - name: Configure TLS
         run: |-
-          kubectl apply -f ./kubernetes-manifests/fixtureservice.yaml
-          kubectl apply -f ./kubernetes-manifests/gatewayservice.yaml
-          kubectl apply -f ./kubernetes-manifests/kauthservice.yaml
-          kubectl apply -f ./kubernetes-manifests/leagueservice.yaml
-          kubectl apply -f ./kubernetes-manifests/livematchservice.yaml
-          kubectl apply -f ./kubernetes-manifests/predictionservice.yaml
-          kubectl apply -f ./kubernetes-manifests/userservice.yaml
+          kubectl apply -f https://github.com/jetstack/cert-manager/releases/latest/download/cert-manager.crds.yaml
+          helm repo add jetstack https://charts.jetstack.io && helm repo update
+          kubectl apply -f ./ambassador/ns.yaml
+          helm upgrade --install cert-manager --namespace cert-manager --set installCRDs=true jetstack/cert-manager
+          kubectl apply -f ./ambassador/https.yaml
+          kubectl apply -f ./ambassador/cert.yaml
+          kubectl apply -f ./ambassador/acme.yaml
+#          kubectl apply -f ./ambassador/ambassador.yaml
+#          kubectl apply -f ./ambassador/grpc.yaml
