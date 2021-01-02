@@ -19,7 +19,7 @@ spec:
         - name: github-packages-secret
       containers:
         - name: kauthservice-app
-          image: docker.pkg.github.com/cshep4/premier-predictor-microservices/kauthservice:master_736db453
+          image: docker.pkg.github.com/cshep4/premier-predictor-microservices/kauthservice:master_78380b73
           ports:
             - name: grpc
               containerPort: 3001

@@ -53,16 +53,6 @@ jobs:
         uses: Azure/setup-helm@v1
         id: install
 
-      - name: Clean up previous configuration
-        run: |-
-          kubectl delete -f https://www.getambassador.io/yaml/aes-crds.yaml &&
-          kubectl delete -f https://www.getambassador.io/yaml/aes.yaml &&
-          kubectl delete -f https://github.com/jetstack/cert-manager/releases/latest/download/cert-manager.crds.yaml
-          kubectl delete -f ./ambassador/https.yaml
-          kubectl delete -f ./ambassador/cert.yaml
-          kubectl delete -f ./ambassador/acme.yaml
-          helm uninstall cert-manager -n cert-manager
-
       - name: Install Ambassador Edge Stack
         run: |-
           kubectl apply -f https://www.getambassador.io/yaml/aes-crds.yaml && \

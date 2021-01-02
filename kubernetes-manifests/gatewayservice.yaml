@@ -19,7 +19,7 @@ spec:
         - name: github-packages-secret
       containers:
         - name: gatewayservice-app
-          image: docker.pkg.github.com/cshep4/premier-predictor-microservices/gatewayservice:master_736db453
+          image: docker.pkg.github.com/cshep4/premier-predictor-microservices/gatewayservice:master_78380b73
           ports:
             - name: http
               containerPort: 4000
@@ -36,6 +36,8 @@ spec:
               value: "leagueservice:3009"
             - name: USER_ADDR
               value: "userservice:3005"
+            - name: SUBSCRIPTION_ENDPOINT
+              value: "wss://35.246.124.255/gateway/graphql"
           readinessProbe:
             httpGet:
               path: /.well-known/apollo/server-health
