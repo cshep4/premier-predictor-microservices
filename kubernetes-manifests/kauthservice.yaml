@@ -46,12 +46,10 @@ spec:
             httpGet:
               path: /health
               port: 8080
-            initialDelaySeconds: 120
           livenessProbe:
             httpGet:
               path: /health
               port: 8080
-            initialDelaySeconds: 120
           resources:
             requests:
               cpu: 200m
