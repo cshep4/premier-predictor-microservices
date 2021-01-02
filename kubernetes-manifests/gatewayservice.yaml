@@ -37,7 +37,7 @@ spec:
             - name: USER_ADDR
               value: "userservice:3005"
             - name: SUBSCRIPTION_ENDPOINT
-              value: "wss://35.246.124.255/gateway/graphql"
+              value: "wss://34.105.244.125/gateway/graphql"
           readinessProbe:
             httpGet:
               path: /.well-known/apollo/server-health
