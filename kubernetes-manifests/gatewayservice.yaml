@@ -54,20 +54,20 @@ spec:
               cpu: 200m
               memory: 256Mi
 ---
+apiVersion: getambassador.io/v2
+kind: Mapping
+metadata:
+  name: gateway_mapping
+spec:
+  prefix: /gateway/
+  service: gatewayservice-service:4000
+  allow_upgrade:
+    - websocket
+---
 apiVersion: v1
 kind: Service
 metadata:
   name: gatewayservice-service
-  annotations:
-    getambassador.io/config: |
-      ---
-      apiVersion: ambassador/v1
-      kind: Mapping
-      name: gateway_mapping
-      prefix: /gateway/
-      service: gatewayservice-service:4000
-      allow_upgrade:
-        - websocket
 spec:
   ports:
     - port: 4000
