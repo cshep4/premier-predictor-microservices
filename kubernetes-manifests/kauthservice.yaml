@@ -27,7 +27,7 @@ spec:
             - name: PORT
               value: "3001"
             - name: HTTP_PORT
-              value: "8081"
+              value: "8080"
             - name: USER_ADDR
               value: "userservice"
             - name: USER_PORT
@@ -45,12 +45,12 @@ spec:
           readinessProbe:
             httpGet:
               path: /health
-              port: 8081
+              port: 8080
             initialDelaySeconds: 120
           livenessProbe:
             httpGet:
               path: /health
-              port: 8081
+              port: 8080
             initialDelaySeconds: 120
           resources:
             requests:
@@ -84,11 +84,11 @@ metadata:
       kind: Mapping
       name: auth_mapping
       prefix: /auth/
-      service: kauthservice-service:8081
+      service: kauthservice-service:8080
 spec:
   ports:
-    - port: 8081
-      targetPort: 8081
+    - port: 8080
+      targetPort: 8080
       name: http
   selector:
     k8s-app: kauthservice-app

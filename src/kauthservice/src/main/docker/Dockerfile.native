@@ -21,7 +21,7 @@ RUN chown 1001 /work \
     && chown 1001:root /work
 COPY --chown=1001:root target/*-runner /work/application
 
-EXPOSE 8081
+EXPOSE 8080
 EXPOSE 3001
 USER 1001
 
