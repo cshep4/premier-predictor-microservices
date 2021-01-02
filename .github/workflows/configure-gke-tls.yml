@@ -57,7 +57,6 @@ jobs:
         run: |-
           helm repo add jetstack https://charts.jetstack.io && helm repo update
           kubectl apply -f ./ambassador/ns.yaml
-          helm del --purge cert-manager
           helm install \
             cert-manager jetstack/cert-manager \
             --namespace cert-manager \
