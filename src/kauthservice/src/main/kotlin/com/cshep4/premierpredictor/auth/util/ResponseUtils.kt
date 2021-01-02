@@ -44,6 +44,6 @@ object ResponseUtils {
     @JsonAutoDetect(fieldVisibility = ANY)
     data class Error(
             @JsonProperty("message")
-            public val message: String
+            var message: String
     )
 }

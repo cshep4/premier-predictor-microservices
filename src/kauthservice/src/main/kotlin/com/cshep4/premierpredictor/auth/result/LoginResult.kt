@@ -12,8 +12,8 @@ sealed class LoginResult {
 
     @JsonAutoDetect(fieldVisibility = ANY)
     data class Success(
-            @JsonProperty("id") val id: String,
-            @JsonProperty("token") val token: String
+            @JsonProperty("id") var id: String,
+            @JsonProperty("token") var token: String
     ) : LoginResult()
 
     data class Error(val message: String, val cause: Exception? = null) : LoginResult()

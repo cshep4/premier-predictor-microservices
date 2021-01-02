@@ -12,9 +12,9 @@ sealed class RegisterResult {
     @JsonAutoDetect(fieldVisibility = ANY)
     data class Success(
             @JsonProperty("id")
-            val id: String,
+            var id: String,
             @JsonProperty("token")
-            val token: String
+            var token: String
     ) : RegisterResult()
 
     data class Error(val message: String, val cause: Exception? = null) : RegisterResult()
