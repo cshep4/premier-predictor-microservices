@@ -13,7 +13,7 @@ spec:
     - host: premierpredictor.uk
       http:
         paths:
-          - path: /fixture/
+          - path: /fixture
             backend:
               serviceName: fixtureservice-service
               servicePort: 8086
@@ -21,23 +21,23 @@ spec:
             backend:
               serviceName: gatewayservice-service
               servicePort: 4000
-          - path: /auth/
+          - path: /auth
             backend:
               serviceName: kauthservice-service
               servicePort: 8080
-          - path: /league/
+          - path: /league
             backend:
               serviceName: leagueservice-service
               servicePort: 8089
-          - path: /live/
+          - path: /live
             backend:
               serviceName: livematchservice-service
               servicePort: 8088
-          - path: /prediction/
+          - path: /prediction
             backend:
               serviceName: predictionservice-service
               servicePort: 8087
-          - path: /user/
+          - path: /user
             backend:
               serviceName: userservice-service
               servicePort: 8085
