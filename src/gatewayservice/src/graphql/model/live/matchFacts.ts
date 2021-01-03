@@ -175,7 +175,7 @@ export const matchFactsFromGrpc = (mf: any) => {
         etScore: mf.etScore,
         penaltyLocal: mf.penaltyLocal,
         penaltyVisitor: mf.penaltyVisitor,
-        events: mf.events.map((e: Event) => eventFromGrpc(e)),
+        events: mf.events ? mf.events.map((e: Event) => eventFromGrpc(e)) : [],
         commentary: commentaryFromGrpc(mf.commentary),
         matchDate: date.toISOString().split('T')[0],
     };
@@ -205,7 +205,7 @@ export const commentaryFromGrpc = (c: any): Commentary => {
         lineup: lineupFromGrpc(c.lineup),
         subs: lineupFromGrpc(c.subs),
         substitutions: substitutionsFromGrpc(c.substitutions),
-        comments: c.comments.map((comment: Comment) => commentFromGrpc(comment)),
+        comments: c.comments ? c.comments.map((comment: Comment) => commentFromGrpc(comment)) : [],
         matchStats: matchStatsFromGrpc(c.matchStats),
         playerStats: playerStatsFromGrpc(c.playerStats),
     };
@@ -221,8 +221,8 @@ export const matchInfoFromGrpc = (m: any): MatchInfo => {
 
 export const lineupFromGrpc = (l: any): Lineup => {
     return {
-        localTeam: l.localTeam.map((p: any) => positionFromGrpc(p)),
-        visitorTeam: l.visitorTeam.map((p: any) => positionFromGrpc(p)),
+        localTeam: l.localTeam ? l.localTeam.map((p: any) => positionFromGrpc(p)) : [],
+        visitorTeam: l.visitorTeam ? l.visitorTeam.map((p: any) => positionFromGrpc(p)) : [],
     };
 };
 
@@ -237,8 +237,8 @@ export const positionFromGrpc = (p: any): Position => {
 
 export const substitutionsFromGrpc = (s: any): Substitutions => {
     return {
-        localTeam: s.localTeam.map((p: any) => substitutionFromGrpc(p)),
-        visitorTeam: s.visitorTeam.map((p: any) => substitutionFromGrpc(p)),
+        localTeam: s.localTeam ? s.localTeam.map((p: any) => substitutionFromGrpc(p)): [],
+        visitorTeam: s.visitorTeam ? s.visitorTeam.map((p: any) => substitutionFromGrpc(p)): [],
     };
 };
 
@@ -265,8 +265,8 @@ export const commentFromGrpc = (p: any): Comment => {
 
 export const matchStatsFromGrpc = (m: any): MatchStats => {
     return {
-        localTeam: m.localTeam.map((p: any) => teamStatsFromGrpc(p)),
-        visitorTeam: m.visitorTeam.map((p: any) => teamStatsFromGrpc(p)),
+        localTeam: m.localTeam ? m.localTeam.map((p: any) => teamStatsFromGrpc(p)) : [],
+        visitorTeam: m.visitorTeam ? m.visitorTeam.map((p: any) => teamStatsFromGrpc(p)) : [],
     };
 };
 
@@ -294,7 +294,7 @@ export const playerStatsFromGrpc = (ps: any): PlayerStats => {
 
 export const playersFromGrpc = (ps: any): Players => {
     return {
-        player: ps.player.map((p: any) => playerFromGrpc(p)),
+        player: ps.player ? ps.player.map((p: any) => playerFromGrpc(p)) : [],
     };
 };
 

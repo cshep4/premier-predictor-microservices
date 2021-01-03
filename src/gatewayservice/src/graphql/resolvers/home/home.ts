@@ -22,11 +22,11 @@ export class Home {
                 resolve({
                     id: req.userId,
                     userId: req.userId,
-                    leagues: res.leagues.map(l => ({
+                    leagues: res.leagues ? res.leagues.map(l => ({
                         leagueName: l.leagueName,
                         pin: l.pin.toNumber(),
                         rank: l.rank.toNumber(),
-                    })),
+                    })) : [],
                     rank: res.rank.toNumber(),
                     messages: [
                         "test message"

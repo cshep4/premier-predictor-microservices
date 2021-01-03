@@ -71,7 +71,7 @@ export class Fixture {
                 for (let [key, value] of map) {
                     forms.push({
                         team: key,
-                        forms: value.forms.map((tmr: TeamMatchResult) => toTeamMatchResult(tmr)),
+                        forms: value.forms ? value.forms.map((tmr: TeamMatchResult) => toTeamMatchResult(tmr)) : [],
                     });
                 }
 

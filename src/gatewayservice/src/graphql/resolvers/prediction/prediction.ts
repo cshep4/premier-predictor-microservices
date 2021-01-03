@@ -89,14 +89,14 @@ export class Prediction {
                     return resolve(err.message);
                 }
 
-                const predictions = res.predictions
+                const predictions = res.predictions ? res.predictions
                     .filter(p => p.matchId && p.userId)
                     .map(p => ({
                         userId: p.userId ? p.userId : "",
                         matchId: p.matchId ? p.matchId : "",
                         hGoals: p.hGoals ? p.hGoals : 0,
                         aGoals: p.aGoals ? p.aGoals : 0,
-                    }));
+                    })) : [];
 
                 return resolve(predictions);
             });
