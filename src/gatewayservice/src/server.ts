@@ -14,6 +14,13 @@ const server = new ApolloServer({
                     token: connectionParams.authorization,
                 }
             }
+            if (connectionParams.Authorization) {
+                return {
+                    connectionParams: connectionParams,
+                    webSocket: webSocket,
+                    token: connectionParams.Authorization,
+                }
+            }
             return {
                 connectionParams: connectionParams,
                 webSocket: webSocket,
