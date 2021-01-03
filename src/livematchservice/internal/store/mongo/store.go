@@ -94,7 +94,7 @@ func (s *store) GetUpcomingMatches(ctx context.Context) ([]common.MatchFacts, er
 
 func (s *store) GetTodaysMatches(ctx context.Context) ([]common.MatchFacts, error) {
 	year, month, day := time.Now().Date()
-	today := time.Date(year, month, day-1, 0, 0, 0, 0, time.Now().Location())
+	today := time.Date(year, month, day, 0, 0, 0, 0, time.Now().Location())
 	tomorrow := time.Date(year, month, day+1, 0, 0, 0, 0, time.Now().Location())
 
 	return s.getMatches(

@@ -79,7 +79,9 @@ export class LiveMatch {
             const result: UpcomingMatchesResult = new UpcomingMatchesResult();
             fixtures.matches.forEach((value: any, key: any) => {
                 const m: MatchFacts[] = [];
-                value.matches.forEach((match: any) => m.push(matchFactsFromGrpc(match)));
+                if (value.matches) {
+                    value.matches.forEach((match: any) => m.push(matchFactsFromGrpc(match)));
+                }
                 result.matches.push({
                     date: key,
                     matches: m,
@@ -105,7 +107,7 @@ export class LiveMatch {
         handleSubscription(ctx.webSocket, call, function (res: MatchSummaryResponse) {
             pubsub.publish(event, {
                 liveMatchSummary: {
-                    liveMatch: matchFactsFromGrpc(res.match),
+                    liveMatch: res.match ? matchFactsFromGrpc(res.match) : null,
                     predictionSummary: {
                         homeWin: res.predictionSummary.homeWin ? res.predictionSummary.homeWin : 0,
                         draw: res.predictionSummary.draw ? res.predictionSummary.draw : 0,
@@ -136,7 +138,7 @@ export class LiveMatch {
         handleSubscription(ctx.webSocket, call, function (res: GetMatchResponse) {
             pubsub.publish(event, {
                 todaysLiveMatches: {
-                    match: matchFactsFromGrpc(res.match),
+                    match: res.match ? matchFactsFromGrpc(res.match): {},
                 }
             });
         });

@@ -27,7 +27,7 @@ export class MatchFacts {
     penaltyLocal!: string;
     penaltyVisitor!: string;
     events!: Event[];
-    commentary!: Commentary;
+    commentary!: Commentary | null;
     matchDate!: any;
 }
 
@@ -46,13 +46,13 @@ class Event {
 
 class Commentary {
     matchId!: string;
-    matchInfo!: MatchInfo;
-    lineup!: Lineup;
-    subs!: Lineup;
-    substitutions!: Substitutions;
+    matchInfo!: MatchInfo | null;
+    lineup!: Lineup | null;
+    subs!: Lineup | null;
+    substitutions!: Substitutions | null;
     comments!: Comment[];
-    matchStats!: MatchStats;
-    playerStats!: PlayerStats;
+    matchStats!: MatchStats | null;
+    playerStats!: PlayerStats | null;
 }
 
 class MatchInfo {
@@ -114,8 +114,8 @@ class TeamStats {
 }
 
 class PlayerStats {
-    localTeam!: Players;
-    visitorTeam!: Players;
+    localTeam!: Players | null;
+    visitorTeam!: Players | null;
 }
 
 class Players {
@@ -176,7 +176,7 @@ export const matchFactsFromGrpc = (mf: any) => {
         penaltyLocal: mf.penaltyLocal,
         penaltyVisitor: mf.penaltyVisitor,
         events: mf.events ? mf.events.map((e: Event) => eventFromGrpc(e)) : [],
-        commentary: commentaryFromGrpc(mf.commentary),
+        commentary: mf.commentary ? commentaryFromGrpc(mf.commentary) : null,
         matchDate: date.toISOString().split('T')[0],
     };
 
@@ -201,13 +201,13 @@ export const eventFromGrpc = (e: any): Event => {
 export const commentaryFromGrpc = (c: any): Commentary => {
     return {
         matchId: c.matchId,
-        matchInfo: matchInfoFromGrpc(c.matchInfo),
-        lineup: lineupFromGrpc(c.lineup),
-        subs: lineupFromGrpc(c.subs),
-        substitutions: substitutionsFromGrpc(c.substitutions),
+        matchInfo: c.matchInfo ? matchInfoFromGrpc(c.matchInfo) : null,
+        lineup: c.lineup ? lineupFromGrpc(c.lineup) : null,
+        subs: c.subs ? lineupFromGrpc(c.subs) : null,
+        substitutions: c.substitutions ? substitutionsFromGrpc(c.substitutions) : null,
         comments: c.comments ? c.comments.map((comment: Comment) => commentFromGrpc(comment)) : [],
-        matchStats: matchStatsFromGrpc(c.matchStats),
-        playerStats: playerStatsFromGrpc(c.playerStats),
+        matchStats: c.matchStats ? matchStatsFromGrpc(c.matchStats) : null,
+        playerStats: c.playerStats ? playerStatsFromGrpc(c.playerStats) : null,
     };
 };
 
@@ -237,8 +237,8 @@ export const positionFromGrpc = (p: any): Position => {
 
 export const substitutionsFromGrpc = (s: any): Substitutions => {
     return {
-        localTeam: s.localTeam ? s.localTeam.map((p: any) => substitutionFromGrpc(p)): [],
-        visitorTeam: s.visitorTeam ? s.visitorTeam.map((p: any) => substitutionFromGrpc(p)): [],
+        localTeam: s.localTeam ? s.localTeam.map((p: any) => substitutionFromGrpc(p)) : [],
+        visitorTeam: s.visitorTeam ? s.visitorTeam.map((p: any) => substitutionFromGrpc(p)) : [],
     };
 };
 
@@ -287,8 +287,8 @@ export const teamStatsFromGrpc = (t: any): TeamStats => {
 
 export const playerStatsFromGrpc = (ps: any): PlayerStats => {
     return {
-        localTeam: playersFromGrpc(ps.localTeam),
-        visitorTeam: playersFromGrpc(ps.visitorTeam),
+        localTeam: ps.localTeam ? playersFromGrpc(ps.localTeam): null,
+        visitorTeam: ps.visitorTeam ? playersFromGrpc(ps.visitorTeam): null,
     };
 };
 

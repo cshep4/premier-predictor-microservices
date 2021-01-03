@@ -1,7 +1,4 @@
 import * as grpc from "grpc";
-import {MatchFacts, matchFactsFromGrpc} from "../../model/live/matchFacts";
-import {logger} from "../../log/logger";
-import {TokenContext} from "../../model/context/context";
 
 export interface GetUserRequest {
     id: string;
