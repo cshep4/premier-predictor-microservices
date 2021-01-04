@@ -1,0 +1,10 @@
+---
+apiVersion: getambassador.io/v2
+kind: TLSContext
+metadata:
+  name: tls
+spec:
+  hosts:
+    - "*"
+  secret: ambassador-certs
+  alpn_protocols: h2

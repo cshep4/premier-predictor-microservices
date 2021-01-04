@@ -2,13 +2,13 @@
 apiVersion: cert-manager.io/v1alpha2
 kind: ClusterIssuer
 metadata:
-  name: pp-prod
+  name: letsencrypt-prod
 spec:
   acme:
     email: shepapps4@gmail.com
     server: https://acme-v02.api.letsencrypt.org/directory
     privateKeySecretRef:
-      name: pp-prod
+      name: letsencrypt-prod
     solvers:
       - http01:
           ingress:

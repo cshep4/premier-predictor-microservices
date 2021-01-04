@@ -7,6 +7,11 @@ const server = new ApolloServer({
     schema: schemaPublic,
     subscriptions: {
         onConnect: (connectionParams: any, webSocket) => {
+            if (!connectionParams) {
+                return {
+                    webSocket: webSocket,
+                }
+            }
             if (connectionParams.authorization) {
                 return {
                     connectionParams: connectionParams,

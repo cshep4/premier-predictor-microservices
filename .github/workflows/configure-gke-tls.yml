@@ -22,7 +22,7 @@ on:
 
 env:
   PROJECT_ID: ${{ secrets.GKE_PROJECT }}
-  GKE_CLUSTER: prempred
+  GKE_CLUSTER: premier-predictor
   GKE_ZONE: europe-west2-a
 
 jobs:
@@ -71,5 +71,6 @@ jobs:
           kubectl -n cert-manager rollout status deploy/cert-manager-webhook
           sleep 120
           kubectl apply -f ./ambassador/https.yaml
+          kubectl apply -f ./ambassador/grpc.yaml
           kubectl apply -f ./ambassador/cert.yaml
           kubectl apply -f ./ambassador/acme.yaml
