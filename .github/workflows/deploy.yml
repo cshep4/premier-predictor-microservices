@@ -25,6 +25,16 @@ jobs:
       - name: Find and Replace
         uses: bejoistic/str-replace@master
         with:
-          find: ${{ env.DOCKER_RGISTRY }}/${{ github.event.inputs.service }}:*
-          replace: ${{ env.DOCKER_RGISTRY }}/${{ github.event.inputs.service }}:${{ github.event.inputs.tag }}
+          find: "${{ env.DOCKER_RGISTRY }}/${{ github.event.inputs.service }}:*"
+          replace: "${{ env.DOCKER_RGISTRY }}/${{ github.event.inputs.service }}:${{ github.event.inputs.tag }}"
           include: "kubernetes-manifests/"
+
+      - name: Commit and Push
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # use account 'github-actions[bot]' to set the git config
+
+          git add -A
+          git commit -m "deploy ${{ github.event.inputs.service }} ${{ github.event.inputs.tag }}"
+          git push
