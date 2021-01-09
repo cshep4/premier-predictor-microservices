@@ -1,4 +1,4 @@
-name: Build-GKE-Cluster
+name: Delete-GKE-Cluster
 
 on:
   workflow_dispatch:
@@ -12,8 +12,8 @@ env:
   GKE_ZONE: europe-west2-a
 
 jobs:
-  deploy:
-    name: Build GKE Cluster
+  delete-cluster:
+    name: Delete GKE Cluster
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master'
 
@@ -27,11 +27,7 @@ jobs:
           service_account_key: ${{ secrets.GKE_SA_KEY }}
           project_id: ${{ secrets.GKE_PROJECT }}
 
-      - name: Create cluster
+      - name: Delete old cluster
         run: |-
-          gcloud container clusters create ${{ github.event.inputs.cluster }} \
-          --zone ${{ env.GKE_ZONE }} \
-          --num-nodes=3 --max-nodes=3 --min-nodes=0 \
-          --preemptible --enable-autoscaling \
-          --enable-autorepair --enable-autoupgrade \
-          --machine-type=e2-small --disk-size=10GB
+          gcloud container clusters delete ${{ github.event.inputs.cluster }} \
+          --zone ${{ env.GKE_ZONE }}

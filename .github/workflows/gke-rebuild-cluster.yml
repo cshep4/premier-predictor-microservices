@@ -12,7 +12,7 @@ env:
   GKE_ZONE: europe-west2-a
 
 jobs:
-  deploy:
+  rebuild-cluster:
     name: Build GKE Cluster
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master'

@@ -1,0 +1,37 @@
+name: Build-GKE-Cluster
+
+on:
+  workflow_dispatch:
+    inputs:
+      cluster:
+        description: Cluster Name
+        required: true
+
+env:
+  PROJECT_ID: ${{ secrets.GKE_PROJECT }}
+  GKE_ZONE: europe-west2-a
+
+jobs:
+  build-cluster:
+    name: Build GKE Cluster
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup gcloud
+        uses: google-github-actions/setup-gcloud@v0.2.0
+        with:
+          service_account_key: ${{ secrets.GKE_SA_KEY }}
+          project_id: ${{ secrets.GKE_PROJECT }}
+
+      - name: Create cluster
+        run: |-
+          gcloud container clusters create ${{ github.event.inputs.cluster }} \
+          --zone ${{ env.GKE_ZONE }} \
+          --num-nodes=3 --max-nodes=3 --min-nodes=0 \
+          --preemptible --enable-autoscaling \
+          --enable-autorepair --enable-autoupgrade \
+          --machine-type=e2-small --disk-size=10GB
