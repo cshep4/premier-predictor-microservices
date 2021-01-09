@@ -27,4 +27,4 @@ jobs:
         with:
           find: ${{ env.DOCKER_RGISTRY }}/${{ github.event.inputs.service }}:*
           replace: ${{ env.DOCKER_RGISTRY }}/${{ github.event.inputs.service }}:${{ github.event.inputs.tag }}
-          include: "kubernetes-manifests/**"
+          include: "kubernetes-manifests/"
