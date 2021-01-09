@@ -36,9 +36,6 @@ jobs:
           tag_name: src/${{ github.event.inputs.package }}/${{ github.event.inputs.version }}
           release_name: src/${{ github.event.inputs.package }}/${{ github.event.inputs.version }}
 
-      #      - name: Create tag
-      #        run: git tag src/${{ github.event.inputs.service }}/${{ github.event.inputs.version }}
-
       - name: Docker login
         if: github.event.inputs.docker == 'Y'
         run: |

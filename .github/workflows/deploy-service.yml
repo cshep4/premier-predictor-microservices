@@ -22,14 +22,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Find and Replace
+      - name: Replace image tag
         uses: bejoistic/str-replace@master
         with:
           find: "image: ${{ env.DOCKER_RGISTRY }}/${{ github.event.inputs.service }}:[^\n]*"
           replace: "image: ${{ env.DOCKER_RGISTRY }}/${{ github.event.inputs.service }}:${{ github.event.inputs.tag }}"
           include: "kubernetes-manifests/"
 
-      - name: Commit and Push
+      - name: Commit
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -37,4 +37,8 @@ jobs:
 
           git add -A
           git commit -m "deploy ${{ github.event.inputs.service }} ${{ github.event.inputs.tag }}"
-          git push
+
+      - name: Push
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.PERSONAL_TOKEN }}
