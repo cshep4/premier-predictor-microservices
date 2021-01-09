@@ -25,8 +25,8 @@ jobs:
       - name: Find and Replace
         uses: bejoistic/str-replace@master
         with:
-          find: "${{ env.DOCKER_RGISTRY }}/${{ github.event.inputs.service }}:*"
-          replace: "${{ env.DOCKER_RGISTRY }}/${{ github.event.inputs.service }}:${{ github.event.inputs.tag }}"
+          find: "image: ${{ env.DOCKER_RGISTRY }}/${{ github.event.inputs.service }}:[^\n]*"
+          replace: "image: ${{ env.DOCKER_RGISTRY }}/${{ github.event.inputs.service }}:${{ github.event.inputs.tag }}"
           include: "kubernetes-manifests/"
 
       - name: Commit and Push
