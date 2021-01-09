@@ -12,7 +12,7 @@
 #
 # GKE_SA_KEY = cat <file>.json | base64
 
-name: Configure-GKE-TLS
+name: GKE-Configure-TLS
 
 on:
   push:

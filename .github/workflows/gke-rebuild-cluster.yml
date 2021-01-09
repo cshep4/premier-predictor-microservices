@@ -1,4 +1,4 @@
-name: Rebuild-GKE-Cluster
+name: GKE-Rebuild-Cluster
 
 on:
   workflow_dispatch:

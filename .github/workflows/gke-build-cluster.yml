@@ -1,4 +1,4 @@
-name: Build-GKE-Cluster
+name: GKE-Build-Cluster
 
 on:
   workflow_dispatch:

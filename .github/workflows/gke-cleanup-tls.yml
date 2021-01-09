@@ -12,7 +12,7 @@
 #
 # GKE_SA_KEY = cat <file>.json | base64
 
-name: Cleanup-GKE-TLS
+name: GKE-Cleanup-TLS
 
 on: workflow_dispatch
 

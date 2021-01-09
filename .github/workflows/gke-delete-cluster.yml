@@ -1,4 +1,4 @@
-name: Delete-GKE-Cluster
+name: GKE-Delete-Cluster
 
 on:
   workflow_dispatch:
