@@ -39,8 +39,8 @@ jobs:
           git config --global url."https://${{ secrets.GO_MODULES_TOKEN }}:x-oauth-basic@github.com/cshep4".insteadOf "https://github.com/cshep4"
 
       - name: Build
+        working-directory: src/userservice
         run: |
-          cd src/userservice
           go generate ./...
           go mod vendor
           docker build \
