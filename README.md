@@ -1,13 +1,6 @@
 
-# Premier Predictor 18/19
+# Premier Predictor
 
-![FixtureService](https://github.com/cshep4/premier-predictor-microservices/workflows/Build-Package-FixtureService/badge.svg)
-![GatewayService](https://github.com/cshep4/premier-predictor-microservices/workflows/Build-Package-GatewayService/badge.svg)
-![KauthService](https://github.com/cshep4/premier-predictor-microservices/workflows/Build-Package-KauthService/badge.svg)
-![LeagueService](https://github.com/cshep4/premier-predictor-microservices/workflows/Build-Package-LeagueService/badge.svg)
-![LiveMatchService](https://github.com/cshep4/premier-predictor-microservices/workflows/Build-Package-LiveMatchService/badge.svg)
-![PredictionService](https://github.com/cshep4/premier-predictor-microservices/workflows/Build-Package-PredictionService/badge.svg)
-![UserService](https://github.com/cshep4/premier-predictor-microservices/workflows/Build-Package-UserService/badge.svg)
 ![Deploy Services](https://github.com/cshep4/premier-predictor-microservices/workflows/GKE-Deploy/badge.svg)
 
 ## Table of Contents
@@ -23,7 +16,7 @@
 
 ## Introduction
 
-Premier League 18/19 predictor app, designed for users to correctly predict all the scores for the 18/19 Premier League to score points, as well as creating mini-leagues to compete with friends. Users can also check live match scores and stats.
+Premier League predictor app, designed for users to correctly predict all the scores for the Premier League to score points, as well as creating mini-leagues to compete with friends. Users can also check live match scores and stats.
 
 ## Technical Details
 
@@ -38,18 +31,19 @@ Premier League 18/19 predictor app, designed for users to correctly predict all 
 
 ## Service Architecture
 
-| Service                                              | Language      | Transport     | Connects To                      | Description                                                                                                 |
-| ---------------------------------------------------- | ------------- | ------------- | -------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| [authservice](./src/authservice)                     | Node.js (JS)  | gRPC          | *                                | Handles all the JWT token validation when authenticating requests.                                          |
-| [chatservice](./src/chatservice)                     | Go            | gRPC          | authservice, notificationservice | Provides functionality so users can chat to each other within their mini-leagues.                           |
-| [core](./src/core)                                   | Kotlin        | REST          | -                                | Original login and sign-up APIs. These will be redeveloped in a new micro-service.                          |
-| [fixtureservice](./src/fixtureservice)               | Node.js (TS)  | REST, gRPC    | authservice                      | Retrieves data about fixtures and results.                                                                  |
-| [kauthservice](./src/kauthservice)                   | Kotlin        | gRPC          | *                                | All login/sign-up APIs, as well as handling all JWT token validation.                                       |
-| [leagueservice](./src/leagueservice)                 | Go            | REST          | authservice, userservice         | Provides functionality for mini-leagues (add, join, leave, League table etc)                                |
-| [livematchservice](./src/livematchservice)           | Go            | REST, gRPC    | authservice, predictionservice   | Retrieves live match data, such as scores, commentary, lineups, etc.                                        |
-| [notificationservice](./src/notificationservice)     | Java          | gRPC          | authservice                      | Generic push notification sending functionality and inbox.                                                  |
-| [predictionservice](./src/predictionservice)         | Go            | REST, gRPC    | authservice, fixtureservice      | Retrieves and updates match predictions.                                                                    |
-| [userservice](./src/userservice)                     | Go            | REST, gRPC    | authservice                      | Retrieves and updates user details.                                                                         |
+| Service                                              | Language      | Transport     | Status                                                                                                                              | Description                                                                        |
+| ---------------------------------------------------- | ------------- | ------------- | ----------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| [authservice](./src/authservice)                     | Node.js (JS)  | gRPC          | N/A                                                                                                                                 | Handles all the JWT token validation when authenticating requests.                 |
+| [chatservice](./src/chatservice)                     | Go            | gRPC          | N/A                                                                                                                                 | Provides functionality so users can chat to each other within their mini-leagues.  |
+| [core](./src/core)                                   | Kotlin        | REST          | N/A                                                                                                                                 | Original login and sign-up APIs.                                                   |
+| [fixtureservice](./src/fixtureservice)               | Node.js (TS)  | REST, gRPC    | ![FixtureService](https://github.com/cshep4/premier-predictor-microservices/workflows/Build-Package-FixtureService/badge.svg)       | Retrieves data about fixtures and results.                                         |
+| [gatewayservice](./src/gatewayservice)               | Node.js (TS)  | GraphQL       | ![GatewayService](https://github.com/cshep4/premier-predictor-microservices/workflows/Build-Package-GatewayService/badge.svg)       | Backend for frontend (BFF) service using GraphQL.                                  |
+| [kauthservice](./src/kauthservice)                   | Kotlin        | gRPC          | ![KauthService](https://github.com/cshep4/premier-predictor-microservices/workflows/Build-Package-KauthService/badge.svg)           | All login/sign-up APIs, as well as handling all JWT token validation.              |
+| [leagueservice](./src/leagueservice)                 | Go            | REST          | ![LeagueService](https://github.com/cshep4/premier-predictor-microservices/workflows/Build-Package-LeagueService/badge.svg)         | Provides functionality for mini-leagues (add, join, leave, League table etc)       |
+| [livematchservice](./src/livematchservice)           | Go            | REST, gRPC    | ![LiveMatchService](https://github.com/cshep4/premier-predictor-microservices/workflows/Build-Package-LiveMatchService/badge.svg)   | Retrieves live match data, such as scores, commentary, lineups, etc.               |
+| [notificationservice](./src/notificationservice)     | Java          | gRPC          | N/A                                                                                                                                 | Generic push notification sending functionality and inbox.                         |
+| [predictionservice](./src/predictionservice)         | Go            | REST, gRPC    | ![PredictionService](https://github.com/cshep4/premier-predictor-microservices/workflows/Build-Package-PredictionService/badge.svg) | Retrieves and updates match predictions.                                           |
+| [userservice](./src/userservice)                     | Go            | REST, gRPC    | ![UserService](https://github.com/cshep4/premier-predictor-microservices/workflows/Build-Package-UserService/badge.svg)             | Retrieves and updates user details.                                                |
 
 ## Functions
 
