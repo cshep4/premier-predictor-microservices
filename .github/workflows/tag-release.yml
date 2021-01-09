@@ -29,8 +29,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: src/${{ github.event.inputs.service }}/${{ github.event.inputs.version }}
-          release_name: src/${{ github.event.inputs.service }}/${{ github.event.inputs.version }}
+          tag_name: src/${{ github.event.inputs.package }}/${{ github.event.inputs.version }}
+          release_name: src/${{ github.event.inputs.package }}/${{ github.event.inputs.version }}
 
 #      - name: Create tag
 #        run: git tag src/${{ github.event.inputs.service }}/${{ github.event.inputs.version }}
@@ -43,8 +43,8 @@ jobs:
       - name: Tag docker image
         if: github.event.inputs.docker == 'Y'
         run: |
-          docker pull ${{ env.DOCKER_RGISTRY }}/${{ github.event.inputs.service }}:latest
+          docker pull ${{ env.DOCKER_RGISTRY }}/${{ github.event.inputs.package }}:latest
           docker tag \
-            ${{ env.DOCKER_RGISTRY }}/${{ github.event.inputs.service }}:latest \
-            ${{ env.DOCKER_RGISTRY }}/${{ github.event.inputs.service }}:${{ github.event.inputs.version }}
-          docker push ${{ env.DOCKER_RGISTRY }}/${{ github.event.inputs.service }}:${{ github.event.inputs.version }}
+            ${{ env.DOCKER_RGISTRY }}/${{ github.event.inputs.package }}:latest \
+            ${{ env.DOCKER_RGISTRY }}/${{ github.event.inputs.package }}:${{ github.event.inputs.version }}
+          docker push ${{ env.DOCKER_RGISTRY }}/${{ github.event.inputs.package }}:${{ github.event.inputs.version }}
