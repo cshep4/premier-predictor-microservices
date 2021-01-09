@@ -11,8 +11,12 @@ on:
         description: Package Name
         required: true
       docker:
-        description: Docker Build (Y/N)
+        description: Tag Docker Image (Y/N)
         default: Y
+        required: true
+      deploy:
+        description: Deploy Service (Y/N)
+        default: N
         required: true
 
 env:
@@ -32,8 +36,8 @@ jobs:
           tag_name: src/${{ github.event.inputs.package }}/${{ github.event.inputs.version }}
           release_name: src/${{ github.event.inputs.package }}/${{ github.event.inputs.version }}
 
-#      - name: Create tag
-#        run: git tag src/${{ github.event.inputs.service }}/${{ github.event.inputs.version }}
+      #      - name: Create tag
+      #        run: git tag src/${{ github.event.inputs.service }}/${{ github.event.inputs.version }}
 
       - name: Docker login
         if: github.event.inputs.docker == 'Y'
@@ -48,3 +52,11 @@ jobs:
             ${{ env.DOCKER_RGISTRY }}/${{ github.event.inputs.package }}:latest \
             ${{ env.DOCKER_RGISTRY }}/${{ github.event.inputs.package }}:${{ github.event.inputs.version }}
           docker push ${{ env.DOCKER_RGISTRY }}/${{ github.event.inputs.package }}:${{ github.event.inputs.version }}
+
+      - name: Deploy Service
+        uses: benc-uk/workflow-dispatch@v1
+        if: github.event.inputs.docker == 'Y' && github.event.inputs.deploy == 'Y'
+        with:
+          workflow: Deploy-Service
+          token: ${{ secrets.GITHUB_TOKEN }}
+          inputs: '{ "tag": "${{ github.event.inputs.version }}", "service": "${{ github.event.inputs.package }}" }'

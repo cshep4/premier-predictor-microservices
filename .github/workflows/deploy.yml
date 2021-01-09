@@ -3,11 +3,11 @@ name: Deploy-Service
 on:
   workflow_dispatch:
     inputs:
-      tag:
-        description: Image Tag
-        required: true
       service:
         description: Service Name
+        required: true
+      tag:
+        description: Image Tag
         required: true
 
 env:
