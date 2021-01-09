@@ -6,6 +6,10 @@ on:
       cluster:
         description: Cluster Name
         required: true
+      deploy:
+        description: Deploy to Cluster (Y/N)
+        default: Y
+        required: true
 
 env:
   PROJECT_ID: ${{ secrets.GKE_PROJECT }}
@@ -40,3 +44,27 @@ jobs:
           --preemptible --enable-autoscaling \
           --enable-autorepair --enable-autoupgrade \
           --machine-type=e2-small --disk-size=10GB
+
+      - name: Replace cluster name
+        uses: bejoistic/str-replace@master
+        if: github.event.inputs.deploy == 'Y'
+        with:
+          find: "GKE_CLUSTER: [^\n]*"
+          replace: "GKE_CLUSTER: ${{ github.event.inputs.deploy }}"
+          include: ".github/workflows/"
+
+      - name: Commit
+        if: github.event.inputs.deploy == 'Y'
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # use account 'github-actions[bot]' to set the git config
+
+          git add -A
+          git commit -m "update cluster name to ${{ github.event.inputs.deploy }}"
+
+      - name: Push
+        uses: ad-m/github-push-action@master
+        if: github.event.inputs.deploy == 'Y'
+        with:
+          github_token: ${{ secrets.PERSONAL_TOKEN }} # using `GITHUB_TOKEN` prevents downstream workflows being triggered
