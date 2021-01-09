@@ -55,5 +55,5 @@ jobs:
         if: github.event.inputs.docker == 'Y' && github.event.inputs.deploy == 'Y'
         with:
           workflow: Deploy-Service
-          token: ${{ secrets.PERSONAL_TOKEN }}
+          token: ${{ secrets.PERSONAL_TOKEN }} # using `GITHUB_TOKEN` prevents downstream workflows being triggered
           inputs: '{ "tag": "${{ github.event.inputs.version }}", "service": "${{ github.event.inputs.package }}" }'
