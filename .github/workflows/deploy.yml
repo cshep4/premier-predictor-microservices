@@ -1,0 +1,30 @@
+name: Deploy-Service
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Image Tag
+        required: true
+      service:
+        description: Service Name
+        required: true
+
+env:
+  DOCKER_RGISTRY: docker.pkg.github.com/cshep4/premier-predictor-microservices
+
+jobs:
+  deploy-service:
+    name: Deploy Service
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Find and Replace
+        uses: bejoistic/str-replace@master
+        with:
+          find: ${{ env.DOCKER_RGISTRY }}/${{ github.event.inputs.service }}:*
+          replace: ${{ env.DOCKER_RGISTRY }}/${{ github.event.inputs.service }}:${{ github.event.inputs.tag }}
+          include: "kubernetes-manifests/**"
