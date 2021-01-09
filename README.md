@@ -1,3 +1,4 @@
+
 # Premier Predictor 18/19
 
 ![FixtureService](https://github.com/cshep4/premier-predictor-microservices/workflows/Build-Package-FixtureService/badge.svg)
@@ -7,7 +8,7 @@
 ![LiveMatchService](https://github.com/cshep4/premier-predictor-microservices/workflows/Build-Package-LiveMatchService/badge.svg)
 ![PredictionService](https://github.com/cshep4/premier-predictor-microservices/workflows/Build-Package-PredictionService/badge.svg)
 ![UserService](https://github.com/cshep4/premier-predictor-microservices/workflows/Build-Package-UserService/badge.svg)
-![DeployGKE](https://github.com/cshep4/premier-predictor-microservices/workflows/Deploy-GKE/badge.svg)
+![Deploy Services](https://github.com/cshep4/premier-predictor-microservices/workflows/GKE-Deploy/badge.svg)
 
 ## Table of Contents
 1. [Introduction](#introduction)
