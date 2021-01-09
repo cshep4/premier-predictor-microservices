@@ -1,0 +1,46 @@
+name: Rebuild-GKE-Cluster
+
+on:
+  workflow_dispatch:
+    inputs:
+      old_cluster:
+        description: Old Cluster Name
+        required: true
+      new_cluster:
+        description: New Cluster Name
+        required: false
+
+env:
+  PROJECT_ID: ${{ secrets.GKE_PROJECT }}
+  GKE_ZONE: europe-west2-a
+
+jobs:
+  deploy:
+    name: Build GKE Cluster
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup gcloud
+        uses: google-github-actions/setup-gcloud@v0.2.0
+        with:
+          service_account_key: ${{ secrets.GKE_SA_KEY }}
+          project_id: ${{ secrets.GKE_PROJECT }}
+
+      - name: Delete old cluster
+        run: |-
+          gcloud container clusters delete ${{ github.event.inputs.old_cluster }} \
+          --zone ${{ env.GKE_ZONE }}
+
+      - name: Create new cluster
+        if: github.event.inputs.new_cluster != '' && github.event.inputs.old_cluster != github.event.inputs.new_cluster
+        run: |-
+          gcloud container clusters create ${{ github.event.inputs.new_cluster }} \
+          --zone ${{ env.GKE_ZONE }} \
+          --num-nodes=3 --max-nodes=3 --min-nodes=0 \
+          --preemptible --enable-autoscaling \
+          --enable-autorepair --enable-autoupgrade \
+          --machine-type=e2-small --disk-size=10GB
