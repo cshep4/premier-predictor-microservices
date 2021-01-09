@@ -3,12 +3,9 @@ name: Rebuild-GKE-Cluster
 on:
   workflow_dispatch:
     inputs:
-      old_cluster:
-        description: Old Cluster Name
+      cluster:
+        description: Cluster Name
         required: true
-      new_cluster:
-        description: New Cluster Name
-        required: false
 
 env:
   PROJECT_ID: ${{ secrets.GKE_PROJECT }}
@@ -32,13 +29,12 @@ jobs:
 
       - name: Delete old cluster
         run: |-
-          gcloud container clusters delete ${{ github.event.inputs.old_cluster }} \
+          gcloud container clusters delete ${{ github.event.inputs.cluster }} \
           --zone ${{ env.GKE_ZONE }}
 
       - name: Create new cluster
-        if: github.event.inputs.new_cluster != '' && github.event.inputs.old_cluster != github.event.inputs.new_cluster
         run: |-
-          gcloud container clusters create ${{ github.event.inputs.new_cluster }} \
+          gcloud container clusters create ${{ github.event.inputs.cluster }} \
           --zone ${{ env.GKE_ZONE }} \
           --num-nodes=3 --max-nodes=3 --min-nodes=0 \
           --preemptible --enable-autoscaling \
