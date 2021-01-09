@@ -1,80 +1,50 @@
 name: Tag-Release
 
-on: push
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Bump Version
+        default: v1.0.0
+        required: true
+      package:
+        description: Package Name
+        required: true
+      docker:
+        description: Docker Build (Y/N)
+        default: Y
+        required: true
 
 env:
   DOCKER_RGISTRY: docker.pkg.github.com/cshep4/premier-predictor-microservices
 
 jobs:
   tag-releases:
-    name: Tag Releases
+    name: Tag Release
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
 
     steps:
-      - name: Docker Login
+      - name: Create Release
+        uses: actions/create-release@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: src/${{ github.event.inputs.service }}/${{ github.event.inputs.version }}
+          release_name: src/${{ github.event.inputs.service }}/${{ github.event.inputs.version }}
+
+#      - name: Create tag
+#        run: git tag src/${{ github.event.inputs.service }}/${{ github.event.inputs.version }}
+
+      - name: Docker login
+        if: github.event.inputs.docker == 'Y'
         run: |
           docker login docker.pkg.github.com -u cshep4 -p ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Tag FixtureService
-        if: contains(github.ref, 'fixtureservice/')
+      - name: Tag docker image
+        if: github.event.inputs.docker == 'Y'
         run: |
-          docker pull ${{ env.DOCKER_RGISTRY }}/fixtureservice:latest
+          docker pull ${{ env.DOCKER_RGISTRY }}/${{ github.event.inputs.service }}:latest
           docker tag \
-            ${{ env.DOCKER_RGISTRY }}/fixtureservice:latest \
-            ${{ env.DOCKER_RGISTRY }}/fixtureservice:${GITHUB_REF##*/}
-          docker push ${{ env.DOCKER_RGISTRY }}/fixtureservice:${GITHUB_REF##*/}
-
-      - name: Tag GatewayService
-        if: contains(github.ref, 'gatewayservice/')
-        run: |
-          docker pull ${{ env.DOCKER_RGISTRY }}/gatewayservice:latest
-          docker tag \
-            ${{ env.DOCKER_RGISTRY }}/gatewayservice:latest \
-            ${{ env.DOCKER_RGISTRY }}/gatewayservice:${GITHUB_REF##*/}
-          docker push ${{ env.DOCKER_RGISTRY }}/gatewayservice:${GITHUB_REF##*/}
-
-      - name: Tag KauthService
-        if: contains(github.ref, 'kauthservice/')
-        run: |
-          docker pull ${{ env.DOCKER_RGISTRY }}/kauthservice:latest
-          docker tag \
-            ${{ env.DOCKER_RGISTRY }}/kauthservice:latest \
-            ${{ env.DOCKER_RGISTRY }}/kauthservice:${GITHUB_REF##*/}
-          docker push ${{ env.DOCKER_RGISTRY }}/kauthservice:${GITHUB_REF##*/}
-
-      - name: Tag LeagueService
-        if: contains(github.ref, 'leagueservice/')
-        run: |
-          docker pull ${{ env.DOCKER_RGISTRY }}/leagueservice:latest
-          docker tag \
-            ${{ env.DOCKER_RGISTRY }}/leagueservice:latest \
-            ${{ env.DOCKER_RGISTRY }}/leagueservice:${GITHUB_REF##*/}
-          docker push ${{ env.DOCKER_RGISTRY }}/leagueservice:${GITHUB_REF##*/}
-
-      - name: Tag LiveMatchService
-        if: contains(github.ref, 'livematchservice/')
-        run: |
-          docker pull ${{ env.DOCKER_RGISTRY }}/livematchservice:latest
-          docker tag \
-            ${{ env.DOCKER_RGISTRY }}/livematchservice:latest \
-            ${{ env.DOCKER_RGISTRY }}/livematchservice:${GITHUB_REF##*/}
-          docker push ${{ env.DOCKER_RGISTRY }}/livematchservice:${GITHUB_REF##*/}
-
-      - name: Tag PredictionService
-        if: contains(github.ref, 'predictionservice/')
-        run: |
-          docker pull ${{ env.DOCKER_RGISTRY }}/predictionservice:latest
-          docker tag \
-            ${{ env.DOCKER_RGISTRY }}/predictionservice:latest \
-            ${{ env.DOCKER_RGISTRY }}/predictionservice:${GITHUB_REF##*/}
-          docker push ${{ env.DOCKER_RGISTRY }}/predictionservice:${GITHUB_REF##*/}
-
-      - name: Tag UserService
-        if: contains(github.ref, 'userservice/')
-        run: |
-          docker pull ${{ env.DOCKER_RGISTRY }}/userservice:latest
-          docker tag \
-            ${{ env.DOCKER_RGISTRY }}/userservice:latest \
-            ${{ env.DOCKER_RGISTRY }}/userservice:${GITHUB_REF##*/}
-          docker push ${{ env.DOCKER_RGISTRY }}/userservice:${GITHUB_REF##*/}
+            ${{ env.DOCKER_RGISTRY }}/${{ github.event.inputs.service }}:latest \
+            ${{ env.DOCKER_RGISTRY }}/${{ github.event.inputs.service }}:${{ github.event.inputs.version }}
+          docker push ${{ env.DOCKER_RGISTRY }}/${{ github.event.inputs.service }}:${{ github.event.inputs.version }}
