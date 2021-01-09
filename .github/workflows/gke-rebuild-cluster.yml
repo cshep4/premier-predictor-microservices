@@ -30,7 +30,7 @@ jobs:
       - name: Delete old cluster
         run: |-
           gcloud container clusters delete ${{ github.event.inputs.cluster }} \
-          --zone ${{ env.GKE_ZONE }}
+          --zone ${{ env.GKE_ZONE }} --quiet
 
       - name: Create new cluster
         run: |-
