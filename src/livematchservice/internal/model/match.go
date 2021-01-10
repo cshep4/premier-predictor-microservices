@@ -35,22 +35,6 @@ func (m *MatchObservable) Notify(matchFacts *model.MatchFacts) error {
 	return nil
 }
 
-func MatchSummaryFromGrpc(matchFacts *gen.MatchSummary) *MatchSummary {
-	return &MatchSummary{
-		Match:             model.MatchFactsFromGrpc(matchFacts.Match),
-		PredictionSummary: model.MatchPredictionSummaryFromGrpc(matchFacts.PredictionSummary),
-		Prediction:        model.PredictionFromGrpc(matchFacts.Prediction),
-	}
-}
-
-func MatchSummaryToGrpc(matchFacts *MatchSummary) *gen.MatchSummary {
-	return &gen.MatchSummary{
-		Match:             model.MatchFactsToGrpc(matchFacts.Match),
-		PredictionSummary: model.MatchPredictionSummaryToGrpc(matchFacts.PredictionSummary),
-		Prediction:        model.PredictionToGrpc(matchFacts.Prediction),
-	}
-}
-
 func ToUpcomingMatchesResponse(upcomingMatches map[time.Time][]model.MatchFacts) *gen.UpcomingMatchesResponse {
 	matches := make(map[string]*gen.MatchFactsList)
 
