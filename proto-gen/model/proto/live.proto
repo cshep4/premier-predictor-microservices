@@ -13,7 +13,7 @@ package model;
 service LiveMatchService {
     //Deprecated, use StreamTodaysLiveMatches instead.
     rpc GetUpcomingMatches (google.protobuf.Empty) returns (stream UpcomingMatchesResponse);
-    rpc StreamMatchSummary (StreamMatchSummaryRequest) returns (stream StreamMatchSummaryResponse);
+    rpc StreamLiveMatch (StreamLiveMatchRequest) returns (stream StreamLiveMatchResponse);
     rpc GetLiveMatch (GetLiveMatchRequest) returns (GetLiveMatchResponse);
     rpc ListTodaysMatches (ListTodaysMatchesRequest) returns (ListTodaysMatchesResponse);
     rpc StreamTodaysLiveMatches (StreamTodaysLiveMatchesRequest) returns (stream StreamTodaysLiveMatchesResponse);
@@ -27,11 +27,11 @@ message GetLiveMatchResponse {
     MatchFacts match = 1;
 }
 
-message StreamMatchSummaryRequest {
+message StreamLiveMatchRequest {
     string id = 1;
 }
 
-message StreamMatchSummaryResponse {
+message StreamLiveMatchResponse {
     MatchFacts match = 1;
 }
 
