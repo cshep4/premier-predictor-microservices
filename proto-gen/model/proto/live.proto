@@ -46,8 +46,10 @@ message UpcomingMatchesResponse {
 
 message MatchSummary {
     MatchFacts match = 1;
-    MatchPredictionSummary predictionSummary = 2;
-    Prediction prediction = 3;
+    // Deprecated, this should now be retrieved from predictionservice instead
+    MatchPredictionSummary predictionSummary = 2 [deprecated = true];
+    // Deprecated, this should now be retrieved from predictionservice instead
+    Prediction prediction = 3 [deprecated = true];
 }
 
 message MatchFactsList {
