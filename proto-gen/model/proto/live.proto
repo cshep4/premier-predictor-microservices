@@ -11,11 +11,12 @@ import "prediction.proto";
 package model;
 
 service LiveMatchService {
+    //Deprecated, use StreamTodaysLiveMatches instead.
     rpc GetUpcomingMatches (google.protobuf.Empty) returns (stream UpcomingMatchesResponse);
-    rpc GetMatchSummary (PredictionRequest) returns (stream MatchSummary);
+    rpc StreamMatchSummary (StreamMatchSummaryRequest) returns (stream StreamMatchSummaryResponse);
     rpc GetLiveMatch (GetLiveMatchRequest) returns (GetLiveMatchResponse);
     rpc ListTodaysMatches (ListTodaysMatchesRequest) returns (ListTodaysMatchesResponse);
-    rpc GetTodaysLiveMatches (GetTodaysLiveMatchesRequest) returns (stream GetTodaysLiveMatchesResponse);
+    rpc StreamTodaysLiveMatches (StreamTodaysLiveMatchesRequest) returns (stream StreamTodaysLiveMatchesResponse);
 }
 
 message GetLiveMatchRequest {
@@ -26,6 +27,14 @@ message GetLiveMatchResponse {
     MatchFacts match = 1;
 }
 
+message StreamMatchSummaryRequest {
+    string id = 1;
+}
+
+message StreamMatchSummaryResponse {
+    MatchFacts match = 1;
+}
+
 message ListTodaysMatchesRequest {
 }
 
@@ -33,23 +42,15 @@ message ListTodaysMatchesResponse {
     repeated MatchFacts matches = 1;
 }
 
-message GetTodaysLiveMatchesRequest {
+message StreamTodaysLiveMatchesRequest {
 }
 
-message GetTodaysLiveMatchesResponse {
+message StreamTodaysLiveMatchesResponse {
     MatchFacts match = 1;
 }
 
 message UpcomingMatchesResponse {
     map<string, MatchFactsList> matches = 1;
-}
-
-message MatchSummary {
-    MatchFacts match = 1;
-    // Deprecated, this should now be retrieved from predictionservice instead
-    MatchPredictionSummary predictionSummary = 2 [deprecated = true];
-    // Deprecated, this should now be retrieved from predictionservice instead
-    Prediction prediction = 3 [deprecated = true];
 }
 
 message MatchFactsList {
