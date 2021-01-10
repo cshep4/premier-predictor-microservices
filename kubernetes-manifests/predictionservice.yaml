@@ -19,7 +19,7 @@ spec:
         - name: github-packages-secret
       containers:
         - name: predictionservice-app
-          image: docker.pkg.github.com/cshep4/premier-predictor-microservices/predictionservice:master_68563846
+          image: docker.pkg.github.com/cshep4/premier-predictor-microservices/predictionservice:v1.0.1
           ports:
             - containerPort: 3007
               name: grpc
