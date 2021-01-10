@@ -25,7 +25,7 @@ jobs:
           token: ${{ secrets.PERSONAL_TOKEN }} # using `GITHUB_TOKEN` prevents downstream workflows being triggered
 
       - name: Replace image tag
-        uses: bejoistic/str-replace@master
+        uses: jacobtomlinson/gha-find-replace@master
         with:
           find: "image: ${{ env.DOCKER_RGISTRY }}/${{ github.event.inputs.service }}:[^\n]*"
           replace: "image: ${{ env.DOCKER_RGISTRY }}/${{ github.event.inputs.service }}:${{ github.event.inputs.tag }}"

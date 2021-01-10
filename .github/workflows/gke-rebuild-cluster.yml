@@ -46,7 +46,7 @@ jobs:
           --machine-type=e2-small --disk-size=10GB
 
       - name: Replace cluster name
-        uses: bejoistic/str-replace@master
+        uses: jacobtomlinson/gha-find-replace@master
         if: github.event.inputs.deploy == 'Y'
         with:
           find: "GKE_CLUSTER: [^\n]*"
