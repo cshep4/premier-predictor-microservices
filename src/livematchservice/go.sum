@@ -63,6 +63,12 @@ github.com/cncf/udpa/go v0.0.0-20191209042840-269d4d468f6f/go.mod h1:M8M6+tZqaGX
 github.com/cncf/udpa/go v0.0.0-20200629203442-efcf912fb354/go.mod h1:WmhPx2Nbnhtbo57+VJT5O0JRkEi1Wbu0z5j0R8u5Hbk=
 github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen v0.0.1 h1:swMmvTBmAd4nrEXhaZr5rNsQpcchK4rM3djOhRwMPXQ=
 github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen v0.0.1/go.mod h1:FEci58OZqoaeRpYxDe08E0Fg0W8GD/zO2w8gr1monzM=
+github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen v0.0.4 h1:QpSDETmwiu7bmr5PpAb+H2n5MWXO43EP/SMS/WrBWek=
+github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen v0.0.4/go.mod h1:FEci58OZqoaeRpYxDe08E0Fg0W8GD/zO2w8gr1monzM=
+github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen v0.0.5 h1:ksC2kPgliXlPbnVlzwFDQrFwrwMRp+4Gk2tNxKi5VHw=
+github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen v0.0.5/go.mod h1:FEci58OZqoaeRpYxDe08E0Fg0W8GD/zO2w8gr1monzM=
+github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen v0.0.6 h1:NmgKUSLATi0AILeSo8levwH+mvYdb/DjVS049fjpWDE=
+github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen v0.0.6/go.mod h1:FEci58OZqoaeRpYxDe08E0Fg0W8GD/zO2w8gr1monzM=
 github.com/cshep4/premier-predictor-microservices/src/common v0.0.3 h1:yZHv4EnFd3q4Z2PpXe2gyV+jRMiilj9+7Gnv2HGHYS4=
 github.com/cshep4/premier-predictor-microservices/src/common v0.0.3/go.mod h1:WAXpjSEBjkB0N5WLiEI4PVK3DJyJ0OSwecrjwy2zKXY=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=

@@ -20,7 +20,7 @@ export interface GetMatchRequest {
     id: string;
 }
 
-export interface GetMatchResponse {
+export interface MatchResponse {
     match: MatchFacts;
 }
 
@@ -32,20 +32,14 @@ export interface ListTodaysMatchesResponse {
     matches: [MatchFacts];
 }
 
-export interface MatchSummaryResponse {
-    match: MatchFacts;
-    predictionSummary: PredictionSummaryResponse;
-    prediction: Prediction;
-}
-
 export interface LiveMatchClient {
-    getLiveMatch(req: GetMatchRequest, md: grpc.Metadata, callback: (err: grpc.ServiceError | Error, response: GetMatchResponse) => void): void
+    getLiveMatch(req: GetMatchRequest, md: grpc.Metadata, callback: (err: grpc.ServiceError | Error, response: MatchResponse) => void): void
 
     listTodaysMatches(req: Empty, md: grpc.Metadata, callback: (err: grpc.ServiceError | Error, response: ListTodaysMatchesResponse) => void): void
 
     getUpcomingMatches(req: any, md: grpc.Metadata): ClientReadableStream<UpcomingMatchesGRPCResult>
 
-    getMatchSummary(req: any, md: grpc.Metadata): ClientReadableStream<MatchSummaryResponse>
+    streamLiveMatch(req: GetMatchRequest, md: grpc.Metadata): ClientReadableStream<MatchResponse>
 
-    getTodaysLiveMatches(req: Empty, md: grpc.Metadata): ClientReadableStream<GetMatchResponse>
+    streamTodaysLiveMatches(req: Empty, md: grpc.Metadata): ClientReadableStream<MatchResponse>
 }

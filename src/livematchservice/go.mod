@@ -4,7 +4,7 @@ go 1.15
 
 require (
 	github.com/ahl5esoft/golang-underscore v2.0.0+incompatible
-	github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen v0.0.1
+	github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen v0.0.6
 	github.com/cshep4/premier-predictor-microservices/src/common v0.0.3
 	github.com/golang/mock v1.4.4
 	github.com/golang/protobuf v1.4.3

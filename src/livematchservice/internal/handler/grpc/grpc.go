@@ -79,32 +79,32 @@ func (s *server) GetUpcomingMatches(_ *empty.Empty, stream pb.LiveMatchService_G
 	}
 }
 
-func (s *server) GetMatchSummary(req *pb.PredictionRequest, stream pb.LiveMatchService_GetMatchSummaryServer) error {
-	matchFacts, err := s.service.GetMatchFacts(stream.Context(), req.GetMatchId())
+func (s *server) StreamLiveMatch(req *pb.StreamLiveMatchRequest, stream pb.LiveMatchService_StreamLiveMatchServer) error {
+	matchFacts, err := s.service.GetMatchFacts(stream.Context(), req.GetId())
 	if err != nil {
+		if errors.Is(err, model.ErrMatchNotFound) {
+			return status.Error(codes.NotFound, "match not found")
+		}
 		log.Error(stream.Context(), "error_getting_match_summary",
 			log.ErrorParam(err),
-			log.SafeParam("matchId", req.GetMatchId()),
-			//log.SafeParam("userId", req.GetUserId()),
+			log.SafeParam("matchId", req.GetId()),
 		)
 		return status.Error(codes.Internal, "could not get match summary")
 	}
 
-	if err := stream.Send(&pb.MatchSummary{Match: common.MatchFactsToGrpc(matchFacts)}); err != nil {
+	if err := stream.Send(&pb.StreamLiveMatchResponse{Match: common.MatchFactsToGrpc(matchFacts)}); err != nil {
 		log.Error(stream.Context(), "error_sending_response",
 			log.ErrorParam(err),
-			log.SafeParam("matchId", req.GetMatchId()),
-			//log.SafeParam("userId", req.GetUserId()),
+			log.SafeParam("matchId", req.GetId()),
 		)
 		return status.Error(codes.Internal, "could not send response")
 	}
 
 	obvs := observer{update: func(matchFacts *common.MatchFacts) error {
-		if err := stream.Send(&pb.MatchSummary{Match: common.MatchFactsToGrpc(matchFacts)}); err != nil {
+		if err := stream.Send(&pb.StreamLiveMatchResponse{Match: common.MatchFactsToGrpc(matchFacts)}); err != nil {
 			log.Error(stream.Context(), "error_sending_response",
 				log.ErrorParam(err),
-				log.SafeParam("matchId", req.GetMatchId()),
-				//log.SafeParam("userId", req.GetUserId()),
+				log.SafeParam("matchId", req.GetId()),
 			)
 			return status.Error(codes.Internal, "could not send response")
 		}
@@ -112,12 +112,11 @@ func (s *server) GetMatchSummary(req *pb.PredictionRequest, stream pb.LiveMatchS
 		return nil
 	}}
 
-	err = s.service.SubscribeToMatch(stream.Context(), req.GetMatchId(), obvs)
+	err = s.service.SubscribeToMatch(stream.Context(), req.GetId(), obvs)
 	if err != nil {
 		log.Error(stream.Context(), "error_subscribing_to_live_match",
 			log.ErrorParam(err),
-			log.SafeParam("matchId", req.GetMatchId()),
-			//log.SafeParam("userId", req.GetUserId()),
+			log.SafeParam("matchId", req.GetId()),
 		)
 		return status.Error(codes.Internal, "could not subscribe to live match")
 	}
@@ -125,9 +124,9 @@ func (s *server) GetMatchSummary(req *pb.PredictionRequest, stream pb.LiveMatchS
 	return nil
 }
 
-func (s *server) GetTodaysLiveMatches(_ *pb.GetTodaysLiveMatchesRequest, stream pb.LiveMatchService_GetTodaysLiveMatchesServer) error {
+func (s *server) StreamTodaysLiveMatches(_ *pb.StreamTodaysLiveMatchesRequest, stream pb.LiveMatchService_StreamTodaysLiveMatchesServer) error {
 	obvs := observer{update: func(matchFacts *common.MatchFacts) error {
-		if err := stream.Send(&pb.GetTodaysLiveMatchesResponse{Match: common.MatchFactsToGrpc(matchFacts)}); err != nil {
+		if err := stream.Send(&pb.StreamTodaysLiveMatchesResponse{Match: common.MatchFactsToGrpc(matchFacts)}); err != nil {
 			log.Error(stream.Context(), "error_sending_response", log.ErrorParam(err))
 			return status.Error(codes.Internal, "could not send response")
 		}

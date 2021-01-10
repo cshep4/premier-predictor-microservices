@@ -3,8 +3,8 @@ import {MatchFacts, matchFactsFromGrpc} from "../../model/live/matchFacts";
 import {SubscriptionContext, TokenContext, tokenMetadata} from "../../model/context/context";
 import {
     GetMatchRequest,
-    GetMatchResponse, ListTodaysMatchesResponse,
-    LiveMatchClient, MatchSummaryResponse,
+    MatchResponse, ListTodaysMatchesResponse,
+    LiveMatchClient,
     UpcomingMatchesGRPCResult,
     UpcomingMatchesResult
 } from "./client";
@@ -19,8 +19,8 @@ import {ClientReadableStream} from "grpc";
 
 export class LiveMatch {
     readonly todaysLiveMatchesEvent: string = "today";
-    private todaysMatchesStream: ClientReadableStream<GetMatchResponse>;
-    private matchStreams: Map<string, ClientReadableStream<GetMatchResponse>> = new Map<string, ClientReadableStream<GetMatchResponse>>();
+    private todaysMatchesStream: ClientReadableStream<MatchResponse>;
+    private matchStreams: Map<string, ClientReadableStream<MatchResponse>> = new Map<string, ClientReadableStream<MatchResponse>>();
 
     constructor(private client: LiveMatchClient, private pubsub: PubSub) {
         this.todaysMatchesStream = this.openTodaysLiveMatchesStream({token: ""});
@@ -33,7 +33,7 @@ export class LiveMatch {
 
     public getMatch(ctx: TokenContext, req: GetMatchRequest) {
         return new Promise((resolve: any, reject: any) => {
-            this.client.getLiveMatch(req, tokenMetadata(ctx), (err: grpc.ServiceError, res: GetMatchResponse) => {
+            this.client.getLiveMatch(req, tokenMetadata(ctx), (err: grpc.ServiceError, res: MatchResponse) => {
                 if (err) {
                     logger.error({
                         "message": "get_live_match_error",
@@ -115,7 +115,7 @@ export class LiveMatch {
         const event: string = uuid();
 
         // get live match and return
-        this.client.getLiveMatch({id: req.request.matchId}, tokenMetadata(ctx), (err: grpc.ServiceError, res: GetMatchResponse) => {
+        this.client.getLiveMatch({id: req.request.matchId}, tokenMetadata(ctx), (err: grpc.ServiceError, res: MatchResponse) => {
             if (err) {
                 logger.error({
                     "message": "get_live_match_error",
@@ -150,10 +150,10 @@ export class LiveMatch {
         return this.pubsub.asyncIterator([event, req.request.matchId]);
     }
 
-    private openLiveMatchStream(ctx: TokenContext, matchId: string): ClientReadableStream<MatchSummaryResponse> {
-        const call = this.client.getMatchSummary({matchId: matchId}, tokenMetadata(ctx));
+    private openLiveMatchStream(ctx: TokenContext, matchId: string): ClientReadableStream<MatchResponse> {
+        const call = this.client.streamLiveMatch({id: matchId}, tokenMetadata(ctx));
 
-        call.on('data', (res: GetMatchResponse) => {
+        call.on('data', (res: MatchResponse) => {
             this.pubsub.publish(matchId, {
                 liveMatchSummary: {
                     liveMatch: res.match ? matchFactsFromGrpc(res.match) : {},
@@ -180,9 +180,11 @@ export class LiveMatch {
                 },
             });
 
-            setTimeout(() => {
-                this.matchStreams.set(matchId, this.openLiveMatchStream(ctx, matchId));
-            }, 1000);
+            if (err.code != grpc.status.NOT_FOUND) {
+                setTimeout(() => {
+                    this.matchStreams.set(matchId, this.openLiveMatchStream(ctx, matchId));
+                }, 1000);
+            }
         });
 
         call.on('status', function (status: grpc.StatusObject) {
@@ -238,11 +240,11 @@ export class LiveMatch {
         return this.pubsub.asyncIterator([event, this.todaysLiveMatchesEvent]);
     }
 
-    private openTodaysLiveMatchesStream(ctx: TokenContext): ClientReadableStream<GetMatchResponse> {
-        let call = this.client.getTodaysLiveMatches({}, tokenMetadata(ctx));
+    private openTodaysLiveMatchesStream(ctx: TokenContext): ClientReadableStream<MatchResponse> {
+        let call = this.client.streamTodaysLiveMatches({}, tokenMetadata(ctx));
         const event = this.todaysLiveMatchesEvent;
 
-        call.on('data', (res: GetMatchResponse) => {
+        call.on('data', (res: MatchResponse) => {
             this.pubsub.publish(event, {
                 todaysLiveMatches: {
                     match: res.match ? matchFactsFromGrpc(res.match) : {},
