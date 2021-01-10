@@ -29,7 +29,7 @@ Premier League predictor app, designed for users to correctly predict all the sc
 - A scheduled AWS Lambda function is also used to automatically call an API to update match results, as well as user scores.
 - All match data is retrieved from an external API, the results are then used to compare against each user's predictions to assign points.
 
-## Service Architecture
+## Architecture
 
 | Application                                          | Language      | Transport     | Status                                                                                                                              | Description                                                                        |
 | ---------------------------------------------------- | ------------- | ------------- | ----------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
@@ -47,6 +47,8 @@ Premier League predictor app, designed for users to correctly predict all the sc
 | [userservice](./src/userservice)                     | Go            | REST, gRPC    | ![UserService](https://github.com/cshep4/premier-predictor-microservices/workflows/Build-Package-UserService/badge.svg)             | Retrieves and updates user details.                                                |
 
 ## Functions
+
+Accompanying serverless functions can be found [here](https://github.com/cshep4/premier-predictor-functions)
 
 #### Fixture Update
 

@@ -121,7 +121,7 @@ func start(ctx context.Context) error {
 				//grpc.WithUnaryInterceptor(tracer.GrpcUnary),
 				//grpc.WithStreamInterceptor(tracer.GrpcStream),
 				grpc.WithUnaryInterceptor(authenticator.GrpcUnary),
-				grpc.WithStreamInterceptor(authenticator.GrpcStream),
+				//grpc.WithStreamInterceptor(authenticator.GrpcStream),
 				grpc.WithRegisterer(rpc),
 			),
 		),

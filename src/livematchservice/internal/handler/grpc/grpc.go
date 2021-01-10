@@ -80,37 +80,31 @@ func (s *server) GetUpcomingMatches(_ *empty.Empty, stream pb.LiveMatchService_G
 }
 
 func (s *server) GetMatchSummary(req *pb.PredictionRequest, stream pb.LiveMatchService_GetMatchSummaryServer) error {
-	matchSummary, err := s.service.GetMatchSummary(stream.Context(), model.PredictionRequest{
-		UserId:  req.GetUserId(),
-		MatchId: req.GetMatchId(),
-	})
+	matchFacts, err := s.service.GetMatchFacts(stream.Context(), req.GetMatchId())
 	if err != nil {
 		log.Error(stream.Context(), "error_getting_match_summary",
 			log.ErrorParam(err),
 			log.SafeParam("matchId", req.GetMatchId()),
-			log.SafeParam("userId", req.GetUserId()),
+			//log.SafeParam("userId", req.GetUserId()),
 		)
 		return status.Error(codes.Internal, "could not get match summary")
 	}
-	res := model.MatchSummaryToGrpc(matchSummary)
 
-	if err := stream.Send(res); err != nil {
+	if err := stream.Send(&pb.MatchSummary{Match: common.MatchFactsToGrpc(matchFacts)}); err != nil {
 		log.Error(stream.Context(), "error_sending_response",
 			log.ErrorParam(err),
 			log.SafeParam("matchId", req.GetMatchId()),
-			log.SafeParam("userId", req.GetUserId()),
+			//log.SafeParam("userId", req.GetUserId()),
 		)
 		return status.Error(codes.Internal, "could not send response")
 	}
 
 	obvs := observer{update: func(matchFacts *common.MatchFacts) error {
-		res.Match = common.MatchFactsToGrpc(matchFacts)
-
-		if err := stream.Send(res); err != nil {
+		if err := stream.Send(&pb.MatchSummary{Match: common.MatchFactsToGrpc(matchFacts)}); err != nil {
 			log.Error(stream.Context(), "error_sending_response",
 				log.ErrorParam(err),
 				log.SafeParam("matchId", req.GetMatchId()),
-				log.SafeParam("userId", req.GetUserId()),
+				//log.SafeParam("userId", req.GetUserId()),
 			)
 			return status.Error(codes.Internal, "could not send response")
 		}
@@ -123,7 +117,7 @@ func (s *server) GetMatchSummary(req *pb.PredictionRequest, stream pb.LiveMatchS
 		log.Error(stream.Context(), "error_subscribing_to_live_match",
 			log.ErrorParam(err),
 			log.SafeParam("matchId", req.GetMatchId()),
-			log.SafeParam("userId", req.GetUserId()),
+			//log.SafeParam("userId", req.GetUserId()),
 		)
 		return status.Error(codes.Internal, "could not subscribe to live match")
 	}

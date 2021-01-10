@@ -36,8 +36,12 @@ const resolvers: any = {
     },
     Subscription: {
         upcomingMatches: {subscribe: (_obj: any, args: any, context: SubscriptionContext) => liveMatch.getUpcomingMatches(_obj, args, context)},
-        liveMatchSummary: {subscribe: (_obj: any, args: any, context: SubscriptionContext) => liveMatch.getMatchSummary(_obj, args, context)},
+        liveMatchSummary: {subscribe: (_obj: any, args: any, context: SubscriptionContext) => liveMatch.getLiveMatchSummary(_obj, args, context)},
         todaysLiveMatches: {subscribe: (_obj: any, args: any, context: SubscriptionContext) => liveMatch.getTodaysLiveMatches(_obj, args, context)},
+    },
+    LiveMatchSummary: {
+        predictionSummary: (parent: PredictionSummaryRequest, args: any, context: TokenContext) => prediction.getPredictionSummary(context, parent),
+        prediction: (parent: PredictionRequest, args: any, context: TokenContext) => prediction.getPrediction(context, parent),
     },
     HomeFeed: {
         score: (parent: GetMatchRequest, args: any, context: TokenContext) => user.getUserScore(context, parent),

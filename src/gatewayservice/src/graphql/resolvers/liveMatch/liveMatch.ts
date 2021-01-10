@@ -12,10 +12,23 @@ import {logger} from "../../log/logger";
 import {secondsToDateString} from "../../util/dateUtils";
 import {PubSub} from "graphql-subscriptions";
 import {handleSubscription, withCancel} from "../../util/subsciptionUtils";
+import {v4 as uuid} from 'uuid';
+import schedule from 'node-schedule';
+import {ClientReadableStream} from "grpc";
 
 
 export class LiveMatch {
+    readonly todaysLiveMatchesEvent: string = "today";
+    private todaysMatchesStream: ClientReadableStream<GetMatchResponse>;
+    private matchStreams: Map<string, ClientReadableStream<GetMatchResponse>> = new Map<string, ClientReadableStream<GetMatchResponse>>();
+
     constructor(private client: LiveMatchClient, private pubsub: PubSub) {
+        this.todaysMatchesStream = this.openTodaysLiveMatchesStream({token: ""});
+
+        schedule.scheduleJob('0 1 * * *', () => {
+            this.todaysMatchesStream.cancel();
+            this.todaysMatchesStream = this.openTodaysLiveMatchesStream({token: ""});
+        });
     }
 
     public getMatch(ctx: TokenContext, req: GetMatchRequest) {
@@ -98,54 +111,176 @@ export class LiveMatch {
         });
     };
 
-    public getMatchSummary(_obj: any, req: any, ctx: SubscriptionContext) {
-        const event = req.request.matchId;
-        const pubsub = new PubSub();
+    public getLiveMatchSummary(_obj: any, req: any, ctx: SubscriptionContext) {
+        const event: string = uuid();
 
-        const call = this.client.getMatchSummary(req.request, tokenMetadata(ctx));
-
-        handleSubscription(ctx.webSocket, call, function (res: MatchSummaryResponse) {
-            pubsub.publish(event, {
-                liveMatchSummary: {
-                    liveMatch: res.match ? matchFactsFromGrpc(res.match) : null,
-                    predictionSummary: {
-                        homeWin: res.predictionSummary.homeWin ? res.predictionSummary.homeWin : 0,
-                        draw: res.predictionSummary.draw ? res.predictionSummary.draw : 0,
-                        awayWin: res.predictionSummary.awayWin ? res.predictionSummary.awayWin : 0,
+        // get live match and return
+        this.client.getLiveMatch({id: req.request.matchId}, tokenMetadata(ctx), (err: grpc.ServiceError, res: GetMatchResponse) => {
+            if (err) {
+                logger.error({
+                    "message": "get_live_match_error",
+                    "error": {
+                        "code": err.code,
+                        "details": err.details,
+                        "message": err.message,
                     },
-                    prediction: res.prediction ? {
-                        userId: res.prediction.userId,
-                        matchId: res.prediction.matchId,
-                        hGoals: res.prediction.hGoals ? res.prediction.hGoals : 0,
-                        aGoals: res.prediction.aGoals ? res.prediction.aGoals : 0,
-                    } : null,
+                    "matchId": req.request.matchId,
+                });
+                ctx.webSocket.close(1011);
+                return;
+            }
+
+            if (!res) {
+                return;
+            }
+
+            this.pubsub.publish(event, {
+                liveMatchSummary: {
+                    liveMatch: res.match ? matchFactsFromGrpc(res.match) : {},
+                    userId: req.request.userId,
+                    matchId: req.request.matchId,
                 }
             });
         });
 
-        return withCancel(pubsub.asyncIterator([event]), () => {
-            call.cancel();
-            console.log(`Subscription closed, do your cleanup`);
+        if (!this.matchStreams.has(req.request.matchId)) {
+            this.matchStreams.set(req.request.matchId, this.openLiveMatchStream(ctx, req.request.matchId));
+        }
+
+        return this.pubsub.asyncIterator([event, req.request.matchId]);
+    }
+
+    private openLiveMatchStream(ctx: TokenContext, matchId: string): ClientReadableStream<MatchSummaryResponse> {
+        const call = this.client.getMatchSummary({matchId: matchId}, tokenMetadata(ctx));
+
+        call.on('data', (res: GetMatchResponse) => {
+            this.pubsub.publish(matchId, {
+                liveMatchSummary: {
+                    liveMatch: res.match ? matchFactsFromGrpc(res.match) : {},
+                    matchId: matchId,
+                }
+            });
         });
+
+        call.on('end', () => {
+            logger.info({
+                "message": "stream_todays_matches_end",
+                "matchId": matchId,
+            });
+        });
+
+        call.on('error', (err: grpc.ServiceError) => {
+            logger.error({
+                "message": "get_match_summary_error",
+                "matchId": matchId,
+                "error": {
+                    "code": err.code,
+                    "details": err.details,
+                    "message": err.message,
+                },
+            });
+
+            setTimeout(() => {
+                this.matchStreams.set(matchId, this.openLiveMatchStream(ctx, matchId));
+            }, 1000);
+        });
+
+        call.on('status', function (status: grpc.StatusObject) {
+            logger.info({
+                "message": "get_match_summary_status",
+                "matchId": matchId,
+                "status": {
+                    "code": status.code,
+                    "details": status.details,
+                },
+            });
+        });
+
+        return call;
     }
 
     public getTodaysLiveMatches(_obj: any, req: any, ctx: SubscriptionContext) {
-        const event = "today";
-        const pubsub = new PubSub();
+        const event: string = uuid();
 
-        const call = this.client.getTodaysLiveMatches({}, tokenMetadata(ctx));
+        // get today's matches and return
+        this.client.listTodaysMatches({}, tokenMetadata(ctx), (err: grpc.ServiceError, res: ListTodaysMatchesResponse) => {
+            if (err) {
+                logger.error({
+                    "message": "list_todays_matches_error",
+                    "error": {
+                        "code": err.code,
+                        "details": err.details,
+                        "message": err.message,
+                    },
+                });
+                this.pubsub.publish(event, {
+                    error: err.message,
+                });
+                ctx.webSocket.close(1011);
+                return;
+            }
 
-        handleSubscription(ctx.webSocket, call, function (res: GetMatchResponse) {
-            pubsub.publish(event, {
-                todaysLiveMatches: {
-                    match: res.match ? matchFactsFromGrpc(res.match): {},
+            if (!res.matches) {
+                return;
+            }
+
+            res.matches.forEach(m => {
+                if (m) {
+                    this.pubsub.publish(event, {
+                        todaysLiveMatches: {
+                            match: matchFactsFromGrpc(m),
+                        }
+                    });
                 }
             });
         });
 
-        return withCancel(pubsub.asyncIterator([event]), () => {
-            call.cancel();
-            console.log(`Subscription closed, do your cleanup`);
+        return this.pubsub.asyncIterator([event, this.todaysLiveMatchesEvent]);
+    }
+
+    private openTodaysLiveMatchesStream(ctx: TokenContext): ClientReadableStream<GetMatchResponse> {
+        let call = this.client.getTodaysLiveMatches({}, tokenMetadata(ctx));
+        const event = this.todaysLiveMatchesEvent;
+
+        call.on('data', (res: GetMatchResponse) => {
+            this.pubsub.publish(event, {
+                todaysLiveMatches: {
+                    match: res.match ? matchFactsFromGrpc(res.match) : {},
+                }
+            });
         });
+
+        call.on('end', () => {
+            logger.info("stream_todays_matches_end");
+        });
+
+        call.on('error', (err: grpc.ServiceError) => {
+            logger.error({
+                "message": "stream_todays_matches_error",
+                "error": {
+                    "code": err.code,
+                    "details": err.details,
+                    "message": err.message,
+                },
+            });
+
+            if (err.code != grpc.status.CANCELLED) {
+                setTimeout(() => {
+                    this.todaysMatchesStream = this.openTodaysLiveMatchesStream(ctx);
+                }, 1000);
+            }
+        });
+
+        call.on('status', function (status: grpc.StatusObject) {
+            logger.info({
+                "message": "stream_todays_matches_status",
+                "status": {
+                    "code": status.code,
+                    "details": status.details,
+                },
+            });
+        });
+
+        return call;
     }
 }

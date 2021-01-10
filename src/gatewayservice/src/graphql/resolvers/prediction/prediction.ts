@@ -42,9 +42,12 @@ export class Prediction {
 
     public getPrediction(ctx: TokenContext, req: PredictionRequest) {
         return new Promise((resolve: any, reject: any) => {
+            if (!req.userId || !req.matchId) {
+                return resolve();
+            }
             this.client.getPrediction(req, tokenMetadata(ctx, req.userId), (err: grpc.ServiceError, res: PredictionResponse) => {
                 if (err) {
-                    if (err.code != 5) {
+                    if (err.code != grpc.status.NOT_FOUND) {
                         logger.error({
                             "message": "get_prediction_error",
                             "error": {

@@ -51,7 +51,16 @@ func (s *service) GetMatchSummary(ctx context.Context, req model.PredictionReque
 	matchPredictionSummaryChan := make(chan *common.MatchPredictionSummary)
 	matchFactsChan := make(chan *common.MatchFacts)
 
-	g, _ := errgroup.WithContext(ctx)
+	g, ctx := errgroup.WithContext(ctx)
+
+	g.Go(func() error {
+		m, err := s.store.GetMatchFacts(ctx, req.MatchId)
+		matchFactsChan <- m
+		if err != nil {
+			return fmt.Errorf("get match facts: %w", err)
+		}
+		return nil
+	})
 
 	g.Go(func() error {
 		p, err := s.predictor.GetPrediction(ctx, req)
@@ -71,15 +80,6 @@ func (s *service) GetMatchSummary(ctx context.Context, req model.PredictionReque
 		return nil
 	})
 
-	g.Go(func() error {
-		m, err := s.store.GetMatchFacts(ctx, req.MatchId)
-		matchFactsChan <- m
-		if err != nil {
-			return fmt.Errorf("get match facts: %w", err)
-		}
-		return nil
-	})
-
 	prediction := <-predictionChan
 	matchPredictionSummary := <-matchPredictionSummaryChan
 	matchFacts := <-matchFactsChan
@@ -87,6 +87,10 @@ func (s *service) GetMatchSummary(ctx context.Context, req model.PredictionReque
 	err := g.Wait()
 	if err != nil && !errors.Is(err, predictor.ErrPredictionNotFound) {
 		return nil, err
+	}
+
+	if matchFacts == nil {
+		return nil, model.ErrMatchNotFound
 	}
 
 	return &model.MatchSummary{
@@ -148,6 +152,10 @@ func (s *service) SubscribeToTodaysMatches(ctx context.Context, observer model.M
 	matches, err := s.store.GetTodaysMatches(ctx)
 	if err != nil {
 		return fmt.Errorf("get_todays_matches: %w", err)
+	}
+
+	if len(matches) == 0 {
+		return nil
 	}
 
 	observable := model.MatchObservable{}
