@@ -25,7 +25,7 @@ export class User {
                     return reject(err.message);
                 }
 
-                resolve(res.user.score);
+                resolve(res.user.score ? res.user.score : 0);
             });
         });
     };
