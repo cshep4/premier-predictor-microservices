@@ -64,7 +64,7 @@ jobs:
         with:
           namespace: 'default'
           secret-type: 'generic'
-          arguments: --from-literal=jwtSecret=${{ secrets.JWT_SECRET }} --from-literal=dbScheme=${{ secrets.DB_SCHEME }} --from-literal=dbUser=${{ secrets.DB_USER }} --from-literal=dbPassword=${{ secrets.DB_PASSWORD }} --from-literal=dbHost=${{ secrets.DB_HOST }} --from-literal=emailUrl=${{ secrets.EMAIL_URL }}
+          arguments: --from-literal=jwtSecret=${{ secrets.JWT_SECRET }} --from-literal=dbScheme=${{ secrets.DB_SCHEME }} --from-literal=dbUser=${{ secrets.DB_USER }} --from-literal=dbPassword=${{ secrets.DB_PASSWORD }} --from-literal=dbHost=${{ secrets.DB_HOST }} --from-literal=emailUrl=${{ secrets.EMAIL_URL }} --from-literal=awsAccessKey=${{ secrets.AWS_ACCESS_KEY }} --from-literal=awsAccountId=${{ secrets.AWS_ACCOUNT_ID }} --from-literal=awsSecretKey=${{ secrets.AWS_SECRET_KEY }}
           secret-name: pp-secrets
 
       - name: Deploy Services

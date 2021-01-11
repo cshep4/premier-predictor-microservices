@@ -89,7 +89,7 @@ export class Prediction {
                         },
                         "userId": req.userId,
                     });
-                    return resolve(err.message);
+                    return reject(err.message);
                 }
 
                 const predictions = res.predictions ? res.predictions

@@ -27,7 +27,7 @@ export class Home {
                         pin: l.pin.toNumber(),
                         rank: l.rank.toNumber(),
                     })) : [],
-                    rank: res.rank.toNumber(),
+                    rank: res.rank ? res.rank.toNumber() : -1,
                     messages: [
                         "test message"
                     ],
@@ -52,7 +52,7 @@ export class Home {
                 this.prediction.getUserPredictions(ctx, req).then(res => {
                     const fp = futureFixtures.slice(0, 20)
                         .map(f => {
-                            const p = this.getPrediction(res, f.id);
+                            const p = this.findPrediction(res, f.id);
                             if (!p) {
                                 return f;
                             }
@@ -81,7 +81,7 @@ export class Home {
         });
     }
 
-    private getPrediction(res: [UserPrediction], id: string) {
+    private findPrediction(res: [UserPrediction], id: string) {
         for (let i = 0; i < res.length; i++) {
             if (id === res[i].matchId) {
                 return res[i];

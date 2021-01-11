@@ -7,11 +7,18 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/cshep4/premier-predictor-microservices/src/userservice/internal/event"
 	grpchandler "github.com/cshep4/premier-predictor-microservices/src/userservice/internal/handler/grpc"
 	httphandler "github.com/cshep4/premier-predictor-microservices/src/userservice/internal/handler/http"
+	usersaga "github.com/cshep4/premier-predictor-microservices/src/userservice/internal/saga"
 	svc "github.com/cshep4/premier-predictor-microservices/src/userservice/internal/service"
 	mongoStore "github.com/cshep4/premier-predictor-microservices/src/userservice/internal/store/mongo"
 
+	awsconfig "github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/sns"
+	"github.com/cshep4/data-structures/saga"
 	gen "github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen"
 	"github.com/cshep4/premier-predictor-microservices/src/common/app"
 	"github.com/cshep4/premier-predictor-microservices/src/common/auth"
@@ -29,14 +36,22 @@ const (
 
 func start(ctx context.Context) error {
 	var (
-		authAddr    string
-		httpPortEnv string
-		grpcPortEnv string
+		authAddr     string
+		httpPortEnv  string
+		grpcPortEnv  string
+		awsRegion    string
+		awsAccessKey string
+		awsSecretKey string
+		awsAccountID string
 	)
 	for k, v := range map[string]*string{
-		"AUTH_ADDR": &authAddr,
-		"HTTP_PORT": &httpPortEnv,
-		"PORT":      &grpcPortEnv,
+		"AUTH_ADDR":       &authAddr,
+		"HTTP_PORT":       &httpPortEnv,
+		"PORT":            &grpcPortEnv,
+		"AWS_REGION":      &awsRegion,
+		"AWS_ACCESS_KEY":  &awsAccessKey,
+		"AWS_SECREET_KEY": &awsSecretKey,
+		"AWS_ACCOUNT_ID":  &awsAccountID,
 	} {
 		var ok bool
 		if *v, ok = os.LookupEnv(k); !ok {
@@ -72,7 +87,28 @@ func start(ctx context.Context) error {
 	}
 	defer store.Close(ctx)
 
-	service, err := svc.New(store)
+	runner, err := saga.New(
+		saga.ErrHandler(usersaga.ErrorHandler{}),
+		saga.RollbackHandler(usersaga.RollbackHandler{}),
+	)
+	if err != nil {
+		return fmt.Errorf("failed to create saga runner: %w", err)
+	}
+
+	sess, err := session.NewSession(&awsconfig.Config{
+		Credentials: credentials.NewStaticCredentials(awsAccessKey, awsSecretKey, ""),
+		Region:      &awsRegion,
+	})
+	if err != nil {
+		return fmt.Errorf("failed to create aws session: %w", err)
+	}
+
+	service, err := svc.New(
+		store,
+		runner,
+		sns.New(sess),
+		event.BuildTopic(awsRegion, awsAccountID, "UserCreated"),
+	)
 	if err != nil {
 		return fmt.Errorf("failed to create service: %w", err)
 	}
@@ -106,7 +142,7 @@ func start(ctx context.Context) error {
 				//grpc.WithUnaryInterceptor(tracer.GrpcUnary),
 				//grpc.WithStreamInterceptor(tracer.GrpcStream),
 				grpc.WithUnaryInterceptor(authenticator.GrpcUnary),
-				grpc.WithStreamInterceptor(authenticator.GrpcStream),
+				//grpc.WithStreamInterceptor(authenticator.GrpcStream),
 				grpc.WithRegisterer(rpc),
 			),
 		),

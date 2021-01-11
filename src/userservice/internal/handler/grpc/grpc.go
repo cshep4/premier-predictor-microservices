@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/cshep4/premier-predictor-microservices/src/userservice/internal/handler"
 	"github.com/cshep4/premier-predictor-microservices/src/userservice/internal/model"
+	"github.com/cshep4/premier-predictor-microservices/src/userservice/internal/service"
 
 	gen "github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen"
 	"github.com/cshep4/premier-predictor-microservices/src/common/log"
@@ -17,7 +17,7 @@ import (
 
 type (
 	server struct {
-		service handler.Service
+		service user.Service
 	}
 
 	// InvalidParameterError is returned when a required parameter passed to New is invalid.
@@ -30,7 +30,7 @@ func (i InvalidParameterError) Error() string {
 	return fmt.Sprintf("invalid parameter %s", i.Parameter)
 }
 
-func New(service handler.Service) (*server, error) {
+func New(service user.Service) (*server, error) {
 	if service == nil {
 		return nil, InvalidParameterError{Parameter: "service"}
 	}
@@ -150,7 +150,7 @@ func (s *server) UpdateSignature(ctx context.Context, req *gen.UpdateSignatureRe
 }
 
 func (s *server) Create(ctx context.Context, req *gen.CreateRequest) (*gen.CreateResponse, error) {
-	id, err := s.service.StoreUser(ctx, model.UserFromCreateReq(*req))
+	id, err := s.service.CreateUser(ctx, model.UserFromCreateReq(*req))
 	if err != nil {
 		log.Error(ctx, "error_creating_user", log.ErrorParam(err))
 		return nil, status.Error(codes.Internal, "could not create user")

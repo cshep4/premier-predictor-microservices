@@ -23,6 +23,22 @@ const (
 var ErrCannotCreateObjectId = errors.New("cannot create objectId")
 
 type (
+	Store interface {
+		GetUserById(ctx context.Context, id string) (*model.User, error)
+		GetUserByEmail(ctx context.Context, email string) (*model.User, error)
+		UpdateUserInfo(ctx context.Context, userInfo model.UserInfo) error
+		UpdatePassword(ctx context.Context, id, password string) error
+		UpdateSignature(ctx context.Context, id, signature string) error
+		GetAllUsers(ctx context.Context) ([]*model.User, error)
+		GetAllUsersByIds(ctx context.Context, ids []string) ([]*model.User, error)
+		IsEmailTakenByADifferentUser(ctx context.Context, id, email string) bool
+		GetOverallRank(ctx context.Context, id string) (int64, error)
+		GetRankForGroup(ctx context.Context, id string, ids []string) (int64, error)
+		GetUserCount(ctx context.Context) (int64, error)
+		StoreUser(ctx context.Context, user model.User) (string, error)
+		DeleteUser(ctx context.Context, id string) error
+	}
+
 	store struct {
 		client *mongo.Client
 	}
@@ -451,6 +467,35 @@ func (s *store) GetUserByEmail(ctx context.Context, email string) (*model.User, 
 	}
 
 	return toUser(u), nil
+}
+
+func (s *store) DeleteUser(ctx context.Context, id string) error {
+	objectId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return ErrCannotCreateObjectId
+	}
+
+	res, err := s.client.
+		Database(db).
+		Collection(collection).
+		DeleteOne(
+			ctx,
+			bson.D{
+				{
+					Key:   "_id",
+					Value: objectId,
+				},
+			},
+		)
+	if err != nil {
+		return fmt.Errorf("delete_one: %w", err)
+	}
+
+	if res.DeletedCount == 0 {
+		return model.ErrUserNotFound
+	}
+
+	return nil
 }
 
 func contains(s []string, e string) bool {

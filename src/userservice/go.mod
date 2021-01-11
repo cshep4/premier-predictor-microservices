@@ -3,6 +3,8 @@ module github.com/cshep4/premier-predictor-microservices/src/userservice
 go 1.15
 
 require (
+	github.com/aws/aws-sdk-go v1.34.28
+	github.com/cshep4/data-structures v1.1.0
 	github.com/cshep4/premier-predictor-microservices/proto-gen/model/gen v0.0.1
 	github.com/cshep4/premier-predictor-microservices/src/common v0.0.3
 	github.com/golang/mock v1.4.4

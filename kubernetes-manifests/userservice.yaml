@@ -50,6 +50,21 @@ spec:
                 secretKeyRef:
                   name: pp-secrets
                   key: dbHost
+            - name: AWS_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: pp-secrets
+                  key: awsAccessKey
+            - name: AWS_ACCOUNT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: pp-secrets
+                  key: awsAccountId
+            - name: AWS_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: pp-secrets
+                  key: awsSecretKey
           readinessProbe:
             httpGet:
               path: /health

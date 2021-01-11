@@ -9,8 +9,8 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/cshep4/premier-predictor-microservices/src/userservice/internal/handler"
 	"github.com/cshep4/premier-predictor-microservices/src/userservice/internal/model"
+	"github.com/cshep4/premier-predictor-microservices/src/userservice/internal/service"
 
 	"github.com/cshep4/premier-predictor-microservices/src/common/log"
 	"github.com/gorilla/mux"
@@ -22,7 +22,7 @@ type (
 	}
 
 	router struct {
-		service handler.Service
+		service user.Service
 	}
 
 	// InvalidParameterError is returned when a required parameter passed to New is invalid.
@@ -35,7 +35,7 @@ func (i InvalidParameterError) Error() string {
 	return fmt.Sprintf("invalid parameter %s", i.Parameter)
 }
 
-func New(service handler.Service) (*router, error) {
+func New(service user.Service) (*router, error) {
 	if service == nil {
 		return nil, InvalidParameterError{Parameter: "service"}
 	}
@@ -162,7 +162,7 @@ func (h *router) storeLegacyUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err := h.service.StoreUser(r.Context(), user)
+	_, err := h.service.CreateUser(r.Context(), user)
 	switch {
 	case err == nil:
 		// 200 OK

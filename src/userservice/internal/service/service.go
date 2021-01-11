@@ -2,14 +2,19 @@ package user
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"github.com/cshep4/premier-predictor-microservices/src/userservice/internal/saga/process"
 	"regexp"
 	"strings"
 	"unicode"
 
-	"github.com/cshep4/premier-predictor-microservices/src/userservice/internal/model"
-
+	"github.com/cshep4/data-structures/saga"
 	"golang.org/x/crypto/bcrypt"
+
+	"github.com/cshep4/premier-predictor-microservices/src/userservice/internal/event"
+	"github.com/cshep4/premier-predictor-microservices/src/userservice/internal/model"
+	"github.com/cshep4/premier-predictor-microservices/src/userservice/internal/store/mongo"
 )
 
 const (
@@ -17,23 +22,27 @@ const (
 )
 
 type (
-	Store interface {
+	Service interface {
 		GetUserById(ctx context.Context, id string) (*model.User, error)
 		GetUserByEmail(ctx context.Context, email string) (*model.User, error)
-		UpdateUserInfo(ctx context.Context, userInfo model.UserInfo) error
-		UpdatePassword(ctx context.Context, id, password string) error
-		UpdateSignature(ctx context.Context, id, signature string) error
+		UpdateUserInfo(ctx context.Context, userDetails model.UserInfo) error
+		UpdateUserPassword(ctx context.Context, updatePassword model.UpdatePassword) error
+		GetUserScore(ctx context.Context, id string) (int, error)
 		GetAllUsers(ctx context.Context) ([]*model.User, error)
 		GetAllUsersByIds(ctx context.Context, ids []string) ([]*model.User, error)
-		IsEmailTakenByADifferentUser(ctx context.Context, id, email string) bool
-		GetOverallRank(ctx context.Context, id string) (int64, error)
 		GetRankForGroup(ctx context.Context, id string, ids []string) (int64, error)
+		GetOverallRank(ctx context.Context, id string) (int64, error)
 		GetUserCount(ctx context.Context) (int64, error)
-		StoreUser(ctx context.Context, user model.User) (string, error)
+		CreateUser(ctx context.Context, user model.User) (string, error)
+		UpdatePassword(ctx context.Context, id, password string) error
+		UpdateSignature(ctx context.Context, id, signature string) error
 	}
 
 	service struct {
-		store Store
+		store            mongo.Store
+		runner           saga.Runner
+		publisher        event.Publisher
+		userCreatedTopic string
 	}
 
 	// InvalidParameterError is returned when a required parameter passed to New is invalid.
@@ -46,13 +55,23 @@ func (i InvalidParameterError) Error() string {
 	return fmt.Sprintf("invalid parameter %s", i.Parameter)
 }
 
-func New(store Store) (*service, error) {
-	if store == nil {
+func New(store mongo.Store, runner saga.Runner, publisher event.Publisher, userCreatedTopic string) (*service, error) {
+	switch {
+	case store == nil:
 		return nil, InvalidParameterError{Parameter: "store"}
+	case runner == nil:
+		return nil, InvalidParameterError{Parameter: "runner"}
+	case publisher == nil:
+		return nil, InvalidParameterError{Parameter: "publisher"}
+	case userCreatedTopic == "":
+		return nil, InvalidParameterError{Parameter: "userCreatedTopic"}
 	}
 
 	return &service{
-		store: store,
+		store:            store,
+		runner:           runner,
+		publisher:        publisher,
+		userCreatedTopic: userCreatedTopic,
 	}, nil
 }
 
@@ -184,10 +203,33 @@ func (s *service) GetUserCount(ctx context.Context) (int64, error) {
 	return count, nil
 }
 
-func (s *service) StoreUser(ctx context.Context, user model.User) (string, error) {
-	id, err := s.store.StoreUser(ctx, user)
+func (s *service) CreateUser(ctx context.Context, user model.User) (string, error) {
+	storeUser, err := process.NewStoreUser(s.store, user)
 	if err != nil {
-		return "", fmt.Errorf("store_user: %w", err)
+		return "", fmt.Errorf("cannot create store_user process: %w", err)
+	}
+
+	publishEvent, err := process.NewPublishEvent(s.publisher, s.userCreatedTopic, user)
+	if err != nil {
+		return "", fmt.Errorf("cannot create publish_event process: %w", err)
+	}
+
+	results, err := s.runner.Run(ctx,
+		storeUser,
+		publishEvent,
+	)
+	if err != nil {
+		return "", fmt.Errorf("cannot run saga processes: %w", err)
+	}
+
+	res, ok := results["store_user"]
+	if !ok {
+		return "", errors.New("cannot find store_user result")
+	}
+
+	id, ok := res.(string)
+	if !ok {
+		return "", fmt.Errorf("invalid store_user result: %v", res)
 	}
 
 	return id, nil
