@@ -50,6 +50,8 @@ spec:
                 secretKeyRef:
                   name: pp-secrets
                   key: dbHost
+            - name: AWS_REGION
+              value: "us-east-1"
             - name: AWS_ACCESS_KEY
               valueFrom:
                 secretKeyRef:
