@@ -45,13 +45,13 @@ func start(ctx context.Context) error {
 		awsAccountID string
 	)
 	for k, v := range map[string]*string{
-		"AUTH_ADDR":       &authAddr,
-		"HTTP_PORT":       &httpPortEnv,
-		"PORT":            &grpcPortEnv,
-		"AWS_REGION":      &awsRegion,
-		"AWS_ACCESS_KEY":  &awsAccessKey,
-		"AWS_SECREET_KEY": &awsSecretKey,
-		"AWS_ACCOUNT_ID":  &awsAccountID,
+		"AUTH_ADDR":      &authAddr,
+		"HTTP_PORT":      &httpPortEnv,
+		"PORT":           &grpcPortEnv,
+		"AWS_REGION":     &awsRegion,
+		"AWS_ACCESS_KEY": &awsAccessKey,
+		"AWS_SECRET_KEY": &awsSecretKey,
+		"AWS_ACCOUNT_ID": &awsAccountID,
 	} {
 		var ok bool
 		if *v, ok = os.LookupEnv(k); !ok {

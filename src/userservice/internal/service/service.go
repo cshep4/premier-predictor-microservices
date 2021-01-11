@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/cshep4/premier-predictor-microservices/src/userservice/internal/saga/process"
 	"regexp"
 	"strings"
 	"unicode"
@@ -14,6 +13,7 @@ import (
 
 	"github.com/cshep4/premier-predictor-microservices/src/userservice/internal/event"
 	"github.com/cshep4/premier-predictor-microservices/src/userservice/internal/model"
+	"github.com/cshep4/premier-predictor-microservices/src/userservice/internal/saga/process"
 	"github.com/cshep4/premier-predictor-microservices/src/userservice/internal/store/mongo"
 )
 
