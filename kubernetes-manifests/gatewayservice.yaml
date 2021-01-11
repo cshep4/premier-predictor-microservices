@@ -19,7 +19,7 @@ spec:
         - name: github-packages-secret
       containers:
         - name: gatewayservice-app
-          image: docker.pkg.github.com/cshep4/premier-predictor-microservices/gatewayservice:v0.1.2
+          image: docker.pkg.github.com/cshep4/premier-predictor-microservices/gatewayservice:v0.1.3
           ports:
             - name: http
               containerPort: 4000
