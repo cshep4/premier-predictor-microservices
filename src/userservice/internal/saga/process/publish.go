@@ -23,24 +23,28 @@ type (
 		PredictedWinner string `json:"predictedWinner"`
 	}
 	publishEvent struct {
-		topic     string
-		publisher event.Publisher
-		user      model.User
+		topic           string
+		publisher       event.Publisher
+		user            model.User
+		previousProcess string
 	}
 )
 
-func NewPublishEvent(publisher event.Publisher, topic string, user model.User) (*publishEvent, error) {
+func NewPublishEvent(publisher event.Publisher, topic string, user model.User, previousProcess string) (*publishEvent, error) {
 	switch {
 	case publisher == nil:
 		return nil, InvalidParameterError{Parameter: "publisher"}
 	case topic == "":
 		return nil, InvalidParameterError{Parameter: "topic"}
+	case previousProcess == "":
+		return nil, InvalidParameterError{Parameter: "topic"}
 	}
 
 	return &publishEvent{
-		publisher: publisher,
-		topic:     topic,
-		user:      user,
+		publisher:       publisher,
+		topic:           topic,
+		user:            user,
+		previousProcess: previousProcess,
 	}, nil
 }
 
@@ -49,9 +53,9 @@ func (p publishEvent) Name() string {
 }
 
 func (p publishEvent) Execute(ctx context.Context, results map[string]saga.Result) (saga.Result, error) {
-	res, ok := results["store_user"]
+	res, ok := results[p.previousProcess]
 	if !ok {
-		return nil, errors.New("cannot find store_user result")
+		return nil, errors.New("cannot find previous process result")
 	}
 
 	id, ok := res.(string)

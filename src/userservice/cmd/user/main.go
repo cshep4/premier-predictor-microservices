@@ -108,6 +108,7 @@ func start(ctx context.Context) error {
 		runner,
 		sns.New(sess),
 		event.BuildTopic(awsRegion, awsAccountID, "UserCreated"),
+		event.BuildTopic(awsRegion, awsAccountID, "UserUpdated"),
 	)
 	if err != nil {
 		return fmt.Errorf("failed to create service: %w", err)

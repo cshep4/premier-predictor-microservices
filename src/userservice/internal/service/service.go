@@ -43,6 +43,7 @@ type (
 		runner           saga.Runner
 		publisher        event.Publisher
 		userCreatedTopic string
+		userUpdatedTopic string
 	}
 
 	// InvalidParameterError is returned when a required parameter passed to New is invalid.
@@ -55,7 +56,7 @@ func (i InvalidParameterError) Error() string {
 	return fmt.Sprintf("invalid parameter %s", i.Parameter)
 }
 
-func New(store mongo.Store, runner saga.Runner, publisher event.Publisher, userCreatedTopic string) (*service, error) {
+func New(store mongo.Store, runner saga.Runner, publisher event.Publisher, userCreatedTopic, userUpdatedTopic string) (*service, error) {
 	switch {
 	case store == nil:
 		return nil, InvalidParameterError{Parameter: "store"}
@@ -65,6 +66,8 @@ func New(store mongo.Store, runner saga.Runner, publisher event.Publisher, userC
 		return nil, InvalidParameterError{Parameter: "publisher"}
 	case userCreatedTopic == "":
 		return nil, InvalidParameterError{Parameter: "userCreatedTopic"}
+	case userUpdatedTopic == "":
+		return nil, InvalidParameterError{Parameter: "userUpdatedTopic"}
 	}
 
 	return &service{
@@ -98,9 +101,36 @@ func (s *service) UpdateUserInfo(ctx context.Context, userInfo model.UserInfo) e
 		return model.InvalidParameterError{Parameter: "surname"}
 	}
 
-	err := s.store.UpdateUserInfo(ctx, userInfo)
+	user, err := s.store.GetUserById(ctx, userInfo.Id)
 	if err != nil {
-		return fmt.Errorf("update_user_info: %w", err)
+		return fmt.Errorf("cannot get existing user: %w", err)
+	}
+
+	updateUser, err := process.NewUpdateUser(s.store, userInfo, model.UserInfo{
+		Id:        user.Id,
+		FirstName: user.FirstName,
+		Surname:   user.Surname,
+		Email:     user.Email,
+	})
+	if err != nil {
+		return fmt.Errorf("cannot create update_user process: %w", err)
+	}
+
+	user.FirstName = userInfo.FirstName
+	user.Surname = userInfo.Surname
+	user.Email = userInfo.Email
+
+	publishEvent, err := process.NewPublishEvent(s.publisher, s.userUpdatedTopic, *user, "update_user")
+	if err != nil {
+		return fmt.Errorf("cannot create publish_event process: %w", err)
+	}
+
+	_, err = s.runner.Run(ctx,
+		updateUser,
+		publishEvent,
+	)
+	if err != nil {
+		return fmt.Errorf("cannot run saga processes: %w", err)
 	}
 
 	return nil
@@ -209,7 +239,7 @@ func (s *service) CreateUser(ctx context.Context, user model.User) (string, erro
 		return "", fmt.Errorf("cannot create store_user process: %w", err)
 	}
 
-	publishEvent, err := process.NewPublishEvent(s.publisher, s.userCreatedTopic, user)
+	publishEvent, err := process.NewPublishEvent(s.publisher, s.userCreatedTopic, user, "store_user")
 	if err != nil {
 		return "", fmt.Errorf("cannot create publish_event process: %w", err)
 	}
