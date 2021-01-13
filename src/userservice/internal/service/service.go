@@ -75,6 +75,7 @@ func New(store mongo.Store, runner saga.Runner, publisher event.Publisher, userC
 		runner:           runner,
 		publisher:        publisher,
 		userCreatedTopic: userCreatedTopic,
+		userUpdatedTopic: userUpdatedTopic,
 	}, nil
 }
 
