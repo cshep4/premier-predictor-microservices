@@ -1,3 +1,4 @@
+import 'package:premier_predictor/model/fixture.dart';
 import 'package:premier_predictor/model/todo.dart';
 
 abstract class HomeItem {}
@@ -18,4 +19,8 @@ class EducationItem extends HomeItem {}
 
 class TodaysMatchesItem extends HomeItem {}
 
-class UpcomingFixturesItem extends HomeItem {}
+class UpcomingFixturesItem extends HomeItem {
+  List<Fixture> fixtures;
+
+  UpcomingFixturesItem(this.fixtures);
+}

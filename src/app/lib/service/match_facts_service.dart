@@ -12,7 +12,7 @@ class MatchFactsService {
       delayBetweenReconnectionAttempts: Duration(seconds: 1),
       initPayload: () => {
         "Authorization":
-            "",
+            "eyJhbGciOiJIUzUxMiJ9.eyJhdWQiOiI1ZDNiMWE1YmQzZDUyMzc5NTZkMDdhNzciLCJyb2xlIjoiVVNFUiJ9.9qQetFdpfDo3SgIll9tNVV_xGtQO_XlsrVRRtQCa7HfYU5xBv3ZPbQXKUYntLfH_2luTo1Weog0ywb-bAbqpuQ",
         "params": {"tenant": "Test"}
       },
     ),

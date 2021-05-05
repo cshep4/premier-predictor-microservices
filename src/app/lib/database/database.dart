@@ -3,10 +3,12 @@ import 'dart:io';
 
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:premier_predictor/dao/fixture_dao.dart';
 import 'package:premier_predictor/dao/match_facts_dao.dart';
 import 'package:sqflite/sqflite.dart';
 
 final matchFactsTABLE = 'MatchFacts';
+final fixtureTABLE = 'Fixture';
 final todoTABLE = 'Todo';
 
 class DatabaseProvider {
@@ -48,5 +50,7 @@ class DatabaseProvider {
         ")");
 
     await database.execute(createMatchFactsTableQuery);
+
+    await database.execute(createFixtureTableQuery);
   }
 }
